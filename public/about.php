@@ -54,8 +54,8 @@ include '../includes/navbar.php';
 
                 <!-- Misi -->
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4 text-center">
-                        <div class="d-flex justify-content-center mb-3">
+                    <div class="card-body p-4 text-baseline" style="text-align: justify;">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
                             <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
                             <h3 class="fw-bold mb-0">Misi</h3>
                         </div>
