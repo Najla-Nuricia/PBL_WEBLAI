@@ -11,6 +11,16 @@
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+<!-- Custom js -->
+<script src="../assets/js/main.js"></script>
+
 <script>
     // Sidebar Toggle for Mobile
     document.getElementById('sidebarToggle')?.addEventListener('click', function() {
@@ -22,7 +32,7 @@
         if ($('.datatable').length) {
             $('.datatable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+                    url: '../assets/js/id.json'
                 },
                 pageLength: 10,
                 order: [
@@ -32,15 +42,10 @@
         }
     });
 
-    // Auto dismiss alerts
-    setTimeout(function() {
-        $('.alert').fadeOut('slow');
-    }, 5000);
-
     // Confirm delete
-    function confirmDelete(message = 'Apakah Anda yakin ingin menghapus data ini?') {
-        return confirm(message);
-    }
+    // function confirmDelete(message = 'Apakah Anda yakin ingin menghapus data ini?') {
+    //     return confirm(message);
+    // }
 
     // Preview image before upload
     function previewImage(input, previewId) {

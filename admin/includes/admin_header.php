@@ -27,6 +27,17 @@ check_session_timeout();
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Optional: Tema Bootstrap 5 untuk Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <!-- Animated css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+
+
     <style>
         :root {
             --primary-color: #1E4BA3;
@@ -185,6 +196,34 @@ check_session_timeout();
             /* Biar seluruh area bisa diklik */
             color: inherit;
             /* Warna teks ikut warna aslinya */
+        }
+
+        /* Animasi muncul form (fade + scale) */
+        .card-body form {
+            animation: fadeInScale 0.4s ease-in-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Hover lembut pada dropdown */
+        .select2-container--bootstrap-5 .select2-selection--single {
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
         }
     </style>
 </head>
