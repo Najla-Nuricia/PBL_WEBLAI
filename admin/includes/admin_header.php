@@ -27,6 +27,9 @@ check_session_timeout();
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
     <style>
         :root {
             --primary-color: #1E4BA3;
@@ -193,10 +196,17 @@ check_session_timeout();
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <h4><i class="bi bi-cpu-fill me-2"></i>AI Lab Admin</h4>
-            <small class="text-white">Dashboard Panel</small>
-        </div>
+        <!-- Pergantian Logo dan penambahan klik link logo -->
+        <a href="../admin/dashboard.php" class="text-decoration-none text-white">
+            <div class="sidebar-brand d-flex align-items-center">
+                <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 50px; height: 50px; object-fit: contain;">
+                <div>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0;">AI Lab Admin</h4>
+                    <!-- Penambahan warna teks -->
+                    <small style="color: #FF9F1C;">Dashboard Panel</small>
+                </div>
+            </div>
+        </a>
 
         <ul class="sidebar-menu">
             <li>
@@ -269,7 +279,7 @@ check_session_timeout();
 
             <li>
                 <a href="manage_partnerships.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_partnerships.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-handshake"></i>
+                    <i class="fa-regular fa-handshake"></i>
                     <span>Partnership</span>
                 </a>
             </li>

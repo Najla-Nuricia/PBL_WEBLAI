@@ -70,7 +70,7 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_publications.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Publikasi</p>
@@ -87,7 +87,7 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_members.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Anggota</p>
@@ -103,7 +103,7 @@ $recent_activities = $stmt->fetchAll();
 
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_products.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Produk</p>
@@ -117,7 +117,7 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_gallery.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Galeri</p>
