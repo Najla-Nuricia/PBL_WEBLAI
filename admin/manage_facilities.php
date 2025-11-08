@@ -108,139 +108,160 @@ if (isset($_GET['edit'])) {
     </div>
 <?php endif; ?>
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-<?php echo $edit_data ? 'pencil' : 'plus'; ?>-circle me-2"></i>
-                    <?php echo $edit_data ? 'Edit' : 'Tambah'; ?> Fasilitas
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="" enctype="multipart/form-data">
-                    <?php if ($edit_data): ?>
-                        <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
-                    <?php endif; ?>
-
-                    <div class="mb-3">
-                        <label class="form-label">Nama Fasilitas <span class="text-danger">*</span></label>
-                        <input type="text"
-                            name="nama"
-                            class="form-control"
-                            value="<?php echo $edit_data ? htmlspecialchars($edit_data['nama']) : ''; ?>"
-                            placeholder="Contoh: Komputer High-End"
-                            required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Deskripsi <span class="text-danger">*</span></label>
-                        <textarea name="deskripsi"
-                            class="form-control"
-                            rows="5"
-                            placeholder="Spesifikasi atau detail fasilitas..."
-                            required><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi']) : ''; ?></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Jumlah Unit</label>
-                        <input type="number"
-                            name="kuantitas"
-                            class="form-control"
-                            min="0"
-                            value="<?php echo $edit_data ? $edit_data['kuantitas'] : '1'; ?>">
-                        <small class="text-muted">Kosongkan jika tidak ada jumlah tertentu</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Foto Fasilitas</label>
-                        <input type="file"
-                            name="gambar"
-                            class="form-control"
-                            accept="image/*"
-                            onchange="previewImage(this, 'preview')">
-                        <small class="text-muted">Max 2MB, format: JPG, PNG, GIF</small>
-
-                        <?php if ($edit_data && $edit_data['path_gambar']): ?>
-                            <div class="mt-2">
-                                <img src="../assets/img/<?php echo htmlspecialchars($edit_data['path_gambar']); ?>"
-                                    id="preview"
-                                    class="img-thumbnail"
-                                    style="max-width: 200px;">
-                            </div>
-                        <?php else: ?>
-                            <img id="preview" class="img-thumbnail mt-2" style="max-width: 200px; display: none;">
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save me-2"></i>Simpan
-                        </button>
-                        <?php if ($edit_data): ?>
-                            <a href="manage_facilities.php" class="btn btn-secondary">
-                                <i class="bi bi-x-circle me-2"></i>Batal
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </form>
-            </div>
-        </div>
+<!-- Form Tambah/Edit -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0 fw-bold">
+            <i class="bi bi-<?php echo $edit_data ? 'pencil' : 'plus'; ?>-circle me-2"></i>
+            <?php echo $edit_data ? 'Edit' : 'Tambah'; ?> Fasilitas
+        </h5>
     </div>
+    <div class="card-body">
+        <form method="POST" action="" enctype="multipart/form-data">
+            <?php if ($edit_data): ?>
+                <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
+            <?php endif; ?>
 
-    <div class="col-md-8 mb-4">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-list-ul me-2"></i>Daftar Fasilitas
-                </h5>
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Nama Fasilitas <span class="text-danger">*</span></label>
+                    <input type="text"
+                        name="nama"
+                        class="form-control"
+                        value="<?php echo $edit_data ? htmlspecialchars($edit_data['nama']) : ''; ?>"
+                        placeholder="Contoh: Komputer High-End, Server Komputasi"
+                        required>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Jumlah Unit</label>
+                    <input type="number"
+                        name="kuantitas"
+                        class="form-control"
+                        min="0"
+                        value="<?php echo $edit_data ? $edit_data['kuantitas'] : '1'; ?>"
+                        placeholder="0">
+                    <small class="text-muted">Opsional</small>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="form-label">Deskripsi/Spesifikasi <span class="text-danger">*</span></label>
+                    <textarea name="deskripsi"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Spesifikasi detail fasilitas (RAM, Processor, dll)"
+                        required><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi']) : ''; ?></textarea>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="form-label">Foto Fasilitas</label>
+                    <input type="file"
+                        name="gambar"
+                        class="form-control"
+                        accept="image/*"
+                        onchange="previewImage(this, 'preview')">
+                    <small class="text-muted">Max 2MB, format: JPG, PNG, GIF. Rekomendasi: 800x600px</small>
+
+                    <?php if ($edit_data && $edit_data['path_gambar']): ?>
+                        <div class="mt-2">
+                            <img src="../assets/img/<?php echo htmlspecialchars($edit_data['path_gambar']); ?>"
+                                id="preview"
+                                class="img-thumbnail"
+                                style="max-width: 300px;">
+                        </div>
+                    <?php else: ?>
+                        <img id="preview" class="img-thumbnail mt-2" style="max-width: 300px; display: none;">
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="card-body">
-                <?php if (!empty($facilities)): ?>
-                    <div class="row g-3">
-                        <?php foreach ($facilities as $facility): ?>
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <?php if ($facility['path_gambar']): ?>
-                                        <img src="../assets/img/<?php echo htmlspecialchars($facility['path_gambar']); ?>"
-                                            class="card-img-top"
-                                            alt="<?php echo htmlspecialchars($facility['nama']); ?>"
-                                            style="height: 150px; object-fit: cover;">
-                                    <?php endif; ?>
-                                    <div class="card-body">
-                                        <h6 class="card-title fw-bold"><?php echo htmlspecialchars($facility['nama']); ?></h6>
-                                        <?php if ($facility['kuantitas']): ?>
-                                            <p class="text-muted small mb-2">
-                                                <i class="bi bi-box"></i> Jumlah: <?php echo $facility['kuantitas']; ?> unit
-                                            </p>
-                                        <?php endif; ?>
-                                        <p class="card-text text-muted small">
-                                            <?php echo htmlspecialchars($facility['deskripsi']); ?>
-                                        </p>
-                                        <div class="d-flex gap-2">
-                                            <a href="?edit=<?php echo $facility['uuid']; ?>"
-                                                class="btn btn-sm btn-warning">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
-                                            <a href="?delete=<?php echo $facility['uuid']; ?>"
-                                                class="btn btn-sm btn-danger"
-                                                onclick="return confirmDelete();">
-                                                <i class="bi bi-trash"></i> Hapus
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Belum ada fasilitas. Tambahkan fasilitas pertama Anda!
-                    </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-2"></i>Simpan
+                </button>
+                <?php if ($edit_data): ?>
+                    <a href="manage_facilities.php" class="btn btn-secondary">
+                        <i class="bi bi-x-circle me-2"></i>Batal
+                    </a>
                 <?php endif; ?>
             </div>
-        </div>
+        </form>
+    </div>
+</div>
+
+<!-- Daftar Fasilitas -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0 fw-bold">
+            <i class="bi bi-list-ul me-2"></i>Daftar Fasilitas
+        </h5>
+    </div>
+    <div class="card-body">
+        <?php if (!empty($facilities)): ?>
+            
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover datatable">
+                    <thead>
+                        <tr>
+                            <th width="50">No</th>
+                            <th width="100">Foto</th>
+                            <th>Nama Fasilitas</th>
+                            <th>Deskripsi/Spesifikasi</th>
+                            <th width="100">Jumlah</th>
+                            <th width="120">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($facilities as $index => $facility): ?>
+                            <tr>
+                                <td><?php echo $index + 1; ?></td>
+                                <td>
+                                    <?php if ($facility['path_gambar']): ?>
+                                        <img src="../assets/img/<?php echo htmlspecialchars($facility['path_gambar']); ?>"
+                                            alt="<?php echo htmlspecialchars($facility['nama']); ?>"
+                                            style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                    <?php else: ?>
+                                        <div class="bg-light d-flex align-items-center justify-content-center"
+                                            style="width: 80px; height: 60px; border-radius: 5px;">
+                                            <i class="bi bi-tools text-muted"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                                <td><strong><?php echo htmlspecialchars($facility['nama']); ?></strong></td>
+                                <td>
+                                    <small class="text-muted">
+                                        <?php echo htmlspecialchars($facility['deskripsi']); ?>
+                                    </small>
+                                </td>
+                                <td>
+                                    <?php if ($facility['kuantitas']): ?>
+                                        <span class="badge bg-info">
+                                            <?php echo $facility['kuantitas']; ?> unit
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <a href="?edit=<?php echo $facility['uuid']; ?>"
+                                        class="btn btn-sm btn-warning"
+                                        title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="?delete=<?php echo $facility['uuid']; ?>"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirmDelete();"
+                                        title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

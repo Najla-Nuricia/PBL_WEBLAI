@@ -80,9 +80,6 @@ $recent_activities = $stmt->fetchAll();
                     <i class="bi bi-journal-text text-info fs-2"></i>
                 </div>
             </div>
-            <!-- <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-black stretched-link" href="manage_publications.php">Lihat Detail</a>
-            </div> -->
         </div>
     </div>
 
