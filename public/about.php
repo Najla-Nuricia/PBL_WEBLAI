@@ -33,50 +33,65 @@ include '../includes/navbar.php';
     </div>
 </section>
 
-<!-- Visi Misi Section -->
+<!-- Visi & Misi Section -->
 <?php if ($profile): ?>
-    <section class="py-5">
-        <div class="container">
-            <div class="row g-4">
-                <!-- Visi -->
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Visi</h3>
-                            </div>
-                            <p class="text-muted">
-                                <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
-                            </p>
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Kartu Visi -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
+                            <h3 class="fw-bold mb-0">Visi</h3>
                         </div>
+                        <p class="text-muted mb-0 text-center">
+                            <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
+                        </p>
                     </div>
                 </div>
 
                 <!-- Misi -->
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Misi</h3>
-                            </div>
-                            <p class="text-muted">
-                                <?php echo nl2br(htmlspecialchars($profile['misi'])); ?>
-                            </p>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-flex justify-content-center mb-3">
+                            <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
+                            <h3 class="fw-bold mb-0">Misi</h3>
                         </div>
+
+                        <?php
+                        // Mengubah setiap baris menjadi poin list
+                        $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
+                        if (!empty($misi_items)) {
+                            echo '<ul class="list-unstyled mb-0 text-muted">';
+                            foreach ($misi_items as $item) {
+                                if (trim($item) !== '') {
+                                    echo '
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                        <span>' . htmlspecialchars($item) . '</span>
+                                    </li>';
+                                }
+                            }
+                            echo '</ul>';
+                        } else {
+                            echo '<p class="text-muted">Belum ada misi yang terdaftar.</p>';
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Sejarah Section -->
     <?php if ($profile['sejarah']): ?>
         <section class="py-5 bg-light">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-8 mx-auto">
+                    <div class="col-lg-10 mx-auto">
                         <h2 class="section-title text-center mb-4">Sejarah Laboratorium</h2>
                         <div class="card border-0 shadow-sm">
                             <div class="card-body p-4">
