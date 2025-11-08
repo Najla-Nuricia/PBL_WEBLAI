@@ -163,42 +163,85 @@ include '../includes/navbar.php';
             </div>
         <?php endif; ?>
 
-        <!-- Anggota -->
         <?php if (!empty($anggota)): ?>
-            <div>
-                <h4 class="text-center mb-4 fw-bold">Anggota Tim</h4>
-                <div class="row g-4">
-                    <?php foreach ($anggota as $a): ?>
-                        <div class="col-md-4 col-lg-3">
-                            <div class="card border-0 shadow-sm text-center h-100">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <?php if ($a['path_gambar']): ?>
-                                            <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
-                                                alt="<?php echo htmlspecialchars($a['nama']); ?>"
-                                                class="rounded-circle"
-                                                style="width: 100px; height: 100px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                                style="width: 100px; height: 100px;">
-                                                <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
-                                    <?php if ($a['nidn']): ?>
-                                        <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+            
+    <!-- Bagian Anggota Dosen -->
+    <?php 
+    $dosen = array_filter($anggota, fn($a) => strtolower($a['status']) === 'dosen');
+    $mahasiswa = array_filter($anggota, fn($a) => strtolower($a['status']) === 'mahasiswa');
+    ?>
+
+    <?php if (!empty($dosen)): ?>
+        <div class="mb-5">
+            <h4 class="text-center mb-4 fw-bold">Anggota Dosen</h4>
+            <div class="row g-4">
+                <?php foreach ($dosen as $a): ?>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card border-0 shadow-sm text-center h-100">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <?php if (!empty($a['path_gambar'])): ?>
+                                        <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                            alt="<?php echo htmlspecialchars($a['nama']); ?>"
+                                            class="rounded-circle"
+                                            style="width: 100px; height: 100px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                                            style="width: 100px; height: 100px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
+                                        </div>
                                     <?php endif; ?>
-                                    <span class="badge bg-secondary">
-                                        <?php echo ucfirst($a['status']); ?>
-                                    </span>
                                 </div>
+                                <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                                <?php if (!empty($a['nidn'])): ?>
+                                    <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                                <?php endif; ?>
+                                <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Bagian Anggota Mahasiswa -->
+    <?php if (!empty($mahasiswa)): ?>
+        <div>
+            <h4 class="text-center mb-4 fw-bold">Anggota Mahasiswa</h4>
+            <div class="row g-4">
+                <?php foreach ($mahasiswa as $a): ?>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card border-0 shadow-sm text-center h-100">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <?php if (!empty($a['path_gambar'])): ?>
+                                        <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                            alt="<?php echo htmlspecialchars($a['nama']); ?>"
+                                            class="rounded-circle"
+                                            style="width: 100px; height: 100px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                                            style="width: 100px; height: 100px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                                <?php if (!empty($a['nidn'])): ?>
+                                    <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                                <?php endif; ?>
+                                <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
+
+        
 
         <?php if (empty($ketua) && empty($anggota)): ?>
             <div class="alert alert-info text-center">
