@@ -153,21 +153,6 @@ include '../includes/navbar.php';
                             </div>
                         </div>
 
-                        <div class="d-flex mb-4">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary bg-opacity-10 p-3 rounded">
-                                    <i class="bi bi-telephone-fill text-primary fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Phone</h6>
-                                <p class="text-muted mb-0">
-                                    +62 341 404424<br>
-                                    +62 341 404420
-                                </p>
-                            </div>
-                        </div>
-
                         <div class="d-flex">
                             <div class="flex-shrink-0">
                                 <div class="bg-primary bg-opacity-10 p-3 rounded">
