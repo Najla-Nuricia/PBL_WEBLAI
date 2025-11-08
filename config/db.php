@@ -20,7 +20,10 @@ try {
 // Helper function untuk sanitasi input
 function clean_input($data)
 {
-    $data = trim($data);
+    if ($data === null) {
+        return '';
+    }
+    $data = trim((string)$data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
     return $data;
