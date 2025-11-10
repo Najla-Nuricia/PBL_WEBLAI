@@ -89,7 +89,7 @@ include '../includes/navbar.php';
                                 <img src="../assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
                                     class="card-img-top"
                                     alt="<?php echo htmlspecialchars($product['nama']); ?>"
-                                    style="height: 200px; object-fit: cover;">
+                                    style="height: 200px; object-fit: contain;">
                             <?php else: ?>
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
                                     style="height: 200px;">

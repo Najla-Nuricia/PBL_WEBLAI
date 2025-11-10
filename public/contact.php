@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../helpers/sanitize.php';
 $page_title = 'Contact Us';
 
 $success = '';
