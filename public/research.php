@@ -86,7 +86,7 @@ include '../includes/navbar.php';
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm">
                             <?php if ($product['path_gambar']): ?>
-                                <img src="assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
+                                <img src="../assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
                                     class="card-img-top"
                                     alt="<?php echo htmlspecialchars($product['nama']); ?>"
                                     style="height: 200px; object-fit: cover;">
