@@ -128,6 +128,15 @@ check_session_timeout();
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background-color: #fff;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .topbar.scrolled {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }
 
         .content-wrapper {
@@ -233,7 +242,8 @@ check_session_timeout();
             border-spacing: 0 0.5rem;
         }
 
-        .table td, .table th {
+        .table td,
+        .table th {
             vertical-align: middle;
         }
 
@@ -241,11 +251,12 @@ check_session_timeout();
             background-color: #f8f9fa;
             font-weight: 600;
         }
+
         .table input[type="checkbox"] {
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #1E4BA3; /
+            accent-color: #1E4BA3;/
         }
 
         .table input[type="checkbox"]:checked {
@@ -443,3 +454,13 @@ check_session_timeout();
 
         <!-- Content Wrapper -->
         <div class="content-wrapper">
+            <script>
+                document.addEventListener('scroll', function() {
+                    const topbar = document.querySelector('.topbar');
+                    if (window.scrollY > 10) {
+                        topbar.classList.add('scrolled');
+                    } else {
+                        topbar.classList.remove('scrolled');
+                    }
+                });
+            </script>
