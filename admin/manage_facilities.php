@@ -28,9 +28,9 @@ if (isset($_GET['delete'])) {
 
 // Handle Insert/Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama = clean_input($_POST['nama']);
-    $deskripsi = clean_input($_POST['deskripsi']);
-    $kuantitas = clean_input($_POST['kuantitas']);
+    $nama = clean_input($_POST['nama'] ?? '');
+    $deskripsi = clean_input($_POST['deskripsi'] ?? '');
+    $kuantitas = clean_input($_POST['kuantitas'] ?? '');
 
     try {
         $path_gambar = null;
@@ -80,6 +80,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM fasilitas WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($uuids);
+
+        $success = count($uuids) . ' kegiatan berhasil dihapus!';
+    } catch (PDOException $e) {
+        $error = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
+    }
+}
+
 // Get all facilities
 $stmt = $pdo->query("SELECT * FROM fasilitas ORDER BY nama");
 $facilities = $stmt->fetchAll();
@@ -94,22 +112,8 @@ if (isset($_GET['edit'])) {
 }
 ?>
 
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <!-- Form Tambah/Edit -->
-<div class="card mb-4">
+<div class="card mb-4 shadow-sm border-0 animate__animated animate__fadeInUp">
     <div class="card-header bg-white">
         <h5 class="mb-0 fw-bold">
             <i class="bi bi-<?php echo $edit_data ? 'pencil' : 'plus'; ?>-circle me-2"></i>
@@ -190,79 +194,107 @@ if (isset($_GET['edit'])) {
 </div>
 
 <!-- Daftar Fasilitas -->
-<div class="card">
+<div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
     <div class="card-header bg-white">
         <h5 class="mb-0 fw-bold">
             <i class="bi bi-list-ul me-2"></i>Daftar Fasilitas
         </h5>
     </div>
     <div class="card-body">
-        <?php if (!empty($facilities)): ?>
-            
+        <?php if (empty($facilities)): ?>
+            <div class="card shadow-sm border-0 text-center animate__animated animate__fadeInUp">
+                <div class="card-body py-5">
+                    <i class="bi bi-emoji-frown text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 text-muted">Belum ada fasilitas</h5>
+                    <p class="text-secondary small">Yuk tambahkan fasilitas baru untuk ditampilkan di sini!</p>
+                </div>
+            </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-hover datatable">
-                    <thead>
-                        <tr>
-                            <th width="50">No</th>
-                            <th width="100">Foto</th>
-                            <th>Nama Fasilitas</th>
-                            <th>Deskripsi/Spesifikasi</th>
-                            <th width="100">Jumlah</th>
-                            <th width="120">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($facilities as $index => $facility): ?>
+                <form method="POST" id="bulkDeleteForm" action="">
+                    <table class="table table-hover datatable">
+                        <thead>
                             <tr>
-                                <td><?php echo $index + 1; ?></td>
-                                <td>
-                                    <?php if ($facility['path_gambar']): ?>
-                                        <img src="../assets/img/<?php echo htmlspecialchars($facility['path_gambar']); ?>"
-                                            alt="<?php echo htmlspecialchars($facility['nama']); ?>"
-                                            style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
-                                    <?php else: ?>
-                                        <div class="bg-light d-flex align-items-center justify-content-center"
-                                            style="width: 80px; height: 60px; border-radius: 5px;">
-                                            <i class="bi bi-tools text-muted"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-                                <td><strong><?php echo htmlspecialchars($facility['nama']); ?></strong></td>
-                                <td>
-                                    <small class="text-muted">
-                                        <?php echo htmlspecialchars($facility['deskripsi']); ?>
-                                    </small>
-                                </td>
-                                <td>
-                                    <?php if ($facility['kuantitas']): ?>
-                                        <span class="badge bg-info">
-                                            <?php echo $facility['kuantitas']; ?> unit
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a href="?edit=<?php echo $facility['uuid']; ?>"
-                                        class="btn btn-sm btn-warning"
-                                        title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="?delete=<?php echo $facility['uuid']; ?>"
-                                        class="btn btn-sm btn-danger"
-                                        onclick="return confirmDelete();"
-                                        title="Hapus">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
+                                <th width="30">
+                                    <input type="checkbox" id="selectAll">
+                                </th>
+                                <th width="50">No</th>
+                                <th width="100">Foto</th>
+                                <th>Nama Fasilitas</th>
+                                <th>Deskripsi/Spesifikasi</th>
+                                <th width="100">Jumlah</th>
+                                <th width="120">Aksi</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($facilities as $index => $facility): ?>
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selected[]" value="<?= $facility['uuid']; ?>" class="rowCheckbox">
+                                    </td>
+                                    <td><?php echo $index + 1; ?></td>
+                                    <td>
+                                        <?php if ($facility['path_gambar']): ?>
+                                            <img src="../assets/img/<?php echo htmlspecialchars($facility['path_gambar']); ?>"
+                                                alt="<?php echo htmlspecialchars($facility['nama']); ?>"
+                                                style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                        <?php else: ?>
+                                            <div class="bg-light d-flex align-items-center justify-content-center"
+                                                style="width: 80px; height: 60px; border-radius: 5px;">
+                                                <i class="bi bi-tools text-muted"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><strong><?php echo htmlspecialchars($facility['nama']); ?></strong></td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <?php echo htmlspecialchars($facility['deskripsi']); ?>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <?php if ($facility['kuantitas']): ?>
+                                            <span class="badge bg-info">
+                                                <?php echo $facility['kuantitas']; ?> unit
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="?edit=<?php echo $facility['uuid']; ?>"
+                                            class="btn btn-sm btn-warning"
+                                            title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="?delete=<?php echo $facility['uuid']; ?>"
+                                            class="btn btn-sm btn-danger"
+                                            onclick="return confirmDelete();"
+                                            title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <div id="bulkAction" class="mt-3 d-none">
+                        <button type="button" id="bulkDeleteBtn" class="btn btn-danger">
+                            <i class="bi bi-trash3 me-2"></i>Hapus Terpilih
+                        </button>
+                    </div>
+                </form>
             </div>
         <?php endif; ?>
     </div>
 </div>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>

@@ -36,8 +36,13 @@
                 },
                 pageLength: 10,
                 order: [
-                    [0, 'desc']
-                ]
+                    [1, 'asc']
+                ],
+                // Disable sorting on the first column
+                columnDefs: [{
+                    targets: [0],
+                    orderable: false
+                }]
             });
         }
     });
