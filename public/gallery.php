@@ -17,7 +17,7 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Page Header -->
-<section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
+<section class="page-header py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
     <div class="container">
         <div class="row">
             <div class="col text-center">

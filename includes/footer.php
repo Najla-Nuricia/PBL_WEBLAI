@@ -62,7 +62,7 @@ $social_media = $stmt->fetchAll();
                     <i class="bi bi-envelope-fill me-2"></i>
                     ailab@polinema.ac.id
                 </p>
-                <div class="mt-3">
+                <div class="d-flex flex-wrap mt-3">
                     <?php if (!empty($social_media)): ?>
                         <?php foreach ($social_media as $sosmed): ?>
                             <a href="<?php echo htmlspecialchars($sosmed['url']); ?>"
