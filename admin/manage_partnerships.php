@@ -27,7 +27,8 @@ if (isset($_GET['delete'])) {
 }
 
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Penambahan pengecekan action
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
     $website = clean_input($_POST['website'] ?? '');
 
@@ -81,7 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+// Penambahan pengecekan action
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -94,6 +96,7 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         $stmt->execute($uuids);
 
         $success = count($uuids) . ' Partner berhasil dihapus!';
+        
     } catch (PDOException $e) {
         $error = 'Gagal menghapus beberapa partner: ' . $e->getMessage();
     }
@@ -124,6 +127,8 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
+        <!-- Penambahan action form -->
+        <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -188,9 +193,9 @@ if (isset($_GET['edit'])) {
 </div>
 
 <!-- Daftar Partnership -->
-<div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
-    <div class="card-header bg-white">
-        <h5 class="mb-0 fw-bold">
+<div class="card shadow-sm border-0 animate__animated animate__fadeInUp container-fluid px-4">
+    <div class="card-header bg-white d-flex">
+        <h5 class="mb-0 mt-1 fw-bold">
             <i class="bi bi-list-ul me-2"></i>Daftar Partnership
         </h5>
     </div>
@@ -204,19 +209,21 @@ if (isset($_GET['edit'])) {
                 </div>
             <?php else: ?>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive mb-3">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <!-- Penambahan action form -->
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>
-                                <th width="30">
+                                <th width="10">
                                     <input type="checkbox" id="selectAll">
                                 </th>
-                                <th width="50">No</th>
-                                <th width="120">Logo</th>
-                                <th>Nama Partner</th>
-                                <th>Website</th>
-                                <th width="120">Aksi</th>
+                                <th width="10">No</th>
+                                <th width="25">Logo</th>
+                                <th width="200">Nama Partner</th>
+                                <th width="100">Website</th>
+                                <th width="100">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -230,9 +237,9 @@ if (isset($_GET['edit'])) {
                                         <?php if ($partner['logo']): ?>
                                             <img src="../assets/img/<?php echo htmlspecialchars($partner['logo']); ?>"
                                                 alt="<?php echo htmlspecialchars($partner['nama']); ?>"
-                                                style="max-height: 50px; max-width: 100px; object-fit: contain;">
+                                                style="max-height: 50px; max-width: 100px; object-fit: contain; border-radius: 5px;">
                                         <?php else: ?>
-                                            <div class="bg-light p-2 rounded text-center" style="width: 100px; height: 50px;">
+                                            <div class="bg-light p-2 rounded text-center" style="width: 100px; height: 50px; border-radius: 5px;">
                                                 <i class="bi bi-building text-muted" style="font-size: 1.5rem;"></i>
                                             </div>
                                         <?php endif; ?>
