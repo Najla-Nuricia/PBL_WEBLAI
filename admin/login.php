@@ -1,6 +1,8 @@
 <?php
 
 require_once '../config/db.php';
+require_once '../helpers/sanitize.php';
+require_once '../helpers/upload.php';
 require_once 'includes/auth.php';
 
 // header anti-cache

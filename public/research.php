@@ -11,6 +11,14 @@ $stmt = $pdo->query("
 ");
 $products = $stmt->fetchAll();
 
+// Get research topics
+$stmt_topics = $pdo->query("SELECT * FROM topik_riset ORDER BY created_at DESC");
+$research_topics = $stmt_topics->fetchAll();
+
+// Get blueprints
+$stmt_blueprint = $pdo->query("SELECT * FROM blueprint ORDER BY created_at DESC");
+$blueprints = $stmt_blueprint->fetchAll();
+
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
@@ -20,17 +28,55 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row">
             <div class="col text-center">
-                <h1 class="display-4 fw-bold mb-3">Research & Products</h1>
-                <p class="lead">Produk dan hasil penelitian AI Lab Polinema</p>
+                <h1 class="display-4 fw-bold mb-3">Research & Development</h1>
+                <p class="lead">Produk, topik riset, dan roadmap pengembangan AI Lab Polinema</p>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Research Topics Section -->
+<?php if (!empty($research_topics)): ?>
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col text-center">
+                    <h2 class="section-title">Research Focus Areas</h2>
+                    <p class="section-subtitle">Bidang penelitian utama AI Lab Polinema</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <?php foreach ($research_topics as $topic): ?>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-lightbulb-fill text-warning" style="font-size: 2.5rem;"></i>
+                                </div>
+                                <p class="mb-0 text-muted">
+                                    <?php echo nl2br(htmlspecialchars($topic['topik'])); ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
+
 <!-- Products Section -->
-<section class="py-5">
-    <div class="container">
-        <?php if (!empty($products)): ?>
+<?php if (!empty($products)): ?>
+    <section class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col text-center">
+                    <h2 class="section-title">Research Products</h2>
+                    <p class="section-subtitle">Produk hasil penelitian dan pengembangan</p>
+                </div>
+            </div>
+
             <div class="row g-4">
                 <?php foreach ($products as $product): ?>
                     <div class="col-md-6 col-lg-4">
@@ -79,22 +125,61 @@ include '../includes/navbar.php';
                     </div>
                 <?php endforeach; ?>
             </div>
-        <?php else: ?>
-            <div class="alert alert-info text-center">
-                <i class="bi bi-info-circle me-2"></i>
-                Belum ada produk yang tersedia
-            </div>
-        <?php endif; ?>
-    </div>
-</section>
+        </div>
+    </section>
+<?php endif; ?>
 
-<!-- Research Areas Section -->
-<section class="py-5 bg-light">
+<!-- Blueprint/Roadmap Section -->
+<?php if (!empty($blueprints)): ?>
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col text-center">
+                    <h2 class="section-title">Development Roadmap</h2>
+                    <p class="section-subtitle">Blueprint pengembangan laboratorium</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <?php foreach ($blueprints as $blueprint): ?>
+                    <div class="col-lg-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0 me-4">
+                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                                            <i class="bi bi-diagram-3 text-primary" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h4 class="fw-bold mb-3">
+                                            <?php echo htmlspecialchars($blueprint['judul']); ?>
+                                        </h4>
+                                        <p class="text-muted mb-0" style="text-align: justify; white-space: pre-line;">
+                                            <?php echo htmlspecialchars($blueprint['deskripsi']); ?>
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            <?php echo date('d F Y', strtotime($blueprint['created_at'])); ?>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
+
+<!-- General Research Areas (Static Content) -->
+<section class="py-5">
     <div class="container">
-        <div class="row mb-5">
+        <div class="row mb-4">
             <div class="col text-center">
-                <h2 class="section-title">Research Areas</h2>
-                <p class="section-subtitle">Bidang penelitian utama AI Lab Polinema</p>
+                <h2 class="section-title">Research Domains</h2>
+                <p class="section-subtitle">Domain penelitian yang kami kembangkan</p>
             </div>
         </div>
 
