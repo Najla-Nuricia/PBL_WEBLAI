@@ -11,7 +11,7 @@ $stmt_kegiatan = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT
 $latest_activities = $stmt_kegiatan->fetchAll();
 
 // Fetch partnerships
-$stmt_partnership = $pdo->query("SELECT * FROM partnership LIMIT 6");
+$stmt_partnership = $pdo->query("SELECT * FROM partnership");
 $partnerships = $stmt_partnership->fetchAll();
 
 // Fetch profile
@@ -230,7 +230,7 @@ include '../includes/navbar.php';
                 </div>
             </div>
 
-            <div class="row g-4 align-items-center">
+            <div class="row g-4  justify-content-center align-items-center text-center">
                 <?php foreach ($partnerships as $partner): ?>
                     <div class="col-6 col-md-4 col-lg-2 text-center">
                         <a href="<?php echo htmlspecialchars($partner['website']); ?>"
