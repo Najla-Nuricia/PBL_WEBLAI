@@ -33,21 +33,35 @@ include '../includes/navbar.php';
 <!-- Hero Section -->
 <section class="hero-section position-relative py-5" style="<?php echo $bg_image ? "background: url('$bg_image') center/cover no-repeat;" : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);'; ?> color: white; min-height: 500px; overflow: hidden;">
     <!-- Gradient Overlay -->
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.85) 0%, rgba(74, 144, 226, 0.85) 100%); z-index: 1;"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
 
     <!-- Content -->
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center min-vh-75 py-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInLeft" id="type">
-                    Applied Informatics Laboratory
+                <h1 class="display-4 fw-bold mb-4" id="type">
                 </h1>
                 <script>
                     document.addEventListener("DOMContentLoaded", function() {
-                        new TypeIt("#type", {
-                            strings: [""],
-                        }).go();
-                    });
+                            new TypeIt("#type", {
+                            speed: 80,
+                            startDelay: 500,
+                            cursorChar: "|",
+                            lifeLike: true,
+                            })
+                            .type("Appliedddd ", { delay: 300 })
+                            .pause(150)
+                            .delete(4, { delay: 300 })
+                            .type(" ", { delay: 300 })
+                            .pause(700)
+                            .type("Informatics ", { delay: 250 })
+                            .pause(150)
+                            .type("Lab.", { delay: 300 })
+                            .pause(700)
+                            .delete(4, { delay: 300 })
+                            .type("Laboratory", { delay: 300 })
+                            .go();
+                        });
                 </script>
                 <p class="lead mb-4">
                     Laboratorium penelitian dan pengembangan teknologi informasi terapan
@@ -272,7 +286,7 @@ include '../includes/navbar.php';
 <!-- CTA Section -->
 <section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
     <div class="container text-center">
-        <h2 class="mb-3">Ready to Collaborate?</h2>
+        <h2 class="mb-3 text-white">Ready to Collaborate?</h2>
         <p class="lead mb-4">
             Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
         </p>
