@@ -18,7 +18,7 @@ if (isset($_GET['delete'])) {
 }
 
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $topik = clean_input($_POST['topik'] ?? '');
 
     try {
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $id = $_POST['selected'];
 
     try {
@@ -80,6 +80,7 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
             <?php endif; ?>
@@ -129,6 +130,7 @@ if (isset($_GET['edit'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>

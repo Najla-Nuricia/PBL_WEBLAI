@@ -11,20 +11,24 @@ $stmt = $pdo->query("
 ");
 $products = $stmt->fetchAll();
 
-// Get research topics
-$stmt_topics = $pdo->query("SELECT * FROM topik_riset ORDER BY created_at DESC");
-$research_topics = $stmt_topics->fetchAll();
+$stmt = $pdo->query("
+    SELECT judul, deskripsi
+    FROM blueprint 
+");
+$blueprint = $stmt->fetchAll();
 
-// Get blueprints
-$stmt_blueprint = $pdo->query("SELECT * FROM blueprint ORDER BY created_at DESC");
-$blueprints = $stmt_blueprint->fetchAll();
+$stmt = $pdo->query("
+    SELECT topik
+    FROM topik_riset 
+");
+$topik = $stmt->fetchAll();
 
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
 <!-- Page Header -->
-<section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
+<section class="page-header py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
     <div class="container">
         <div class="row">
             <div class="col text-center">
@@ -82,10 +86,10 @@ include '../includes/navbar.php';
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm">
                             <?php if ($product['path_gambar']): ?>
-                                <img src="assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
+                                <img src="../assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
                                     class="card-img-top"
                                     alt="<?php echo htmlspecialchars($product['nama']); ?>"
-                                    style="height: 200px; object-fit: cover;">
+                                    style="height: 200px; object-fit: contain;">
                             <?php else: ?>
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
                                     style="height: 200px;">
@@ -264,6 +268,72 @@ include '../includes/navbar.php';
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<!--/blueprint-->
+<section class="py-5">
+    <div class="container">
+        <div class="col text-center">
+            <h2 class="section-title"> Blueprint</h2>
+            <p class="section-subtitle">Blueprint penelitian AI Lab Polinema</p>
+        </div>
+        <?php if (!empty($blueprint)): ?>
+            <div class="row g-4">
+                <?php foreach ($blueprint as $bp): ?>
+                    <div class="col-md-6 col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex mb-3">
+                                    <h3 class="fw-bold">
+                                        <?php echo htmlspecialchars($bp['judul']); ?>
+                                    </h3>
+                                </div>
+                                <p class="text-muted">
+                                    <?php echo htmlspecialchars($bp['deskripsi']); ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i>
+                Belum ada blueprint yang tersedia
+            </div>
+        <?php endif; ?>
+    </div>
+</section>
+<!--//blueprint-->
+
+<!-- Research Topic Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <h2 class="section-title">Topik Riset</h2>
+                <p class="section-subtitle">Topik riset prioritas AI Lab Polinema (2025)</p>
+            </div>
+        </div>
+        <?php if (!empty($topik)): ?>
+            <div class="row g-4 align-items-center">
+                <?php foreach ($topik as $tp): ?>
+                    <div class="mt-3">
+                        <div class="card border-0 shadow-sm text-center h-100 p-4">
+                            <h5 class="fw mb-0">
+                                <?php echo htmlspecialchars($tp['topik']); ?>
+                            </h5>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i>
+                Belum ada topik riset yang tersedia
+            </div>
+        <?php endif; ?>
     </div>
 </section>
 

@@ -5,8 +5,8 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
 <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <i class="bi bi-cpu-fill me-2 fs-3"></i>
-            <span>AI Lab Polinema</span>
+            <img src="../assets/img/logo.png" alt="Logo AI Lab" class="navbar-logo">
+            <span class="navbar-logo-text">AI Lab Polinema</span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

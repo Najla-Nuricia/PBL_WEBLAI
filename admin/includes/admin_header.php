@@ -6,7 +6,6 @@ require_once 'auth.php';
 
 // Cek login dan session timeout
 require_login();
-check_session_timeout();
 ?>
 
 <!DOCTYPE html>
@@ -128,6 +127,15 @@ check_session_timeout();
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background-color: #fff;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .topbar.scrolled {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }
 
         .content-wrapper {
@@ -225,6 +233,48 @@ check_session_timeout();
         .select2-container--bootstrap-5 .select2-selection--single:hover {
             border-color: #0d6efd;
             box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Tabel responsive */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .table input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1E4BA3;/
+        }
+
+        .table input[type="checkbox"]:checked {
+            accent-color: #1E4BA3;
+            transform: scale(1.1);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .table input[type="checkbox"]:hover {
+            transform: scale(1.1);
+            transition: 0.2s;
+        }
+
+        .table-responsive {
+            overflow-x: hidden !important;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: transparent !important;
         }
     </style>
 </head>
@@ -403,3 +453,13 @@ check_session_timeout();
 
         <!-- Content Wrapper -->
         <div class="content-wrapper">
+            <script>
+                document.addEventListener('scroll', function() {
+                    const topbar = document.querySelector('.topbar');
+                    if (window.scrollY > 10) {
+                        topbar.classList.add('scrolled');
+                    } else {
+                        topbar.classList.remove('scrolled');
+                    }
+                });
+            </script>
