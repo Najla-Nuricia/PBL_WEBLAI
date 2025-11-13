@@ -15,8 +15,18 @@ $stmt_berita = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC LIMIT 3")
 $latest_news = $stmt_berita->fetchAll();
 
 // Fetch latest activities
-$stmt_kegiatan = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT 4");
+$limit = 4;
+$page_la = isset($_GET['latest_activities_page']) ? (int)$_GET['latest_activities_page'] : 1;
+$offset_la = ($page_la - 1) * $limit;
+$stmt_kegiatan = $pdo->prepare("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT :limit OFFSET :offset");
+$stmt_kegiatan->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt_kegiatan->bindValue(':offset', $offset_la, PDO::PARAM_INT);
+$stmt_kegiatan->execute();
 $latest_activities = $stmt_kegiatan->fetchAll();
+$count_stmt_la = $pdo->prepare("SELECT COUNT(*) FROM blueprint");
+$count_stmt_la->execute();
+$rows_activities = $count_stmt_la->fetchColumn();
+$pages_activities = ceil($rows_activities / $limit);
 
 // Fetch partnerships
 $stmt_partnership = $pdo->query("SELECT * FROM partnership");
@@ -233,6 +243,24 @@ include '../includes/navbar.php';
                         </div>
                     </div>
                 <?php endforeach; ?>
+            <!-- Pagination features -->
+            <?php if ($pages_activities > 1): ?>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
+                            <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
             <?php else: ?>
                 <div class="col-12">
                     <div class="alert alert-info text-center">
