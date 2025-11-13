@@ -33,50 +33,65 @@ include '../includes/navbar.php';
     </div>
 </section>
 
-<!-- Visi Misi Section -->
+<!-- Visi & Misi Section -->
 <?php if ($profile): ?>
-    <section class="py-5">
-        <div class="container">
-            <div class="row g-4">
-                <!-- Visi -->
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Visi</h3>
-                            </div>
-                            <p class="text-muted">
-                                <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
-                            </p>
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Kartu Visi -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
+                            <h3 class="fw-bold mb-0">Visi</h3>
                         </div>
+                        <p class="text-muted mb-0 text-center">
+                            <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
+                        </p>
                     </div>
                 </div>
 
                 <!-- Misi -->
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Misi</h3>
-                            </div>
-                            <p class="text-muted">
-                                <?php echo nl2br(htmlspecialchars($profile['misi'])); ?>
-                            </p>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 text-baseline" style="text-align: justify;">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
+                            <h3 class="fw-bold mb-0">Misi</h3>
                         </div>
+
+                        <?php
+                        // Mengubah setiap baris menjadi poin list
+                        $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
+                        if (!empty($misi_items)) {
+                            echo '<ul class="list-unstyled mb-0 text-muted">';
+                            foreach ($misi_items as $item) {
+                                if (trim($item) !== '') {
+                                    echo '
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                        <span>' . htmlspecialchars($item) . '</span>
+                                    </li>';
+                                }
+                            }
+                            echo '</ul>';
+                        } else {
+                            echo '<p class="text-muted">Belum ada misi yang terdaftar.</p>';
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Sejarah Section -->
     <?php if ($profile['sejarah']): ?>
         <section class="py-5 bg-light">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-8 mx-auto">
+                    <div class="col-lg-10 mx-auto">
                         <h2 class="section-title text-center mb-4">Sejarah Laboratorium</h2>
                         <div class="card border-0 shadow-sm">
                             <div class="card-body p-4">
@@ -148,42 +163,85 @@ include '../includes/navbar.php';
             </div>
         <?php endif; ?>
 
-        <!-- Anggota -->
         <?php if (!empty($anggota)): ?>
-            <div>
-                <h4 class="text-center mb-4 fw-bold">Anggota Tim</h4>
-                <div class="row g-4">
-                    <?php foreach ($anggota as $a): ?>
-                        <div class="col-md-4 col-lg-3">
-                            <div class="card border-0 shadow-sm text-center h-100">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <?php if ($a['path_gambar']): ?>
-                                            <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
-                                                alt="<?php echo htmlspecialchars($a['nama']); ?>"
-                                                class="rounded-circle"
-                                                style="width: 100px; height: 100px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                                style="width: 100px; height: 100px;">
-                                                <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
-                                    <?php if ($a['nidn']): ?>
-                                        <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+            
+    <!-- Bagian Anggota Dosen -->
+    <?php 
+    $dosen = array_filter($anggota, fn($a) => strtolower($a['status']) === 'dosen');
+    $mahasiswa = array_filter($anggota, fn($a) => strtolower($a['status']) === 'mahasiswa');
+    ?>
+
+    <?php if (!empty($dosen)): ?>
+        <div class="mb-5">
+            <h4 class="text-center mb-4 fw-bold">Anggota Dosen</h4>
+            <div class="row g-4">
+                <?php foreach ($dosen as $a): ?>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card border-0 shadow-sm text-center h-100">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <?php if (!empty($a['path_gambar'])): ?>
+                                        <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                            alt="<?php echo htmlspecialchars($a['nama']); ?>"
+                                            class="rounded-circle"
+                                            style="width: 100px; height: 100px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                                            style="width: 100px; height: 100px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
+                                        </div>
                                     <?php endif; ?>
-                                    <span class="badge bg-secondary">
-                                        <?php echo ucfirst($a['status']); ?>
-                                    </span>
                                 </div>
+                                <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                                <?php if (!empty($a['nidn'])): ?>
+                                    <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                                <?php endif; ?>
+                                <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Bagian Anggota Mahasiswa -->
+    <?php if (!empty($mahasiswa)): ?>
+        <div>
+            <h4 class="text-center mb-4 fw-bold">Anggota Mahasiswa</h4>
+            <div class="row g-4">
+                <?php foreach ($mahasiswa as $a): ?>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card border-0 shadow-sm text-center h-100">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <?php if (!empty($a['path_gambar'])): ?>
+                                        <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                            alt="<?php echo htmlspecialchars($a['nama']); ?>"
+                                            class="rounded-circle"
+                                            style="width: 100px; height: 100px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
+                                            style="width: 100px; height: 100px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                                <?php if (!empty($a['nidn'])): ?>
+                                    <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                                <?php endif; ?>
+                                <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
+
+        
 
         <?php if (empty($ketua) && empty($anggota)): ?>
             <div class="alert alert-info text-center">

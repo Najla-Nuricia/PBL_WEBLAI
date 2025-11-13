@@ -2,6 +2,14 @@
 require_once '../config/db.php';
 $page_title = 'Home';
 
+// Fetch dashboard background
+$stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
+$dashboard_bg = $stmt_bg->fetch();
+$bg_image = '';
+if ($dashboard_bg && $dashboard_bg['path_gambar']) {
+    $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
+}
+
 // Fetch latest news
 $stmt_berita = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC LIMIT 3");
 $latest_news = $stmt_berita->fetchAll();
@@ -11,7 +19,7 @@ $stmt_kegiatan = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT
 $latest_activities = $stmt_kegiatan->fetchAll();
 
 // Fetch partnerships
-$stmt_partnership = $pdo->query("SELECT * FROM partnership LIMIT 6");
+$stmt_partnership = $pdo->query("SELECT * FROM partnership");
 $partnerships = $stmt_partnership->fetchAll();
 
 // Fetch profile
@@ -23,9 +31,13 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Hero Section -->
-<section class="hero-section py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container">
-        <div class="row align-items-center min-vh-75">
+<section class="hero-section position-relative py-5" style="<?php echo $bg_image ? "background: url('$bg_image') center/cover no-repeat;" : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);'; ?> color: white; min-height: 500px; overflow: hidden;">
+    <!-- Gradient Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.85) 0%, rgba(74, 144, 226, 0.85) 100%); z-index: 1;"></div>
+
+    <!-- Content -->
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center min-vh-75 py-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInLeft" id="type">
                     Applied Informatics Laboratory
@@ -230,7 +242,7 @@ include '../includes/navbar.php';
                 </div>
             </div>
 
-            <div class="row g-4 align-items-center">
+            <div class="row g-4  justify-content-center align-items-center text-center">
                 <?php foreach ($partnerships as $partner): ?>
                     <div class="col-6 col-md-4 col-lg-2 text-center">
                         <a href="<?php echo htmlspecialchars($partner['website']); ?>"
