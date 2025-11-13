@@ -121,26 +121,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
+                    <div class="row g-2">
+                        <div class="col-12">
                             <div class="p-3 border rounded">
                                 <h6 class="fw-bold text-primary mb-3">
                                     <i class="bi bi-eye-fill me-2"></i>Visi
                                 </h6>
-                                <p class="text-muted">
+                                <p class="text-muted text-center">
                                     <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
                                 </p>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="p-3 border rounded">
                                 <h6 class="fw-bold text-primary mb-3">
                                     <i class="bi bi-bullseye me-2"></i>Misi
                                 </h6>
-                                <p class="text-muted">
-                                    <?php echo nl2br(htmlspecialchars($profile['misi'])); ?>
-                                </p>
+                                <?php 
+                                $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
+                                foreach ($misi_items as $item) {
+                                if (trim($item) !== '') {
+                                    echo '
+                                    <li class="d-flex align-items-start">
+                                        <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                        <p class="text-muted">' . nl2br(htmlspecialchars($item)) . '</p>
+                                    </li>';
+                                }
+                            }?>
                             </div>
                         </div>
 

@@ -33,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['flash_error'] = 'Format email tidak valid!';
     } else {
         $bodyHtml  = '<div style="font-family:Arial,sans-serif;color:#333;font-size:16px;line-height:1.5;">'
-           . '<p style="margin:0 0 12px;"><strong>Nama:</strong> ' . htmlspecialchars($nama) . '</p>'
-           . '<p style="margin:0 0 12px;"><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
-           . '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">'
-           . '<p style="margin:0 0 8px;"><strong>Pesan Anda:</strong></p>'
-           . '<p style="margin:0 0 12px;padding:12px;background:#f9f9f9;border:1px solid #eee;">'
-           . nl2br(htmlspecialchars($pesan))
-           . '</p>'
-           . '</div>';
+            . '<p style="margin:0 0 12px;"><strong>Nama:</strong> ' . htmlspecialchars($nama) . '</p>'
+            . '<p style="margin:0 0 12px;"><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
+            . '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">'
+            . '<p style="margin:0 0 8px;"><strong>Pesan Anda:</strong></p>'
+            . '<p style="margin:0 0 12px;padding:12px;background:#f9f9f9;border:1px solid #eee;">'
+            . nl2br(htmlspecialchars($pesan))
+            . '</p>'
+            . '</div>';
 
         $bodyPlain = "Nama: {$nama}\nEmail: {$email}\nPesan:\n{$pesan}";
 
