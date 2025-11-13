@@ -356,15 +356,15 @@ include '../includes/navbar.php';
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mt-4">
                         <li class="page-item <?= ($page_bp <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?produk_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp - 1 ?>&topic_page=<?= $page_tp ?>">&laquo; Sebelumnya</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp - 1 ?>&topic_page=<?= $page_tp ?>">&laquo; Sebelumnya</a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_blueprint; $i++): ?>
                             <li class="page-item <?= ($page_bp == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?produk_page=<?= $page_pd ?>&blueprint_page=<?= $i ?>&topic_page=<?= $page_tp ?>"><?= $i ?></a>
+                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $i ?>&topic_page=<?= $page_tp ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_bp >= $pages_blueprint) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?produk_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp + 1 ?>&topic_page=<?= $page_tp ?>">Selanjutnya &raquo;</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp + 1 ?>&topic_page=<?= $page_tp ?>">Selanjutnya &raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -405,15 +405,15 @@ include '../includes/navbar.php';
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mt-4">
                         <li class="page-item <?= ($page_tp <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?produk_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp - 1 ?>">&laquo; Sebelumnya</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp - 1 ?>">&laquo; Sebelumnya</a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_topik; $i++): ?>
                             <li class="page-item <?= ($page_tp == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?produk_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $i ?>"><?= $i ?></a>
+                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $i ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_tp >= $pages_topik) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?produk_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp + 1 ?>">Selanjutnya &raquo;</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp + 1 ?>">Selanjutnya &raquo;</a>
                         </li>
                     </ul>
                 </nav>
