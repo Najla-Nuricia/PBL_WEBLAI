@@ -1,71 +1,88 @@
 <?php
+ob_start();
+
 $page_title = 'Kelola Berita & Agenda';
 include 'includes/admin_header.php';
 
 $success = '';
 $error = '';
 
-// Handle Delete
+// DELETE single
 if (isset($_GET['delete'])) {
     $uuid = $_GET['delete'];
     try {
         $stmt = $pdo->prepare("DELETE FROM berita WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Berita berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Berita berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus berita: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus berita: ' . $e->getMessage();
     }
+    header("Location: manage_news.php");
+    exit;
 }
 
-// Handle Insert/Update
+// INSERT / UPDATE
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
-    $judul = clean_input($_POST['judul'] ?? '');
-    $tanggal = clean_input($_POST['tanggal'] ?? '');
-    $tempat = clean_input($_POST['tempat'] ?? '');
+    $judul     = clean_input($_POST['judul'] ?? '');
+    $penulis   = clean_input($_POST['penulis'] ?? '');
+    $tanggal   = clean_input($_POST['tanggal'] ?? '');
+    $tempat    = clean_input($_POST['tempat'] ?? '');
     $deskripsi = clean_input($_POST['deskripsi'] ?? '');
-    $kategori = clean_input($_POST['kategori'] ?? '');
+    $kategori  = clean_input($_POST['kategori'] ?? '');
 
     try {
         if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
-            // Update
             $uuid = $_POST['uuid'];
-            $stmt = $pdo->prepare("UPDATE berita SET judul = ?, tanggal = ?, tempat = ?, deskripsi = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-            $stmt->execute([$judul, $tanggal, $tempat, $deskripsi, $kategori, $uuid]);
-            $success = 'Berita berhasil diupdate!';
+            $stmt = $pdo->prepare(
+                "UPDATE berita SET judul = ?, penulis = ?, tanggal = ?, tempat = ?, deskripsi = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?"
+            );
+            $stmt->execute([$judul, $penulis, $tanggal, $tempat, $deskripsi, $kategori, $uuid]);
+            $_SESSION['flash_success'] = 'Berita berhasil diupdate!';
         } else {
-            // Insert
-            $stmt = $pdo->prepare("INSERT INTO berita (judul, tanggal, tempat, deskripsi, kategori) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$judul, $tanggal, $tempat, $deskripsi, $kategori]);
-            $success = 'Berita berhasil ditambahkan!';
+            $stmt = $pdo->prepare(
+                "INSERT INTO berita (judul, penulis, tanggal, tempat, deskripsi, kategori) VALUES (?, ?, ?, ?, ?, ?)"
+            );
+            $stmt->execute([$judul, $penulis, $tanggal, $tempat, $deskripsi, $kategori]);
+            $_SESSION['flash_success'] = 'Berita berhasil ditambahkan!';
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
     }
+    header("Location: manage_news.php");
+    exit;
 }
 
+// BULK DELETE
 if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
-
     try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
         $placeholders = implode(',', array_fill(0, count($uuids), '?'));
         $query = "DELETE FROM berita WHERE uuid IN ($placeholders)";
         $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
         $stmt->execute($uuids);
-
-        $success = count($uuids) . ' berita berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . ' berita berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
     }
+    header("Location: manage_news.php");
+    exit;
 }
 
-// Get all news
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
+// Ambil data berita untuk ditampilkan
 $stmt = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC");
 $news_list = $stmt->fetchAll();
 
-// Get data for edit
+// Ambil data edit jika mode edit
 $edit_data = null;
 if (isset($_GET['edit'])) {
     $uuid = $_GET['edit'];
@@ -97,6 +114,16 @@ if (isset($_GET['edit'])) {
                         class="form-control"
                         value="<?php echo $edit_data ? htmlspecialchars($edit_data['judul']) : ''; ?>"
                         placeholder="Contoh: Workshop AI 2024"
+                        required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Penulis <span class="text-danger">*</span></label>
+                    <input type="text"
+                        name="penulis"
+                        class="form-control"
+                        value="<?php echo $edit_data ? htmlspecialchars($edit_data['penulis']) : ''; ?>"
+                        placeholder="Contoh: Najla Nuricia"
                         required>
                 </div>
 
@@ -152,7 +179,7 @@ if (isset($_GET['edit'])) {
     </div>
 </div>
 
-<!-- Daftar Album -->
+<!-- Daftar berita -->
 <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-bold">
@@ -181,6 +208,7 @@ if (isset($_GET['edit'])) {
                                 <th width="50">No</th>
                                 <th>Tanggal</th>
                                 <th>Judul</th>
+                                <th>Penulis</th>
                                 <th>Kategori</th>
                                 <th>Tempat</th>
                                 <th width="150">Aksi</th>
@@ -194,19 +222,25 @@ if (isset($_GET['edit'])) {
                                     </td>
                                     <td><?php echo $index + 1; ?></td>
                                     <td><?php echo date('d/m/Y', strtotime($news['tanggal'])); ?></td>
+
                                     <td>
                                         <strong><?php echo htmlspecialchars($news['judul']); ?></strong><br>
                                         <small class="text-muted">
                                             <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 80) . '...'; ?>
                                         </small>
                                     </td>
+
+                                    <td><?php echo htmlspecialchars($news['penulis'] ?? ''); ?></td>
+
+
                                     <td>
-                                        <span class="badge bg-<?php
-                                                                echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
-                                                                ?>">
+                                        <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');?>">
                                             <?php echo ucfirst($news['kategori']); ?>
                                         </span>
                                     </td>
+
+                                    
+
                                     <td><?php echo htmlspecialchars($news['tempat']); ?></td>
                                     <td>
                                         <a href="?edit=<?php echo $news['uuid']; ?>"
@@ -235,7 +269,10 @@ if (isset($_GET['edit'])) {
     </div>
 </div>
 
-<?php include 'includes/admin_footer.php'; ?>
+<?php 
+include 'includes/admin_footer.php'; 
+ob_end_flush();
+?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const successMessage = "<?= addslashes($success ?? '') ?>";

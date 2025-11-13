@@ -6,7 +6,6 @@ require_once 'auth.php';
 
 // Cek login dan session timeout
 require_login();
-check_session_timeout();
 ?>
 
 <!DOCTYPE html>
