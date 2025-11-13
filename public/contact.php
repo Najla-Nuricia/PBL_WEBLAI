@@ -1,27 +1,61 @@
 <?php
+session_start();
+ob_start();
+
 require_once '../config/db.php';
 require_once '../helpers/sanitize.php';
+require '../config/mail.php';
+
 $page_title = 'Contact Us';
 
 $success = '';
 $error = '';
 
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 // Handle contact form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama = clean_input($_POST['nama']);
-    $email = clean_input($_POST['email']);
-    $subjek = clean_input($_POST['subjek']);
-    $pesan = clean_input($_POST['pesan']);
+    $nama = clean_input($_POST['nama'] ?? '');
+    $email = clean_input($_POST['email'] ?? '');
+    $subjek = clean_input($_POST['subjek'] ?? '');
+    $pesan = clean_input($_POST['pesan'] ?? '');
 
-    if (empty($nama) || empty($email) || empty($subjek) || empty($pesan)) {
-        $error = 'Semua field harus diisi!';
-    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Format email tidak valid!';
+    if (!$nama || !$email || !$subjek || !$pesan) {
+        $_SESSION['flash_error'] = 'Semua field harus diisi!';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['flash_error'] = 'Format email tidak valid!';
     } else {
-        // In real application, you might want to create a 'pesan' or 'kontak' table
-        // For now, we'll just show success message
-        $success = 'Terima kasih! Pesan Anda telah dikirim. Kami akan segera menghubungi Anda.';
+        $bodyHtml  = '<div style="font-family:Arial,sans-serif;color:#333;font-size:16px;line-height:1.5;">'
+           . '<p style="margin:0 0 12px;"><strong>Nama:</strong> ' . htmlspecialchars($nama) . '</p>'
+           . '<p style="margin:0 0 12px;"><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
+           . '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">'
+           . '<p style="margin:0 0 8px;"><strong>Pesan Anda:</strong></p>'
+           . '<p style="margin:0 0 12px;padding:12px;background:#f9f9f9;border:1px solid #eee;">'
+           . nl2br(htmlspecialchars($pesan))
+           . '</p>'
+           . '</div>';
+
+        $bodyPlain = "Nama: {$nama}\nEmail: {$email}\nPesan:\n{$pesan}";
+
+        $sent = sendEmail($subjek, $bodyHtml, $bodyPlain);
+
+        if ($sent) {
+            $_SESSION['flash_success'] = 'Terima kasih! Pesan Anda telah dikirim. Kami akan segera menghubungi Anda.';
+        } else {
+            $_SESSION['flash_error'] = 'Gagal mengirim email.';
+        }
+        
+        header("Location: contact.php");
+        exit;
     }
+
 }
 
 // Get social media links
@@ -211,4 +245,6 @@ include '../includes/navbar.php';
     </div>
 </section>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer.php'; 
+ob_end_flush();
+?>
