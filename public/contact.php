@@ -33,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['flash_error'] = 'Format email tidak valid!';
     } else {
         $bodyHtml  = '<div style="font-family:Arial,sans-serif;color:#333;font-size:16px;line-height:1.5;">'
-           . '<p style="margin:0 0 12px;"><strong>Nama:</strong> ' . htmlspecialchars($nama) . '</p>'
-           . '<p style="margin:0 0 12px;"><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
-           . '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">'
-           . '<p style="margin:0 0 8px;"><strong>Pesan Anda:</strong></p>'
-           . '<p style="margin:0 0 12px;padding:12px;background:#f9f9f9;border:1px solid #eee;">'
-           . nl2br(htmlspecialchars($pesan))
-           . '</p>'
-           . '</div>';
+            . '<p style="margin:0 0 12px;"><strong>Nama:</strong> ' . htmlspecialchars($nama) . '</p>'
+            . '<p style="margin:0 0 12px;"><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
+            . '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">'
+            . '<p style="margin:0 0 8px;"><strong>Pesan Anda:</strong></p>'
+            . '<p style="margin:0 0 12px;padding:12px;background:#f9f9f9;border:1px solid #eee;">'
+            . nl2br(htmlspecialchars($pesan))
+            . '</p>'
+            . '</div>';
 
         $bodyPlain = "Nama: {$nama}\nEmail: {$email}\nPesan:\n{$pesan}";
 
@@ -54,15 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } catch (PDOException $e) {
                 $_SESSION['flash_error'] = 'data tidak tersimpan';
             }
-
         } else {
             $_SESSION['flash_error'] = 'Gagal mengirim email.';
         }
-        
+
         header("Location: contact.php");
         exit;
     }
-
 }
 
 // Get social media links
@@ -253,20 +251,20 @@ include '../includes/navbar.php';
 </section>
 
 <div id="pageLoadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index:1050;">
-  <div class="spinner-border text-primary" role="status">
-    <span class="visually-hidden">Loading…</span>
-  </div>
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading…</span>
+    </div>
 </div>
 
 <script>
-const form = document.querySelector('form[method="POST"]');
-form.addEventListener('submit', function() {
-  const overlay = document.getElementById('pageLoadingOverlay');
-  overlay.classList.remove('d-none');
-  document.body.style.overflow = 'hidden';
-});
+    const form = document.querySelector('form[method="POST"]');
+    form.addEventListener('submit', function() {
+        const overlay = document.getElementById('pageLoadingOverlay');
+        overlay.classList.remove('d-none');
+        document.body.style.overflow = 'hidden';
+    });
 </script>
 
-<?php include '../includes/footer.php'; 
+<?php include '../includes/footer.php';
 ob_end_flush();
 ?>

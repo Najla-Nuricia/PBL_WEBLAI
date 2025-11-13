@@ -131,6 +131,32 @@
             margin: 0;
         }
 
+        /* Efek List-group Hover  */
+        .list-group-item:hover:not(.active) {
+            font-weight: bold;
+            color: var(--bs-list-group-active-bg);
+        }
+
+        .list-group-item:hover.active {
+            font-weight: bold;
+        }
+
+        /* footer logo smooth hover */
+        footer .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            background-color: transparent;
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+
         /* Hover effect */
         footer .btn-outline-light:hover {
             background-color: #2C5AA0(0, 30, 255, 0.15);
