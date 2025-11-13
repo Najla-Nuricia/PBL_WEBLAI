@@ -48,6 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($sent) {
             $_SESSION['flash_success'] = 'Terima kasih! Pesan Anda telah dikirim. Kami akan segera menghubungi Anda.';
+            try {
+                $stmt = $pdo->prepare("INSERT INTO email (nama, email, subjek, pesan) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$nama, $email, $subjek, $pesan]);
+            } catch (PDOException $e) {
+                $_SESSION['flash_error'] = 'data tidak tersimpan';
+            }
+
         } else {
             $_SESSION['flash_error'] = 'Gagal mengirim email.';
         }
