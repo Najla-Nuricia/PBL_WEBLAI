@@ -252,6 +252,21 @@ include '../includes/navbar.php';
     </div>
 </section>
 
+<div id="pageLoadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index:1050;">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading…</span>
+  </div>
+</div>
+
+<script>
+const form = document.querySelector('form[method="POST"]');
+form.addEventListener('submit', function() {
+  const overlay = document.getElementById('pageLoadingOverlay');
+  overlay.classList.remove('d-none');
+  document.body.style.overflow = 'hidden';
+});
+</script>
+
 <?php include '../includes/footer.php'; 
 ob_end_flush();
 ?>
