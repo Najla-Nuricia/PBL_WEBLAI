@@ -1,10 +1,11 @@
 <?php
 require_once '../config/db.php';
+require_once '../helpers/sanitize.php';
+require_once '../helpers/upload.php';
 require_once 'auth.php';
 
 // Cek login dan session timeout
 require_login();
-check_session_timeout();
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +27,18 @@ check_session_timeout();
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Optional: Tema Bootstrap 5 untuk Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <!-- Animated css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         :root {
@@ -114,6 +127,15 @@ check_session_timeout();
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background-color: #fff;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .topbar.scrolled {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }
 
         .content-wrapper {
@@ -182,9 +204,77 @@ check_session_timeout();
 
         a.text-decoration-none {
             display: block;
-            /* Biar seluruh area bisa diklik */
             color: inherit;
-            /* Warna teks ikut warna aslinya */
+        }
+
+        /* Animasi muncul form (fade + scale) */
+        .card-body form {
+            animation: fadeInScale 0.4s ease-in-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Hover lembut pada dropdown */
+        .select2-container--bootstrap-5 .select2-selection--single {
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Tabel responsive */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .table input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1E4BA3;/
+        }
+
+        .table input[type="checkbox"]:checked {
+            accent-color: #1E4BA3;
+            transform: scale(1.1);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .table input[type="checkbox"]:hover {
+            transform: scale(1.1);
+            transition: 0.2s;
+        }
+
+        .table-responsive {
+            overflow-x: hidden !important;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: transparent !important;
         }
     </style>
 </head>
@@ -193,10 +283,16 @@ check_session_timeout();
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <h4><i class="bi bi-cpu-fill me-2"></i>AI Lab Admin</h4>
-            <small class="text-white">Dashboard Panel</small>
-        </div>
+        <!-- Logo -->
+        <a href="../admin/dashboard.php" class="text-decoration-none text-white">
+            <div class="sidebar-brand d-flex align-items-center">
+                <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 50px; height: 50px; object-fit: contain;">
+                <div>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0;">AI Lab Admin</h4>
+                    <small style="color: #FF9F1C;">Dashboard Panel</small>
+                </div>
+            </div>
+        </a>
 
         <ul class="sidebar-menu">
             <li>
@@ -216,6 +312,13 @@ check_session_timeout();
                 <a href="manage_profile.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_profile.php' ? 'active' : ''; ?>">
                     <i class="bi bi-building"></i>
                     <span>Profile Lab</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="manage_dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_dashboard.php' ? 'active' : ''; ?>">
+                    <i class="bi bi-image"></i>
+                    <span>Dashboard Background</span>
                 </a>
             </li>
 
@@ -246,6 +349,19 @@ check_session_timeout();
                     <span>Produk</span>
                 </a>
             </li>
+            <li>
+                <a href="manage_topik_riset.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_topik_riset.php' ? 'active' : ''; ?>">
+                    <i class="bi bi-lightbulb"></i>
+                    <span>Topik Riset</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="manage_blueprint.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_blueprint.php' ? 'active' : ''; ?>">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Blueprint/Roadmap</span>
+                </a>
+            </li>
 
             <li>
                 <a href="manage_gallery.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_gallery.php' ? 'active' : ''; ?>">
@@ -269,7 +385,7 @@ check_session_timeout();
 
             <li>
                 <a href="manage_partnerships.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_partnerships.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-handshake"></i>
+                    <i class="fa-regular fa-handshake"></i>
                     <span>Partnership</span>
                 </a>
             </li>
@@ -337,3 +453,13 @@ check_session_timeout();
 
         <!-- Content Wrapper -->
         <div class="content-wrapper">
+            <script>
+                document.addEventListener('scroll', function() {
+                    const topbar = document.querySelector('.topbar');
+                    if (window.scrollY > 10) {
+                        topbar.classList.add('scrolled');
+                    } else {
+                        topbar.classList.remove('scrolled');
+                    }
+                });
+            </script>

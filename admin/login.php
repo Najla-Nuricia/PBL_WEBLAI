@@ -1,6 +1,14 @@
 <?php
+
 require_once '../config/db.php';
+require_once '../helpers/sanitize.php';
+require_once '../helpers/upload.php';
 require_once 'includes/auth.php';
+
+// header anti-cache
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 
 // Redirect jika sudah login
 if (is_logged_in()) {
@@ -112,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <!-- Left Side -->
                         <div class="col-lg-5 login-left">
                             <div>
-                                <i class="bi bi-cpu-fill" style="font-size: 5rem; margin-bottom: 1rem;"></i>
+                                <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 100px; height: 100px; object-fit: contain;">
                                 <h2 class="fw-bold mb-3">AI Lab Polinema</h2>
                                 <p class="lead">Applied Informatics Laboratory</p>
                                 <p>Dashboard Admin untuk mengelola konten website laboratorium</p>
@@ -178,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <hr class="my-4">
 
                             <div class="text-center">
-                                <a href="../index.php" class="text-muted text-decoration-none">
+                                <a href="../public/index.php" class="text-muted text-decoration-none">
                                     <i class="bi bi-arrow-left me-1"></i>Kembali ke Homepage
                                 </a>
                             </div>

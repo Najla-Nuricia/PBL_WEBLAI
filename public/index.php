@@ -2,16 +2,34 @@
 require_once '../config/db.php';
 $page_title = 'Home';
 
+// Fetch dashboard background
+$stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
+$dashboard_bg = $stmt_bg->fetch();
+$bg_image = '';
+if ($dashboard_bg && $dashboard_bg['path_gambar']) {
+    $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
+}
+
 // Fetch latest news
 $stmt_berita = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC LIMIT 3");
 $latest_news = $stmt_berita->fetchAll();
 
 // Fetch latest activities
-$stmt_kegiatan = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT 4");
+$limit = 4;
+$page_la = isset($_GET['latest_activities_page']) ? (int)$_GET['latest_activities_page'] : 1;
+$offset_la = ($page_la - 1) * $limit;
+$stmt_kegiatan = $pdo->prepare("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT :limit OFFSET :offset");
+$stmt_kegiatan->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt_kegiatan->bindValue(':offset', $offset_la, PDO::PARAM_INT);
+$stmt_kegiatan->execute();
 $latest_activities = $stmt_kegiatan->fetchAll();
+$count_stmt_la = $pdo->prepare("SELECT COUNT(*) FROM kegiatan");
+$count_stmt_la->execute();
+$rows_activities = $count_stmt_la->fetchColumn();
+$pages_activities = ceil($rows_activities / $limit);
 
 // Fetch partnerships
-$stmt_partnership = $pdo->query("SELECT * FROM partnership LIMIT 6");
+$stmt_partnership = $pdo->query("SELECT * FROM partnership");
 $partnerships = $stmt_partnership->fetchAll();
 
 // Fetch profile
@@ -23,18 +41,50 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Hero Section -->
-<section class="hero-section py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container">
-        <div class="row align-items-center min-vh-75">
+<section class="hero-section position-relative py-5" style="<?php echo $bg_image ? "background: url('$bg_image') center/cover no-repeat;" : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);'; ?> color: white; min-height: 500px; overflow: hidden;">
+    <!-- Gradient Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
+
+    <!-- Content -->
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center min-vh-75 py-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInLeft" id="type">
-                    Applied Informatics Laboratory
+                <h1 class="display-4 fw-bold mb-4" id="type">
                 </h1>
                 <script>
                     document.addEventListener("DOMContentLoaded", function() {
                         new TypeIt("#type", {
-                            strings: [""],
-                        }).go();
+                                speed: 80,
+                                startDelay: 500,
+                                cursorChar: "|",
+                                lifeLike: true,
+                            })
+                            .type("Appliedddd ", {
+                                delay: 300
+                            })
+                            .pause(150)
+                            .delete(4, {
+                                delay: 300
+                            })
+                            .type(" ", {
+                                delay: 300
+                            })
+                            .pause(700)
+                            .type("Informatics ", {
+                                delay: 250
+                            })
+                            .pause(150)
+                            .type("Lab.", {
+                                delay: 300
+                            })
+                            .pause(700)
+                            .delete(4, {
+                                delay: 300
+                            })
+                            .type("Laboratory", {
+                                delay: 300
+                            })
+                            .go();
                     });
                 </script>
                 <p class="lead mb-4">
@@ -207,6 +257,24 @@ include '../includes/navbar.php';
                         </div>
                     </div>
                 <?php endforeach; ?>
+                <!-- Pagination features -->
+                <?php if ($pages_activities > 1): ?>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
+                            </li>
+                            <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
+                                <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
+                                    <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="col-12">
                     <div class="alert alert-info text-center">
@@ -230,7 +298,7 @@ include '../includes/navbar.php';
                 </div>
             </div>
 
-            <div class="row g-4 align-items-center">
+            <div class="row g-4  justify-content-center align-items-center text-center">
                 <?php foreach ($partnerships as $partner): ?>
                     <div class="col-6 col-md-4 col-lg-2 text-center">
                         <a href="<?php echo htmlspecialchars($partner['website']); ?>"
@@ -260,7 +328,7 @@ include '../includes/navbar.php';
 <!-- CTA Section -->
 <section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
     <div class="container text-center">
-        <h2 class="mb-3">Ready to Collaborate?</h2>
+        <h2 class="mb-3 text-white">Ready to Collaborate?</h2>
         <p class="lead mb-4">
             Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
         </p>

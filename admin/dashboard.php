@@ -29,6 +29,15 @@ $stats['produk'] = $stmt->fetch()['total'];
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM galeri");
 $stats['galeri'] = $stmt->fetch()['total'];
 
+//Count Riset
+$stmt = $pdo->query("SELECT COUNT(*) as total FROM topik_riset");
+$stats['topik_riset'] = $stmt->fetch()['total'];
+
+//Count Blueprint
+$stmt = $pdo->query("SELECT COUNT(*) as total FROM blueprint");
+$stats['blueprint'] = $stmt->fetch()['total'];
+
+
 // Get recent news
 $stmt = $pdo->query("SELECT * FROM berita ORDER BY created_at DESC LIMIT 5");
 $recent_news = $stmt->fetchAll();
@@ -70,7 +79,7 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_publications.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Publikasi</p>
@@ -80,14 +89,11 @@ $recent_activities = $stmt->fetchAll();
                     <i class="bi bi-journal-text text-info fs-2"></i>
                 </div>
             </div>
-            <!-- <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-black stretched-link" href="manage_publications.php">Lihat Detail</a>
-            </div> -->
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_members.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Anggota</p>
@@ -103,7 +109,7 @@ $recent_activities = $stmt->fetchAll();
 
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_products.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Produk</p>
@@ -117,7 +123,7 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_gallery.php'">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <p class="text-muted mb-1">Total Galeri</p>
@@ -125,6 +131,34 @@ $recent_activities = $stmt->fetchAll();
                 </div>
                 <div class="bg-secondary bg-opacity-10 p-3 rounded">
                     <i class="bi bi-images text-secondary fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_blueprint.php'">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Total Blueprint</p>
+                    <h3 class="fw-bold mb-0"><?php echo $stats['blueprint']; ?></h3>
+                </div>
+                <div class="bg-secondary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-diagram-3 text-purple fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card clickable-card" onclick="window.location.href='manage_topik_riset.php'">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Total Topik & Riset</p>
+                    <h3 class="fw-bold mb-0"><?php echo $stats['topik_riset']; ?></h3>
+                </div>
+                <div class="bg-secondary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-lightbulb text-warning fs-2"></i>
                 </div>
             </div>
         </div>

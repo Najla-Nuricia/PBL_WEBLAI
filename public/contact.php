@@ -1,25 +1,65 @@
 <?php
+session_start();
+ob_start();
+
 require_once '../config/db.php';
+require_once '../helpers/sanitize.php';
+require '../config/mail.php';
+
 $page_title = 'Contact Us';
 
 $success = '';
 $error = '';
 
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 // Handle contact form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama = clean_input($_POST['nama']);
-    $email = clean_input($_POST['email']);
-    $subjek = clean_input($_POST['subjek']);
-    $pesan = clean_input($_POST['pesan']);
+    $nama = clean_input($_POST['nama'] ?? '');
+    $email = clean_input($_POST['email'] ?? '');
+    $subjek = clean_input($_POST['subjek'] ?? '');
+    $pesan = clean_input($_POST['pesan'] ?? '');
 
-    if (empty($nama) || empty($email) || empty($subjek) || empty($pesan)) {
-        $error = 'Semua field harus diisi!';
-    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Format email tidak valid!';
+    if (!$nama || !$email || !$subjek || !$pesan) {
+        $_SESSION['flash_error'] = 'Semua field harus diisi!';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['flash_error'] = 'Format email tidak valid!';
     } else {
-        // In real application, you might want to create a 'pesan' or 'kontak' table
-        // For now, we'll just show success message
-        $success = 'Terima kasih! Pesan Anda telah dikirim. Kami akan segera menghubungi Anda.';
+        $bodyHtml  = '<div style="font-family:Arial,sans-serif;color:#333;font-size:16px;line-height:1.5;">'
+            . '<p style="margin:0 0 12px;"><strong>Nama:</strong> ' . htmlspecialchars($nama) . '</p>'
+            . '<p style="margin:0 0 12px;"><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
+            . '<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">'
+            . '<p style="margin:0 0 8px;"><strong>Pesan Anda:</strong></p>'
+            . '<p style="margin:0 0 12px;padding:12px;background:#f9f9f9;border:1px solid #eee;">'
+            . nl2br(htmlspecialchars($pesan))
+            . '</p>'
+            . '</div>';
+
+        $bodyPlain = "Nama: {$nama}\nEmail: {$email}\nPesan:\n{$pesan}";
+
+        $sent = sendEmail($subjek, $bodyHtml, $bodyPlain);
+
+        if ($sent) {
+            $_SESSION['flash_success'] = 'Terima kasih! Pesan Anda telah dikirim. Kami akan segera menghubungi Anda.';
+            try {
+                $stmt = $pdo->prepare("INSERT INTO email (nama, email, subjek, pesan) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$nama, $email, $subjek, $pesan]);
+            } catch (PDOException $e) {
+                $_SESSION['flash_error'] = 'data tidak tersimpan';
+            }
+        } else {
+            $_SESSION['flash_error'] = 'Gagal mengirim email.';
+        }
+
+        header("Location: contact.php");
+        exit;
     }
 }
 
@@ -32,7 +72,7 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Page Header -->
-<section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
+<section class="page-header py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
     <div class="container">
         <div class="row">
             <div class="col text-center">
@@ -153,21 +193,6 @@ include '../includes/navbar.php';
                             </div>
                         </div>
 
-                        <div class="d-flex mb-4">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary bg-opacity-10 p-3 rounded">
-                                    <i class="bi bi-telephone-fill text-primary fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Phone</h6>
-                                <p class="text-muted mb-0">
-                                    +62 341 404424<br>
-                                    +62 341 404420
-                                </p>
-                            </div>
-                        </div>
-
                         <div class="d-flex">
                             <div class="flex-shrink-0">
                                 <div class="bg-primary bg-opacity-10 p-3 rounded">
@@ -225,4 +250,21 @@ include '../includes/navbar.php';
     </div>
 </section>
 
-<?php include '../includes/footer.php'; ?>
+<div id="pageLoadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index:1050;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading…</span>
+    </div>
+</div>
+
+<script>
+    const form = document.querySelector('form[method="POST"]');
+    form.addEventListener('submit', function() {
+        const overlay = document.getElementById('pageLoadingOverlay');
+        overlay.classList.remove('d-none');
+        document.body.style.overflow = 'hidden';
+    });
+</script>
+
+<?php include '../includes/footer.php';
+ob_end_flush();
+?>

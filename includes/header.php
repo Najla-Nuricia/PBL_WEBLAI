@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
 
     <style>
         :root {
@@ -54,6 +54,7 @@
             font-weight: 700;
             font-size: 1.5rem;
             color: var(--primary-color) !important;
+            gap: 10px;
         }
 
         .nav-link {
@@ -61,6 +62,22 @@
             font-weight: 500;
             margin: 0 0.5rem;
             transition: color 0.3s;
+        }
+
+        /* Setting layout logo */
+        .navbar-logo {
+            width: auto;
+            height: 50px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .navbar-logo-text {
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            position: relative;
+            top: 2px;
         }
 
         .nav-link:hover {
@@ -92,6 +109,75 @@
         .section-subtitle {
             color: var(--text-light);
             margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            color: #fff !important;
+        }
+
+        /* Sosial media button smooth hover */
+        footer .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            background-color: transparent;
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Efek List-group Hover  */
+        .list-group-item:hover:not(.active) {
+            font-weight: bold;
+            color: var(--bs-list-group-active-bg);
+        }
+
+        .list-group-item:hover.active {
+            font-weight: bold;
+        }
+
+        /* footer logo smooth hover */
+        footer .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            background-color: transparent;
+            color: white;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Hover effect */
+        footer .btn-outline-light:hover {
+            background-color: #2C5AA0(0, 30, 255, 0.15);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Efek ketika hover */
+        footer .btn-outline-light i {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        footer .btn-outline-light:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Efek ketika diklik */
+        footer .btn-outline-light:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
         }
     </style>
 </head>

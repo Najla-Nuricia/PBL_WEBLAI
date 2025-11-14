@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Galeri';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -23,9 +25,12 @@ if (isset($_GET['delete_gallery'])) {
         // Delete gallery (cascade will delete photos)
         $stmt = $pdo->prepare("DELETE FROM galeri WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Galeri berhasil dihapus!';
+        $_SESSION['flash_success'] = "Galeri dan semua fotonya berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus galeri: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus galeri: " . $e->getMessage();
+    } finally {
+        header("Location: manage_gallery.php");
+        exit;
     }
 }
 
@@ -43,17 +48,46 @@ if (isset($_GET['delete_photo'])) {
 
         $stmt = $pdo->prepare("DELETE FROM foto WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Foto berhasil dihapus!';
+        $_SESSION['flash_success'] = "Foto berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus foto: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus foto: " . $e->getMessage();
+    } finally {
+        $redirect_url = "manage_gallery.php";
+        if (isset($_GET['view'])) {
+            $redirect_url .= "?view=" . urlencode($_GET['view']);
+        }
+        header("Location: " . $redirect_url);
+        exit;
     }
 }
+
+// Handle Bulk Delete Galleries
+if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM galeri WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($uuids);
+        $_SESSION['flash_success'] = count($uuids) . " galeri berhasil dihapus!";
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = "Gagal menghapus beberapa galeri: " . $e->getMessage();
+    } finally {
+        header("Location: manage_gallery.php");
+        exit;
+    }
+}
+
 
 // Handle Insert/Update Gallery
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] == 'save_gallery') {
-        $judul = clean_input($_POST['judul']);
-        $deskripsi = clean_input($_POST['deskripsi']);
+        $judul = clean_input($_POST['judul'] ?? '');
+        $deskripsi = clean_input($_POST['deskripsi'] ?? '');
 
         try {
             if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
@@ -61,15 +95,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                 $uuid = $_POST['uuid'];
                 $stmt = $pdo->prepare("UPDATE galeri SET judul = ?, deskripsi = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                 $stmt->execute([$judul, $deskripsi, $uuid]);
-                $success = 'Galeri berhasil diupdate!';
+                $_SESSION['flash_success'] = "Galeri berhasil diperbarui!";
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO galeri (judul, deskripsi) VALUES (?, ?) RETURNING uuid");
                 $stmt->execute([$judul, $deskripsi]);
-                $success = 'Galeri berhasil ditambahkan!';
+                $_SESSION['flash_success'] = "Galeri baru berhasil ditambahkan!";
             }
         } catch (PDOException $e) {
-            $error = 'Terjadi kesalahan: ' . $e->getMessage();
+            $_SESSION['flash_error'] = "Gagal menyimpan galeri: " . $e->getMessage();
+        } finally {
+            header("Location: manage_gallery.php");
+            exit;
         }
     }
 
@@ -99,18 +136,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                             $stmt->execute([$upload_result['filename'], $gallery_id]);
                             $upload_count++;
                         } catch (PDOException $e) {
-                            $error = 'Error saving to database: ' . $e->getMessage();
+                            // Jika gagal simpan ke database, hapus file yang sudah diupload
+                            if (file_exists('../assets/img/' . $upload_result['filename'])) {
+                                unlink('../assets/img/' . $upload_result['filename']);
+                            }
+                            $_SESSION['flash_error'] = "Gagal menyimpan foto ke database: " . $e->getMessage();
                         }
                     }
                 }
             }
 
             if ($upload_count > 0) {
-                $success = "$upload_count foto berhasil diupload!";
+                $_SESSION['flash_success'] = "$upload_count foto berhasil diupload!";
             }
         } else {
-            $error = 'Pilih minimal 1 foto untuk diupload!';
+            $_SESSION['flash_error'] = "Tidak ada foto yang dipilih untuk diupload.";
         }
+        header("Location: manage_gallery.php?view=" . urlencode($gallery_id));
+        exit;
     }
 }
 
@@ -146,51 +189,49 @@ if (isset($_GET['view'])) {
     $stmt->execute([$uuid]);
     $view_photos = $stmt->fetchAll();
 }
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
 
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <?php if ($view_gallery): ?>
-    <!-- View Gallery Photos -->
-    <div class="mb-4">
+    <!-- Mode View: Upload & Manage Photos dalam Album -->
+    <div class="mb-4 shadow-sm border-0 animate__animated animate__fadeInUp">
         <a href="manage_gallery.php" class="btn btn-secondary mb-3">
-            <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Galeri
+            <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Album
         </a>
 
-        <div class="card">
+        <!-- Upload Form -->
+        <div class="card mb-4 shadow-sm border-0 animate__animated animate__fadeInUp">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-images me-2"></i><?php echo htmlspecialchars($view_gallery['judul']); ?>
+                    <i class="bi bi-upload me-2"></i>Upload Foto ke: <?php echo htmlspecialchars($view_gallery['judul']); ?>
                 </h5>
-                <p class="text-muted mb-0 small"><?php echo htmlspecialchars($view_gallery['deskripsi']); ?></p>
+                <?php if ($view_gallery['deskripsi']): ?>
+                    <p class="text-muted mb-0 small mt-1"><?php echo htmlspecialchars($view_gallery['deskripsi']); ?></p>
+                <?php endif; ?>
             </div>
             <div class="card-body">
-                <!-- Upload Form -->
-                <form method="POST" enctype="multipart/form-data" class="mb-4">
+                <form method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="upload_photos">
                     <input type="hidden" name="gallery_id" value="<?php echo $view_gallery['uuid']; ?>">
 
-                    <div class="row">
-                        <div class="col-md-10">
+                    <div class="row align-items-end">
+                        <div class="col-md-10 mb-3 mb-md-0">
+                            <label class="form-label">Pilih Foto <span class="text-danger">*</span></label>
                             <input type="file"
                                 name="photos[]"
                                 class="form-control"
                                 multiple
                                 accept="image/*"
                                 required>
-                            <small class="text-muted">Pilih satu atau lebih foto (Max 2MB per file)</small>
+                            <small class="text-muted">Pilih satu atau lebih foto (Max 2MB per file, format: JPG, PNG, GIF)</small>
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">
@@ -199,19 +240,38 @@ if (isset($_GET['view'])) {
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
 
-                <!-- Photos Grid -->
-                <?php if (!empty($view_photos)): ?>
+        <!-- Daftar Foto dalam Album -->
+        <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-images me-2"></i>Daftar Foto
+                </h5>
+                <span class="badge bg-info"><?php echo count($view_photos); ?> foto</span>
+            </div>
+            <div class="card-body">
+                <?php if (empty($view_photos)): ?>
+                    <div class="card shadow-sm border-0 text-center animate__animated animate__fadeInUp">
+                        <div class="card-body py-5">
+                            <i class="bi bi-emoji-frown text-info" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3 text-muted">Belum ada foto</h5>
+                            <p class="text-secondary small">Yuk tambahkan foto baru untuk ditampilkan di sini!</p>
+                        </div>
+                    </div>
+                <?php else: ?>
                     <div class="row g-3">
                         <?php foreach ($view_photos as $photo): ?>
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="card">
+                            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                                <div class="card h-100">
                                     <img src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
                                         class="card-img-top"
-                                        style="height: 200px; object-fit: cover;">
+                                        style="height: 150px; object-fit: cover; cursor: pointer;"
+                                        onclick="window.open('../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>', '_blank')">
                                     <div class="card-body p-2 text-center">
                                         <a href="?delete_photo=<?php echo $photo['uuid']; ?>&view=<?php echo $view_gallery['uuid']; ?>"
-                                            class="btn btn-sm btn-danger"
+                                            class="btn btn-sm btn-danger w-100"
                                             onclick="return confirmDelete('Hapus foto ini?');">
                                             <i class="bi bi-trash"></i>
                                         </a>
@@ -220,108 +280,154 @@ if (isset($_GET['view'])) {
                             </div>
                         <?php endforeach; ?>
                     </div>
-                <?php else: ?>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Belum ada foto. Upload foto menggunakan form di atas.
-                    </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
 <?php else: ?>
-    <!-- Gallery List -->
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-<?php echo $edit_data ? 'pencil' : 'plus'; ?>-circle me-2"></i>
-                        <?php echo $edit_data ? 'Edit' : 'Tambah'; ?> Galeri
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="">
-                        <input type="hidden" name="action" value="save_gallery">
-                        <?php if ($edit_data): ?>
-                            <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
-                        <?php endif; ?>
+    <!-- Mode List: Kelola Album Galeri -->
 
-                        <div class="mb-3">
-                            <label class="form-label">Judul Galeri <span class="text-danger">*</span></label>
-                            <input type="text"
-                                name="judul"
-                                class="form-control"
-                                value="<?php echo $edit_data ? htmlspecialchars($edit_data['judul']) : ''; ?>"
-                                required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Deskripsi</label>
-                            <textarea name="deskripsi"
-                                class="form-control"
-                                rows="4"><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi']) : ''; ?></textarea>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-2"></i>Simpan
-                            </button>
-                            <?php if ($edit_data): ?>
-                                <a href="manage_gallery.php" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle me-2"></i>Batal
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Form Tambah/Edit Album -->
+    <div class="card mb-4 shadow-sm border-0 animate__animated animate__fadeInUp">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-<?php echo $edit_data ? 'pencil' : 'plus'; ?>-circle me-2"></i>
+                <?php echo $edit_data ? 'Edit' : 'Tambah'; ?> Album Galeri
+            </h5>
         </div>
+        <div class="card-body">
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="save_gallery">
+                <?php if ($edit_data): ?>
+                    <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
+                <?php endif; ?>
 
-        <div class="col-md-8 mb-4">
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-list-ul me-2"></i>Daftar Galeri
-                    </h5>
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Judul Album <span class="text-danger">*</span></label>
+                        <input type="text"
+                            name="judul"
+                            class="form-control"
+                            value="<?php echo $edit_data ? htmlspecialchars($edit_data['judul']) : ''; ?>"
+                            placeholder="Contoh: Workshop Machine Learning 2024"
+                            required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" disabled>
+                            <option>Aktif</option>
+                        </select>
+                        <small class="text-muted">Album otomatis aktif</small>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Deskripsi Album</label>
+                        <textarea name="deskripsi"
+                            class="form-control"
+                            rows="2"
+                            placeholder="Deskripsi singkat tentang album ini..."><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi']) : ''; ?></textarea>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-2"></i>Simpan Album
+                    </button>
+                    <?php if ($edit_data): ?>
+                        <a href="manage_gallery.php" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Batal
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Daftar Album Galeri -->
+    <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-grid me-2"></i>Daftar Album Galeri
+            </h5>
+        </div>
+        <div class="card-body">
+            <?php if (empty($galleries)): ?>
+                <div class="card shadow-sm border-0 text-center animate__animated animate__fadeInUp">
+                    <div class="card-body py-5">
+                        <i class="bi bi-emoji-frown text-info" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-muted">Belum ada galeri</h5>
+                        <p class="text-secondary small">Yuk tambahkan galeri baru untuk ditampilkan di sini!</p>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <form method="POST" id="bulkDeleteForm" action="">
                         <table class="table table-hover datatable">
                             <thead>
                                 <tr>
-                                    <th>Judul</th>
+                                    <th width="30">
+                                        <input type="checkbox" id="selectAll">
+                                    </th>
+                                    <th width="50">No</th>
+                                    <th width="100">Cover</th>
+                                    <th>Judul Album</th>
                                     <th>Deskripsi</th>
-                                    <th>Jumlah Foto</th>
+                                    <th width="100">Total Foto</th>
                                     <th width="180">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($galleries as $gallery): ?>
+                                <?php foreach ($galleries as $index => $gallery): ?>
+                                    <?php
+                                    // Get first photo as cover
+                                    $stmt_cover = $pdo->prepare("SELECT path_gambar FROM foto WHERE id_galeri = ? LIMIT 1");
+                                    $stmt_cover->execute([$gallery['uuid']]);
+                                    $cover = $stmt_cover->fetch();
+                                    ?>
                                     <tr>
-                                        <td><strong><?php echo htmlspecialchars($gallery['judul']); ?></strong></td>
-                                        <td><?php echo substr(htmlspecialchars($gallery['deskripsi']), 0, 50) . '...'; ?></td>
                                         <td>
-                                            <span class="badge bg-info">
+                                            <input type="checkbox" name="selected[]" value="<?= $gallery['uuid']; ?>" class="rowCheckbox">
+                                        </td>
+                                        <td><?php echo $index + 1; ?></td>
+                                        <td>
+                                            <?php if ($cover && $cover['path_gambar']): ?>
+                                                <img src="../assets/img/<?php echo htmlspecialchars($cover['path_gambar']); ?>"
+                                                    style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                            <?php else: ?>
+                                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                                    style="width: 80px; height: 60px; border-radius: 5px;">
+                                                    <i class="bi bi-images text-muted"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><strong><?php echo htmlspecialchars($gallery['judul']); ?></strong></td>
+                                        <td>
+                                            <small class="text-muted">
+                                                <?php echo $gallery['deskripsi'] ? substr(htmlspecialchars($gallery['deskripsi']), 0, 60) . '...' : '-'; ?>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-<?php echo $gallery['foto_count'] > 0 ? 'info' : 'secondary'; ?>">
                                                 <?php echo $gallery['foto_count']; ?> foto
                                             </span>
                                         </td>
                                         <td>
                                             <a href="?view=<?php echo $gallery['uuid']; ?>"
                                                 class="btn btn-sm btn-info"
-                                                title="Lihat Foto">
-                                                <i class="bi bi-eye"></i>
+                                                title="Lihat & Upload Foto">
+                                                <i class="bi bi-images"></i>
                                             </a>
                                             <a href="?edit=<?php echo $gallery['uuid']; ?>"
                                                 class="btn btn-sm btn-warning"
-                                                title="Edit">
+                                                title="Edit Album">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <a href="?delete_gallery=<?php echo $gallery['uuid']; ?>"
                                                 class="btn btn-sm btn-danger"
-                                                onclick="return confirmDelete();"
-                                                title="Hapus">
+                                                onclick="return confirmDelete('Hapus album dan semua foto di dalamnya?');"
+                                                title="Hapus Album">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         </td>
@@ -329,11 +435,57 @@ if (isset($_GET['view'])) {
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        <div id="bulkAction" class="mt-3 d-none">
+                            <button type="button" id="bulkDeleteBtn" class="btn btn-danger">
+                                <i class="bi bi-trash3 me-2"></i>Hapus Terpilih
+                            </button>
+                    </form>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <?php if (!empty($galleries)): ?>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h2 class="display-4 fw-bold text-primary mb-2">
+                            <?php echo count($galleries); ?>
+                        </h2>
+                        <p class="text-muted mb-0">Total Album</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h2 class="display-4 fw-bold text-success mb-2">
+                            <?php
+                            $total_photos = 0;
+                            foreach ($galleries as $g) {
+                                $total_photos += $g['foto_count'];
+                            }
+                            echo $total_photos;
+                            ?>
+                        </h2>
+                        <p class="text-muted mb-0">Total Foto</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 <?php endif; ?>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>
