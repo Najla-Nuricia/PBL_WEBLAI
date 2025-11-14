@@ -1,7 +1,7 @@
 <?php
 ob_start();
-
 $page_title = 'Kelola Berita & Agenda';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -16,9 +16,10 @@ if (isset($_GET['delete'])) {
         $_SESSION['flash_success'] = 'Berita berhasil dihapus!';
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Gagal menghapus berita: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_news.php");
+        exit;
     }
-    header("Location: manage_news.php");
-    exit;
 }
 
 // INSERT / UPDATE
@@ -47,9 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_news.php");
+        exit;
     }
-    header("Location: manage_news.php");
-    exit;
 }
 
 // BULK DELETE
@@ -63,19 +65,10 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         $_SESSION['flash_success'] = count($uuids) . ' berita berhasil dihapus!';
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_news.php");
+        exit;
     }
-    header("Location: manage_news.php");
-    exit;
-}
-
-// Ambil flash message jika ada
-if (isset($_SESSION['flash_success'])) {
-    $success = $_SESSION['flash_success'];
-    unset($_SESSION['flash_success']);
-}
-if (isset($_SESSION['flash_error'])) {
-    $error = $_SESSION['flash_error'];
-    unset($_SESSION['flash_error']);
 }
 
 // Ambil data berita untuk ditampilkan
@@ -89,6 +82,16 @@ if (isset($_GET['edit'])) {
     $stmt = $pdo->prepare("SELECT * FROM berita WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+}
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
 }
 ?>
 
@@ -234,12 +237,12 @@ if (isset($_GET['edit'])) {
 
 
                                     <td>
-                                        <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');?>">
+                                        <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary'); ?>">
                                             <?php echo ucfirst($news['kategori']); ?>
                                         </span>
                                     </td>
 
-                                    
+
 
                                     <td><?php echo htmlspecialchars($news['tempat']); ?></td>
                                     <td>
@@ -269,8 +272,8 @@ if (isset($_GET['edit'])) {
     </div>
 </div>
 
-<?php 
-include 'includes/admin_footer.php'; 
+<?php
+include 'includes/admin_footer.php';
 ob_end_flush();
 ?>
 <script>

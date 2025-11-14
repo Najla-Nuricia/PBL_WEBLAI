@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Partnership';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -14,15 +16,19 @@ if (isset($_GET['delete'])) {
         $stmt->execute([$uuid]);
         $partner = $stmt->fetch();
 
+        // Delete logo file if exists
         if ($partner && $partner['logo'] && file_exists('../assets/img/' . $partner['logo'])) {
             unlink('../assets/img/' . $partner['logo']);
         }
 
         $stmt = $pdo->prepare("DELETE FROM partnership WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Partnership berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Partnership berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus partnership: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus partnership: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_partnerships.php");
+        exit;
     }
 }
 
@@ -41,11 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
             if ($upload_result['success']) {
                 $logo = $upload_result['filename'];
             } else {
-                $error = $upload_result['message'];
+                $_SESSION['flash_error'] = "Gagal mengupload logo: " . $upload_result['error'];
             }
         }
 
-        if (!$error) {
+        if (!isset($_SESSION['flash_error'])) {
             if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
                 // Update
                 $uuid = $_POST['uuid'];
@@ -55,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
                     $stmt = $pdo->prepare("SELECT logo FROM partnership WHERE uuid = ?");
                     $stmt->execute([$uuid]);
                     $old = $stmt->fetch();
+                    // Hapus file logo lama
                     if ($old && $old['logo'] && file_exists('../assets/img/' . $old['logo'])) {
                         unlink('../assets/img/' . $old['logo']);
                     }
@@ -67,16 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
                     $stmt = $pdo->prepare("UPDATE partnership SET nama = ?, website = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                     $stmt->execute([$nama, $website, $uuid]);
                 }
-                $success = 'Partnership berhasil diupdate!';
+                $_SESSION['flash_success'] = 'Partnership berhasil diperbarui!';
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO partnership (nama, logo, website) VALUES (?, ?, ?)");
                 $stmt->execute([$nama, $logo, $website]);
-                $success = 'Partnership berhasil ditambahkan!';
+                $_SESSION['flash_success'] = 'Partnership berhasil ditambahkan!';
             }
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_partnerships.php");
+        exit;
     }
 }
 
@@ -95,13 +105,14 @@ if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' &
         // Eksekusi semua UUID
         $stmt->execute($uuids);
 
-        $success = count($uuids) . ' Partner berhasil dihapus!';
-        
+        $_SESSION['flash_success'] = count($uuids) . ' partner berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa partner: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa partner: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_partnerships.php");
+        exit;
     }
 }
-
 
 // Get all partnerships
 $stmt = $pdo->query("SELECT * FROM partnership ORDER BY nama");
@@ -115,6 +126,16 @@ if (isset($_GET['edit'])) {
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
 }
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
 
 <!-- Form Tambah/Edit -->
@@ -127,8 +148,8 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
-        <!-- Penambahan action form -->
-        <input type="hidden" name="action" value="save">
+            <!-- Penambahan action form -->
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>

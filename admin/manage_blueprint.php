@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Blueprint';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -11,9 +13,12 @@ if (isset($_GET['delete'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM blueprint WHERE id = ?");
         $stmt->execute([$id]);
-        $success = 'Blueprint berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Bluerint berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus blueprint: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus bluerint: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_blueprint.php");
+        exit;
     }
 }
 
@@ -28,15 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
             $id = $_POST['id'];
             $stmt = $pdo->prepare("UPDATE blueprint SET judul = ?, deskripsi = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
             $stmt->execute([$judul, $deskripsi, $id]);
-            $success = 'Blueprint berhasil diupdate!';
+            $_SESSION['flash_success'] = 'Bluerint berhasil diudate!';
         } else {
             // Insert
             $stmt = $pdo->prepare("INSERT INTO blueprint (judul, deskripsi) VALUES (?, ?)");
             $stmt->execute([$judul, $deskripsi]);
-            $success = 'Blueprint berhasil ditambahkan!';
+            $_SESSION['flash_success'] = 'Blueprint berhasil ditambahkan!';
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_blueprint.php");
+        exit;
     }
 }
 
@@ -53,9 +61,12 @@ if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' &
         // Eksekusi semua UUID
         $stmt->execute($id);
 
-        $success = count($id) . ' blueprint berhasil dihapus!';
+        $_SESSION['flash_success'] = count($id) . ' Blueprint berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa blueprint: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa blueprint: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_blueprint.php");
+        exit;
     }
 }
 
@@ -71,6 +82,16 @@ if (isset($_GET['edit'])) {
     $stmt->execute([$id]);
     $edit_data = $stmt->fetch();
 }
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 ?>
 <!-- Form Tambah/Edit -->
 <div class="card mb-4 border-0 animate__animated animate__fadeInUp">

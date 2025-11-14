@@ -2,26 +2,62 @@
 require_once '../config/db.php';
 $page_title = 'Research & Products';
 
-// Get products with author info
-$stmt = $pdo->query("
+
+// data produk
+$limit_pd = 6;
+$page_pd = isset($_GET['product_page']) ? (int)$_GET['product_page'] : 1;
+$offset_pd = ($page_pd - 1) * $limit_pd;
+$stmt = $pdo->prepare("
     SELECT p.*, a.nama as pembuat_nama 
     FROM produk p 
     LEFT JOIN anggota a ON p.pembuat_id = a.uuid 
     ORDER BY p.tahun DESC, p.nama ASC
+    LIMIT :limit OFFSET :offset
 ");
-$products = $stmt->fetchAll();
+$stmt->bindValue(':limit', $limit_pd, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset_pd, PDO::PARAM_INT);
+$stmt->execute();
+$count_stmt_pd = $pdo->prepare("SELECT COUNT(*) FROM produk");
+$count_stmt_pd->execute();
+$rows_produk = $count_stmt_pd->fetchColumn();
+$pages_produk = ceil($rows_produk / $limit_pd);
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->query("
+//ambil data blueprint
+$limit_bp = 5;
+$page_bp = isset($_GET['blueprint_page']) ? (int)$_GET['blueprint_page'] : 1;
+$offset_bp = ($page_bp - 1) * $limit_bp;
+$stmt = $pdo->prepare("
     SELECT judul, deskripsi
-    FROM blueprint 
+    FROM blueprint
+    LIMIT :limit OFFSET :offset
 ");
-$blueprint = $stmt->fetchAll();
+$stmt->bindValue(':limit', $limit_bp, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset_bp, PDO::PARAM_INT);
+$stmt->execute();
+$count_stmt_bp = $pdo->prepare("SELECT COUNT(*) FROM blueprint");
+$count_stmt_bp->execute();
+$rows_blueprint = $count_stmt_bp->fetchColumn();
+$pages_blueprint = ceil($rows_blueprint / $limit_bp);
+$blueprint = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->query("
+//ambil data topik riset
+$limit_tp = 5;
+$page_tp = isset($_GET['topic_page']) ? (int)$_GET['topic_page'] : 1;
+$offset_tp = ($page_tp - 1) * $limit_tp;
+$stmt = $pdo->prepare("
     SELECT topik
-    FROM topik_riset 
+    FROM topik_riset
+    LIMIT :limit OFFSET :offset
 ");
-$topik = $stmt->fetchAll();
+$stmt->bindValue(':limit', $limit_tp, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset_tp, PDO::PARAM_INT);
+$stmt->execute();
+$count_stmt_tp = $pdo->prepare("SELECT COUNT(*) FROM topik_riset");
+$count_stmt_tp->execute();
+$rows_topik = $count_stmt_tp->fetchColumn();
+$pages_topik = ceil($rows_topik / $limit_tp);
+$topik = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 include '../includes/header.php';
 include '../includes/navbar.php';
@@ -129,6 +165,24 @@ include '../includes/navbar.php';
                     </div>
                 <?php endforeach; ?>
             </div>
+            <!-- Pagination features -->
+            <?php if ($pages_produk > 1): ?>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        <li class="page-item <?= ($page_pd <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?product_page=<?= $page_pd - 1 ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>">&laquo; Sebelumnya</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $pages_produk; $i++): ?>
+                            <li class="page-item <?= ($page_pd == $i) ? 'active' : '' ?>">
+                                <a class="page-link" href="?product_page=<?= $i ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?= ($page_pd >= $pages_produk) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?product_page=<?= $page_pd + 1 ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>">Selanjutnya &raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </section>
 <?php endif; ?>
@@ -297,6 +351,24 @@ include '../includes/navbar.php';
                     </div>
                 <?php endforeach; ?>
             </div>
+            <!-- Pagination features -->
+            <?php if ($pages_blueprint > 1): ?>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        <li class="page-item <?= ($page_bp <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp - 1 ?>&topic_page=<?= $page_tp ?>">&laquo; Sebelumnya</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $pages_blueprint; $i++): ?>
+                            <li class="page-item <?= ($page_bp == $i) ? 'active' : '' ?>">
+                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $i ?>&topic_page=<?= $page_tp ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?= ($page_bp >= $pages_blueprint) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp + 1 ?>&topic_page=<?= $page_tp ?>">Selanjutnya &raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         <?php else: ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
@@ -328,6 +400,24 @@ include '../includes/navbar.php';
                     </div>
                 <?php endforeach; ?>
             </div>
+            <!-- Pagination features -->
+            <?php if ($pages_topik > 1): ?>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        <li class="page-item <?= ($page_tp <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp - 1 ?>">&laquo; Sebelumnya</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $pages_topik; $i++): ?>
+                            <li class="page-item <?= ($page_tp == $i) ? 'active' : '' ?>">
+                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?= ($page_tp >= $pages_topik) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp + 1 ?>">Selanjutnya &raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         <?php else: ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>

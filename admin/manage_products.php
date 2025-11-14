@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Produk';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -20,9 +22,12 @@ if (isset($_GET['delete'])) {
 
         $stmt = $pdo->prepare("DELETE FROM produk WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Produk berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Produk berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus produk: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus produk: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_products.php");
+        exit;
     }
 }
 
@@ -44,11 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($upload_result['success']) {
                 $path_gambar = $upload_result['filename'];
             } else {
-                $error = $upload_result['message'];
+                $_SESSION['flash_error'] = $upload_result['error'];
             }
         }
-
-        if (!$error) {
+        // Proceed only if no upload error
+        if (!isset($_SESSION['flash_error'])) {
             if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
                 // Update
                 $uuid = $_POST['uuid'];
@@ -70,16 +75,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt = $pdo->prepare("UPDATE produk SET nama = ?, tahun = ?, pembuat_id = ?, deskripsi = ?, link_demo = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                     $stmt->execute([$nama, $tahun, $pembuat_id, $deskripsi, $link_demo, $uuid]);
                 }
-                $success = 'Produk berhasil diupdate!';
+                $_SESSION['flash_success'] = 'Produk berhasil diperbarui!';
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO produk (nama, tahun, pembuat_id, deskripsi, link_demo, path_gambar) VALUES (?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$nama, $tahun, $pembuat_id, $deskripsi, $link_demo, $path_gambar]);
-                $success = 'Produk berhasil ditambahkan!';
+                $_SESSION['flash_success'] = 'Produk berhasil ditambahkan!';
             }
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_products.php");
+        exit;
     }
 }
 
@@ -96,9 +104,12 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         // Eksekusi semua UUID
         $stmt->execute($uuids);
 
-        $success = count($uuids) . ' kegiatan berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . ' produk berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa produk: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_products.php");
+        exit;
     }
 }
 
@@ -123,6 +134,16 @@ if (isset($_GET['edit'])) {
     $stmt = $pdo->prepare("SELECT * FROM produk WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+}
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
 }
 ?>
 

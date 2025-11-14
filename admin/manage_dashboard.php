@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Dashboard';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -29,9 +31,12 @@ if (isset($_GET['delete'])) {
             unlink($upload_dir . $foto['path_gambar']);
         }
 
-        $success = 'Foto dashboard berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Foto dashboard berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus foto: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus foto: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_dashboard.php");
+        exit;
     }
 }
 
@@ -54,23 +59,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['gambar'])) {
                     try {
                         $stmt = $pdo->prepare("INSERT INTO dashboard_foto (path_gambar) VALUES (?)");
                         $stmt->execute([$new_filename]);
-                        $success = 'Foto dashboard berhasil diupload!';
+                        $_SESSION['flash_success'] = 'Gambar berhasil diupload!';
                     } catch (PDOException $e) {
                         unlink($upload_path);
-                        $error = 'Gagal menyimpan ke database: ' . $e->getMessage();
+                        $_SESSION['flash_error'] = 'Gagal menyimpan data ke database: ' . $e->getMessage();
                     }
                 } else {
-                    $error = 'Gagal mengupload file!';
+                    $_SESSION['flash_error'] = 'Gagal mengupload file!';
                 }
             } else {
-                $error = 'Ukuran file terlalu besar! Maksimal 5MB.';
+                $_SESSION['flash_error'] = 'Ukuran file melebihi batas maksimal 5MB!';
             }
         } else {
-            $error = 'Tipe file tidak diizinkan! Hanya JPG, PNG, GIF, WEBP.';
+            $_SESSION['flash_error'] = 'Format file tidak diizinkan! Hanya JPG, PNG, GIF, WEBP yang diperbolehkan.';
         }
     } else {
-        $error = 'Error saat upload file!';
+        $_SESSION['flash_error'] = 'Terjadi kesalahan saat mengupload file!';
     }
+    header("Location: manage_dashboard.php");
+    exit;
 }
 
 // Handle Set Active
@@ -83,9 +90,12 @@ if (isset($_GET['set_active'])) {
         // Then activate selected one (mark as most recent)
         $stmt = $pdo->prepare("UPDATE dashboard_foto SET updated_at = CURRENT_TIMESTAMP WHERE id = ?");
         $stmt->execute([$id]);
-        $success = 'Foto berhasil diatur sebagai aktif!';
+        $_SESSION['flash_success'] = 'Foto dashboard berhasil diatur sebagai aktif!';
     } catch (PDOException $e) {
-        $error = 'Gagal mengatur foto: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal mengatur foto sebagai aktif: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_dashboard.php");
+        exit;
     }
 }
 
@@ -95,22 +105,18 @@ $photos = $stmt->fetchAll();
 
 // Get active photo (most recent)
 $active_photo = !empty($photos) ? $photos[0] : null;
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <!-- Info Section -->
 <div class="alert alert-info mb-4">
     <i class="bi bi-info-circle-fill me-2"></i>
@@ -336,3 +342,12 @@ $active_photo = !empty($photos) ? $photos[0] : null;
 </div>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>

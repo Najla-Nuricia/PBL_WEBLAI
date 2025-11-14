@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Fasilitas';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -20,14 +22,17 @@ if (isset($_GET['delete'])) {
 
         $stmt = $pdo->prepare("DELETE FROM fasilitas WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Fasilitas berhasil dihapus!';
+        $_SESSION['flash_success'] = "Fasilitas berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus fasilitas: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus fasilitas: " . $e->getMessage();
+    } finally {
+        header("Location: manage_facilities.php");
+        exit;
     }
 }
 
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
     $deskripsi = clean_input($_POST['deskripsi'] ?? '');
     $kuantitas = clean_input($_POST['kuantitas'] ?? '');
@@ -41,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($upload_result['success']) {
                 $path_gambar = $upload_result['filename'];
             } else {
-                $error = $upload_result['message'];
+                $_SESSION['flash_error'] = "Gagal mengupload gambar: " . $upload_result['error'];
             }
         }
 
@@ -67,20 +72,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt = $pdo->prepare("UPDATE fasilitas SET nama = ?, deskripsi = ?, kuantitas = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                     $stmt->execute([$nama, $deskripsi, $kuantitas, $uuid]);
                 }
-                $success = 'Fasilitas berhasil diupdate!';
+                $_SESSION['flash_success'] = "Fasilitas berhasil diperbarui!";
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO fasilitas (nama, deskripsi, kuantitas, path_gambar) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$nama, $deskripsi, $kuantitas, $path_gambar]);
-                $success = 'Fasilitas berhasil ditambahkan!';
+                $_SESSION['flash_success'] = "Fasilitas berhasil ditambahkan!";
             }
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menyimpan fasilitas: " . $e->getMessage();
+    } finally {
+        header("Location: manage_facilities.php");
+        exit;
     }
 }
-
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+// Handle Bulk Delete
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -92,10 +100,23 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         // Eksekusi semua UUID
         $stmt->execute($uuids);
 
-        $success = count($uuids) . ' kegiatan berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . ' fasilitas berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus fasilitas: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_facilities.php");
+        exit;
     }
+}
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
 }
 
 // Get all facilities
@@ -122,6 +143,8 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
+            <!-- Penambahan action form -->
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -212,6 +235,8 @@ if (isset($_GET['edit'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <!-- Penambahan action form -->
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>
