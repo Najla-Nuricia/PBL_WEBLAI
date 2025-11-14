@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Kegiatan';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -11,9 +13,12 @@ if (isset($_GET['delete'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM kegiatan WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Kegiatan berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Kegiatan berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus kegiatan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus kegiatan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_activities.php");
+        exit;
     }
 }
 
@@ -26,20 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
     $deskripsi_singkat = clean_input($_POST['deskripsi_singkat'] ?? '');
 
     try {
-        if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
-            // Update
+        if (!empty($_POST['uuid'])) {
             $uuid = $_POST['uuid'];
-            $stmt = $pdo->prepare("UPDATE kegiatan SET nama = ?, tanggal = ?, pemateri = ?, kategori_kegiatan = ?, deskripsi_singkat = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
+            $stmt = $pdo->prepare("UPDATE kegiatan SET nama=?, tanggal=?, pemateri=?, kategori_kegiatan=?, deskripsi_singkat=?, updated_at=CURRENT_TIMESTAMP WHERE uuid=?");
             $stmt->execute([$nama, $tanggal, $pemateri, $kategori_kegiatan, $deskripsi_singkat, $uuid]);
-            $success = 'Kegiatan berhasil diupdate!';
+            $_SESSION['flash_success'] = 'Kegiatan berhasil diupdate!';
         } else {
-            // Insert
             $stmt = $pdo->prepare("INSERT INTO kegiatan (nama, tanggal, pemateri, kategori_kegiatan, deskripsi_singkat) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$nama, $tanggal, $pemateri, $kategori_kegiatan, $deskripsi_singkat]);
-            $success = 'Kegiatan berhasil ditambahkan!';
+            $_SESSION['flash_success'] = 'Kegiatan berhasil ditambahkan!';
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_activities.php");
+        exit;
     }
 }
 // Handle Bulk Delete
@@ -55,12 +61,14 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         // Eksekusi semua UUID
         $stmt->execute($uuids);
 
-        $success = count($uuids) . ' kegiatan berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . ' kegiatan berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_activities.php");
+        exit;
     }
 }
-
 
 // Get all activities
 $stmt = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC");
@@ -74,6 +82,16 @@ if (isset($_GET['edit'])) {
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
 }
+
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 ?>
 
 <!-- Form Tambah/Edit -->

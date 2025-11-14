@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Profile Laboratorium';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -25,30 +27,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $pdo->prepare("INSERT INTO profile (visi, misi, sejarah) VALUES (?, ?, ?)");
             $stmt->execute([$visi, $misi, $sejarah]);
         }
-        $success = 'Profile laboratorium berhasil disimpan!';
+        $_SESSION['flash_success'] = 'Profile laboratorium berhasil disimpan!';
 
         // Refresh data
         $stmt = $pdo->query("SELECT * FROM profile LIMIT 1");
         $profile = $stmt->fetch();
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_profile.php");
+        exit;
     }
 }
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
 
 <div class="row">
     <div class="col-12">
@@ -162,3 +162,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php endif; ?>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>
