@@ -23,7 +23,7 @@ $stmt_kegiatan->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt_kegiatan->bindValue(':offset', $offset_la, PDO::PARAM_INT);
 $stmt_kegiatan->execute();
 $latest_activities = $stmt_kegiatan->fetchAll();
-$count_stmt_la = $pdo->prepare("SELECT COUNT(*) FROM blueprint");
+$count_stmt_la = $pdo->prepare("SELECT COUNT(*) FROM kegiatan");
 $count_stmt_la->execute();
 $rows_activities = $count_stmt_la->fetchColumn();
 $pages_activities = ceil($rows_activities / $limit);
@@ -53,25 +53,39 @@ include '../includes/navbar.php';
                 </h1>
                 <script>
                     document.addEventListener("DOMContentLoaded", function() {
-                            new TypeIt("#type", {
-                            speed: 80,
-                            startDelay: 500,
-                            cursorChar: "|",
-                            lifeLike: true,
+                        new TypeIt("#type", {
+                                speed: 80,
+                                startDelay: 500,
+                                cursorChar: "|",
+                                lifeLike: true,
                             })
-                            .type("Appliedddd ", { delay: 300 })
+                            .type("Appliedddd ", {
+                                delay: 300
+                            })
                             .pause(150)
-                            .delete(4, { delay: 300 })
-                            .type(" ", { delay: 300 })
+                            .delete(4, {
+                                delay: 300
+                            })
+                            .type(" ", {
+                                delay: 300
+                            })
                             .pause(700)
-                            .type("Informatics ", { delay: 250 })
+                            .type("Informatics ", {
+                                delay: 250
+                            })
                             .pause(150)
-                            .type("Lab.", { delay: 300 })
+                            .type("Lab.", {
+                                delay: 300
+                            })
                             .pause(700)
-                            .delete(4, { delay: 300 })
-                            .type("Laboratory", { delay: 300 })
+                            .delete(4, {
+                                delay: 300
+                            })
+                            .type("Laboratory", {
+                                delay: 300
+                            })
                             .go();
-                        });
+                    });
                 </script>
                 <p class="lead mb-4">
                     Laboratorium penelitian dan pengembangan teknologi informasi terapan
@@ -243,24 +257,24 @@ include '../includes/navbar.php';
                         </div>
                     </div>
                 <?php endforeach; ?>
-            <!-- Pagination features -->
-            <?php if ($pages_activities > 1): ?>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mt-4">
-                        <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
-                        </li>
-                        <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
-                            <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                <!-- Pagination features -->
+                <?php if ($pages_activities > 1): ?>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
                             </li>
-                        <?php endfor; ?>
-                        <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
+                            <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
+                                <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
+                                    <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="col-12">
                     <div class="alert alert-info text-center">
