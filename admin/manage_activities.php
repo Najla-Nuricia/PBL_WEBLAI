@@ -22,8 +22,30 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// Handle Bulk Delete
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM kegiatan WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($uuids);
+
+        $_SESSION['flash_success'] = count($uuids) . ' kegiatan berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_activities.php");
+        exit;
+    }
+}
+
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST'  && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
     $tanggal = clean_input($_POST['tanggal'] ?? '');
     $pemateri = clean_input($_POST['pemateri'] ?? '');
@@ -48,27 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
         exit;
     }
 }
-// Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
-    $uuids = $_POST['selected'];
 
-    try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
-        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
-        $query = "DELETE FROM kegiatan WHERE uuid IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
-        $stmt->execute($uuids);
-
-        $_SESSION['flash_success'] = count($uuids) . ' kegiatan berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus beberapa kegiatan: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_activities.php");
-        exit;
-    }
-}
 
 // Get all activities
 $stmt = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC");
@@ -104,6 +106,7 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -191,6 +194,7 @@ if (isset($_SESSION['flash_error'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>

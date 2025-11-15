@@ -22,6 +22,28 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// Handle Bulk Delete
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $id = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($id), '?'));
+        $query = "DELETE FROM blueprint WHERE id IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($id);
+
+        $_SESSION['flash_success'] = count($id) . ' Blueprint berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa blueprint: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_blueprint.php");
+        exit;
+    }
+}
+
 // Handle Insert/Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $judul = clean_input($_POST['judul'] ?? '');
@@ -42,28 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_blueprint.php");
-        exit;
-    }
-}
-
-// Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
-    $id = $_POST['selected'];
-
-    try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
-        $placeholders = implode(',', array_fill(0, count($id), '?'));
-        $query = "DELETE FROM blueprint WHERE id IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
-        $stmt->execute($id);
-
-        $_SESSION['flash_success'] = count($id) . ' Blueprint berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus beberapa blueprint: ' . $e->getMessage();
     } finally {
         header("Location: manage_blueprint.php");
         exit;

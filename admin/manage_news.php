@@ -22,8 +22,25 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// BULK DELETE
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+    try {
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM berita WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($uuids);
+        $_SESSION['flash_success'] = count($uuids) . ' berita berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_news.php");
+        exit;
+    }
+}
+
 // INSERT / UPDATE
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $judul     = clean_input($_POST['judul'] ?? '');
     $penulis   = clean_input($_POST['penulis'] ?? '');
     $tanggal   = clean_input($_POST['tanggal'] ?? '');
@@ -48,23 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_news.php");
-        exit;
-    }
-}
-
-// BULK DELETE
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
-    $uuids = $_POST['selected'];
-    try {
-        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
-        $query = "DELETE FROM berita WHERE uuid IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-        $stmt->execute($uuids);
-        $_SESSION['flash_success'] = count($uuids) . ' berita berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
     } finally {
         header("Location: manage_news.php");
         exit;
@@ -105,6 +105,7 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -202,6 +203,7 @@ if (isset($_SESSION['flash_error'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>

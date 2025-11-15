@@ -82,7 +82,6 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
     }
 }
 
-
 // Handle Insert/Update Gallery
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] == 'save_gallery') {
