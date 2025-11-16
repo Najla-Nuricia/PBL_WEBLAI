@@ -641,6 +641,18 @@ require_login();
                         <span>Users</span>
                     </a>
                 </li>
+
+                <div class="menu-category">
+                    <small>Pesan</small>
+                </div>
+
+                <li>
+                    <a href="view_email.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'view_email.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-envelope"></i>
+                        <span>Email</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
     </div>

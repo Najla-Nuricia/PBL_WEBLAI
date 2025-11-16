@@ -179,7 +179,7 @@ include '../includes/navbar.php';
 <!-- Team Section -->
 <section class="py-5">
     <div class="container">
-        <div class="row mb-4" data-aos="fade-up" data-aos-duration="1000">
+        <div class="row mb-4">
             <div class="col text-center">
                 <h2 class="section-title">Our Team</h2>
                 <p class="section-subtitle">Tim peneliti dan pengembang AI Lab Polinema</p>
@@ -188,117 +188,144 @@ include '../includes/navbar.php';
 
         <!-- Ketua -->
         <?php if (!empty($ketua)): ?>
-            <div class="mb-5" data-aos="fade-up" data-aos-duration="1000">
-                <h4 class="text-center mb-4 fw-bold">Kepala Laboratorium</h4>
-                <div class="row justify-content-center g-4">
-                    <?php foreach ($ketua as $k): ?>
-                        <div class="col-md-4 col-lg-3">
-                            <div class="card border-0 shadow-sm text-center h-100">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <?php if ($k['path_gambar']): ?>
-                                            <img src="../assets/img/<?php echo htmlspecialchars($k['path_gambar']); ?>"
-                                                alt="<?php echo htmlspecialchars($k['nama']); ?>"
-                                                class="rounded-circle"
-                                                style="width: 120px; height: 120px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto"
-                                                style="width: 120px; height: 120px;">
-                                                <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($k['nama']); ?></h5>
-                                    <?php if ($k['nidn']): ?>
-                                        <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($k['nidn']); ?></p>
-                                    <?php endif; ?>
-                                    <span class="badge bg-primary">
-                                        <?php echo ucfirst($k['status']); ?>
-                                    </span>
+        <div class="mb-5">
+            <h4 class="text-center mb-4 fw-bold">Kepala Laboratorium</h4>
+            <div class="row justify-content-center g-4">
+                <?php foreach ($ketua as $k): ?>
+                <div class="col-md-4 col-lg-3">
+                    <div class="card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $k['uuid']; ?>">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <?php if ($k['path_gambar']): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($k['path_gambar']); ?>" alt="<?php echo htmlspecialchars($k['nama']); ?>" class="rounded-circle" style="width:120px;height:120px;object-fit:cover;">
+                                <?php else: ?>
+                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width:120px;height:120px;">
+                                    <i class="bi bi-person-fill text-white" style="font-size:3rem;"></i>
                                 </div>
+                                <?php endif; ?>
                             </div>
+                            <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($k['nama']); ?></h5>
+                            <?php if ($k['nidn']): ?>
+                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($k['nidn']); ?></p>
+                            <?php endif; ?>
+                            <span class="badge bg-primary"><?php echo ucfirst($k['status']); ?></span>
                         </div>
-                    <?php endforeach; ?>
+                    </div>
                 </div>
+                <?php endforeach; ?>
             </div>
+        </div>
         <?php endif; ?>
 
+        <!-- Anggota Dosen  -->
         <?php if (!empty($anggota)): ?>
-            <!-- Bagian Anggota Dosen -->
-            <?php
-            $dosen = array_filter($anggota, fn($a) => strtolower($a['status']) === 'dosen');
-            $mahasiswa = array_filter($anggota, fn($a) => strtolower($a['status']) === 'mahasiswa');
-            ?>
+        <?php 
+        $dosen = array_filter($anggota, fn($a) => strtolower($a['status']) === 'dosen');
+        $mahasiswa = array_filter($anggota, fn($a) => strtolower($a['status']) === 'mahasiswa');
+        ?>
 
-            <?php if (!empty($dosen)): ?>
-                <div class="mb-5" data-aos="fade-up" data-aos-duration="1000">
-                    <h4 class="text-center mb-4 fw-bold">Anggota Dosen</h4>
-                    <div class="row g-4">
-                        <?php foreach ($dosen as $a): ?>
-                            <div class="col-md-4 col-lg-3">
-                                <div class="card border-0 shadow-sm text-center h-100">
-                                    <div class="card-body p-4">
-                                        <div class="mb-3">
-                                            <?php if (!empty($a['path_gambar'])): ?>
-                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
-                                                    alt="<?php echo htmlspecialchars($a['nama']); ?>"
-                                                    class="rounded-circle"
-                                                    style="width: 100px; height: 100px; object-fit: cover;">
-                                            <?php else: ?>
-                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                                    style="width: 100px; height: 100px;">
-                                                    <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
-                                        <?php if (!empty($a['nidn'])): ?>
-                                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
-                                        <?php endif; ?>
-                                        <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
-                                    </div>
+        <?php if (!empty($dosen)): ?>
+        <div class="mb-5">
+            <h4 class="text-center mb-4 fw-bold">Anggota Dosen</h4>
+            <div class="row g-4">
+                <?php foreach ($dosen as $a): ?>
+                <div class="col-md-4 col-lg-3">
+                    <div class="card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <?php if (!empty($a['path_gambar'])): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>" alt="<?php echo htmlspecialchars($a['nama']); ?>" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+                                <?php else: ?>
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width:100px;height:100px;">
+                                    <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
                                 </div>
+                                <?php endif; ?>
                             </div>
-                        <?php endforeach; ?>
+                            <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                            <?php if (!empty($a['nidn'])): ?>
+                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                            <?php endif; ?>
+                            <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
+                        </div>
                     </div>
                 </div>
-            <?php endif; ?>
-
-            <!-- Bagian Anggota Mahasiswa -->
-            <?php if (!empty($mahasiswa)): ?>
-                <div data-aos="fade-up" data-aos-duration="1000">
-                    <h4 class="text-center mb-4 fw-bold">Anggota Mahasiswa</h4>
-                    <div class="row g-4">
-                        <?php foreach ($mahasiswa as $a): ?>
-                            <div class="col-md-4 col-lg-3">
-                                <div class="card border-0 shadow-sm text-center h-100">
-                                    <div class="card-body p-4">
-                                        <div class="mb-3">
-                                            <?php if (!empty($a['path_gambar'])): ?>
-                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
-                                                    alt="<?php echo htmlspecialchars($a['nama']); ?>"
-                                                    class="rounded-circle"
-                                                    style="width: 100px; height: 100px; object-fit: cover;">
-                                            <?php else: ?>
-                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                                    style="width: 100px; height: 100px;">
-                                                    <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
-                                        <?php if (!empty($a['nidn'])): ?>
-                                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
-                                        <?php endif; ?>
-                                        <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
         <?php endif; ?>
+        
+        <!-- Anggota Mahasiswa -->
+        <?php if (!empty($mahasiswa)): ?>
+        <div>
+            <h4 class="text-center mb-4 fw-bold">Anggota Mahasiswa</h4>
+            <div class="row g-4">
+                <?php foreach ($mahasiswa as $a): ?>
+                <div class="col-md-4 col-lg-3">
+                    <div class="card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <?php if (!empty($a['path_gambar'])): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>" alt="<?php echo htmlspecialchars($a['nama']); ?>" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+                                <?php else: ?>
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width:100px;height:100px;">
+                                    <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                            <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                            <?php if (!empty($a['nidn'])): ?>
+                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                            <?php endif; ?>
+                            <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php endif; ?>
+
+        <!-- pop up -->
+        <div class="modal fade" id="anggotaModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"><p>Loading...</p></div>
+            </div>
+        </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+        document.querySelectorAll('.card[data-uuid]').forEach(card => {
+        card.addEventListener('click', () => {
+            const uuid = card.dataset.uuid
+            const modal = new bootstrap.Modal(document.getElementById('anggotaModal'))
+            const modalTitle = document.getElementById('modalTitle')
+            const modalBody = document.getElementById('modalBody')
+            modalTitle.innerText = card.querySelector('h5, h6').innerText
+            modalBody.innerHTML = '<p>Loading...</p>'
+            modal.show()
+            function loadPage(page = 1) {
+            fetch(`get_penelitian.php?uuid=${uuid}&page=${page}`)
+                .then(res => res.text())
+                .then(html => {
+                modalBody.innerHTML = html
+                modalBody.querySelectorAll('.page-link').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                    loadPage(btn.dataset.page)
+                    })
+                })
+                })
+            }
+            loadPage()
+        })
+        })
+        </script>
 
         <?php if (empty($ketua) && empty($anggota)): ?>
             <div class="alert alert-info text-center">
