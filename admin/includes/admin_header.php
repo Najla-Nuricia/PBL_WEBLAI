@@ -47,6 +47,7 @@ require_login();
             --accent-color: #4A90E2;
             --sidebar-bg: #1a1f36;
             --sidebar-hover: #252b42;
+            --text-muted: #a0aec0;
         }
 
         * {
@@ -60,56 +61,313 @@ require_login();
             background: #d1d2d5ff;
         }
 
-        /* Sidebar */
+        /* ===== IMPROVED SIDEBAR ===== */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
             width: 260px;
-            background: var(--sidebar-bg);
-            padding: 1.5rem 0;
-            transition: all 0.3s;
+            background: linear-gradient(180deg, #1a1f36 0%, #141829 100%);
+            padding: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            overflow-y: auto;
+            overflow: hidden;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
         }
 
+        /* Custom Scrollbar */
+        .sidebar-scroll {
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 2rem;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Sidebar Brand - Glassmorphism */
         .sidebar-brand {
-            padding: 0 1.5rem 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-brand:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transition: all 0.3s;
         }
 
         .sidebar-brand h4 {
             color: white;
             font-weight: 700;
             margin: 0;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
+        .sidebar-brand small {
+            color: #FF9F1C;
+            font-weight: 500;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Menu Categories - LEBIH BESAR */
+        .menu-category {
+            padding: 0.75rem 1.5rem 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .menu-category small {
+            color: #ffffff;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 1.2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Menu */
         .sidebar-menu {
             list-style: none;
-            padding: 0;
+            padding: 0 0.5rem;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.25rem;
         }
 
         .sidebar-menu li a {
             display: flex;
             align-items: center;
-            padding: 0.8rem 1.5rem;
-            color: #a0aec0;
+            padding: 0.9rem 1rem;
+            color: var(--text-muted);
             text-decoration: none;
-            transition: all 0.3s;
+            border-radius: 10px;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            will-change: padding-left;
         }
 
-        .sidebar-menu li a:hover,
-        .sidebar-menu li a.active {
-            background: var(--sidebar-hover);
+        /* Hover Effect */
+        .sidebar-menu li a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--accent-color);
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hover state - hanya untuk non-active items */
+        .sidebar-menu li a:not(.active):hover {
+            background: rgba(74, 144, 226, 0.1);
             color: white;
-            border-left: 3px solid var(--accent-color);
+            padding-left: 1.2rem;
+        }
+
+        .sidebar-menu li a:not(.active):hover::before {
+            transform: scaleY(1);
+        }
+
+        /* Active State - tanpa transform untuk menghindari konflik */
+        .sidebar-menu li a.active {
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.2) 0%, rgba(30, 75, 163, 0.2) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+        }
+
+        .sidebar-menu li a.active::before {
+            transform: scaleY(1);
+            width: 4px;
+            background: linear-gradient(180deg, #4A90E2 0%, #FF9F1C 100%);
+        }
+
+        .sidebar-menu li a.active i {
+            color: #4A90E2;
         }
 
         .sidebar-menu li a i {
             margin-right: 0.8rem;
             font-size: 1.2rem;
+            transition: transform 0.2s ease;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Icon scale hanya untuk non-active items */
+        .sidebar-menu li a:not(.active):hover i {
+            transform: scale(1.05);
+        }
+
+        /* Badge Notification */
+        .menu-badge {
+            margin-left: auto;
+            background: #FF9F1C;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* ===== MINIMALIST TOPBAR ===== */
+        .topbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .topbar.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 0.8rem 2rem;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-left h5 {
+            margin: 0;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        /* Topbar Right */
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* View Site Button */
+        .btn-view-site {
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-view-site:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 75, 163, 0.3);
+        }
+
+        /* Profile Dropdown - Minimalist */
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .profile-btn:hover {
+            border-color: var(--accent-color);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .profile-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #212529;
+        }
+
+        /* Dropdown Menu Enhancement */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-radius: 10px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            min-width: 180px;
+        }
+
+        .dropdown-item {
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(74, 144, 226, 0.1);
+            transform: translateX(3px);
+        }
+
+        .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .dropdown-divider {
+            margin: 0.4rem 0;
+            border-top: 1px solid #e9ecef;
         }
 
         /* Main Content */
@@ -117,25 +375,6 @@ require_login();
             margin-left: 260px;
             min-height: 100vh;
             transition: all 0.3s;
-        }
-
-        /* Topbar */
-        .topbar {
-            background: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-            background-color: #fff;
-            transition: box-shadow 0.3s ease;
-        }
-
-        .topbar.scrolled {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
         }
 
         .content-wrapper {
@@ -185,6 +424,18 @@ require_login();
             .main-content {
                 margin-left: 0;
             }
+
+            .topbar {
+                padding: 1rem;
+            }
+
+            .topbar-left h5 {
+                font-size: 1rem;
+            }
+
+            .btn-view-site {
+                display: none !important;
+            }
         }
 
         .clickable-card {
@@ -197,21 +448,7 @@ require_login();
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .stats-card .card-footer {
-            border-top: 1px solid #eee;
-            padding-top: 0.75rem;
-        }
-
-        a.text-decoration-none {
-            display: block;
-            color: inherit;
-        }
-
-        /* Animasi muncul form (fade + scale) */
-        .card-body form {
-            animation: fadeInScale 0.4s ease-in-out;
-        }
-
+        /* Animasi */
         @keyframes fadeInScale {
             from {
                 opacity: 0;
@@ -224,18 +461,11 @@ require_login();
             }
         }
 
-        /* Hover lembut pada dropdown */
-        .select2-container--bootstrap-5 .select2-selection--single {
-            transition: all 0.2s ease;
-            border-radius: 8px;
+        .card-body form {
+            animation: fadeInScale 0.4s ease-in-out;
         }
 
-        .select2-container--bootstrap-5 .select2-selection--single:hover {
-            border-color: #0d6efd;
-            box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
-        }
-
-        /* Tabel responsive */
+        /* Table Styles */
         .table {
             border-collapse: separate;
             border-spacing: 0 0.5rem;
@@ -255,11 +485,10 @@ require_login();
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #1E4BA3;/
+            accent-color: #1E4BA3;
         }
 
         .table input[type="checkbox"]:checked {
-            accent-color: #1E4BA3;
             transform: scale(1.1);
             transition: all 0.2s ease-in-out;
         }
@@ -283,167 +512,172 @@ require_login();
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Logo -->
-        <a href="../admin/dashboard.php" class="text-decoration-none text-white">
-            <div class="sidebar-brand d-flex align-items-center">
-                <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 50px; height: 50px; object-fit: contain;">
-                <div>
-                    <h4 style="font-size: 1.2rem; margin-bottom: 0;">AI Lab Admin</h4>
-                    <small style="color: #FF9F1C;">Dashboard Panel</small>
+        <div class="sidebar-scroll">
+            <!-- Logo -->
+            <a href="../admin/dashboard.php" class="text-decoration-none text-white">
+                <div class="sidebar-brand d-flex align-items-center">
+                    <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 50px; height: 50px; object-fit: contain;">
+                    <div>
+                        <h4>AI Lab Admin</h4>
+                        <small>Dashboard Panel</small>
+                    </div>
                 </div>
-            </div>
-        </a>
+            </a>
 
-        <ul class="sidebar-menu">
-            <li>
-                <a href="dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
-            <li class="mt-3">
-                <div class="px-4 py-2">
-                    <small class="text-white text-uppercase">Konten</small>
+                <div class="menu-category">
+                    <small>Konten</small>
                 </div>
-            </li>
 
-            <li>
-                <a href="manage_profile.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_profile.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-building"></i>
-                    <span>Profile Lab</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_profile.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_profile.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-building"></i>
+                        <span>Profile Lab</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_dashboard.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-image"></i>
-                    <span>Dashboard Background</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_dashboard.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-image"></i>
+                        <span>Dashboard Background</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_news.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_news.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-newspaper"></i>
-                    <span>Berita & Agenda</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_news.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_news.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-newspaper"></i>
+                        <span>Berita & Agenda</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_activities.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_activities.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-calendar-event"></i>
-                    <span>Kegiatan</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_activities.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_activities.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Kegiatan</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_publications.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_publications.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Publikasi</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_publications.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_publications.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-journal-text"></i>
+                        <span>Publikasi</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_products.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_products.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-box-seam"></i>
-                    <span>Produk</span>
-                </a>
-            </li>
-            <li>
-                <a href="manage_topik_riset.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_topik_riset.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-lightbulb"></i>
-                    <span>Topik Riset</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_products.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_products.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Produk</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_blueprint.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_blueprint.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-diagram-3"></i>
-                    <span>Blueprint/Roadmap</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_topik_riset.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_topik_riset.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>Topik Riset</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_gallery.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_gallery.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-images"></i>
-                    <span>Galeri</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_blueprint.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_blueprint.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-diagram-3"></i>
+                        <span>Blueprint/Roadmap</span>
+                    </a>
+                </li>
 
-            <li class="mt-3">
-                <div class="px-4 py-2">
-                    <small class="text-white text-uppercase">Tim & Mitra</small>
+                <li>
+                    <a href="manage_gallery.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_gallery.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-images"></i>
+                        <span>Galeri</span>
+                    </a>
+                </li>
+
+                <div class="menu-category">
+                    <small>Tim & Mitra</small>
                 </div>
-            </li>
 
-            <li>
-                <a href="manage_members.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_members.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-people"></i>
-                    <span>Anggota Tim</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_members.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_members.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-people"></i>
+                        <span>Anggota Tim</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_partnerships.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_partnerships.php' ? 'active' : ''; ?>">
-                    <i class="fa-regular fa-handshake"></i>
-                    <span>Partnership</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_partnerships.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_partnerships.php' ? 'active' : ''; ?>">
+                        <i class="fa-regular fa-handshake"></i>
+                        <span>Partnership</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_facilities.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_facilities.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-tools"></i>
-                    <span>Fasilitas</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_facilities.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_facilities.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-tools"></i>
+                        <span>Fasilitas</span>
+                    </a>
+                </li>
 
-            <li class="mt-3">
-                <div class="px-4 py-2">
-                    <small class="text-white text-uppercase">Pengaturan</small>
+                <div class="menu-category">
+                    <small>Pengaturan</small>
                 </div>
-            </li>
 
-            <li>
-                <a href="manage_socmed.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_socmed.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-share"></i>
-                    <span>Social Media</span>
-                </a>
-            </li>
+                <li>
+                    <a href="manage_socmed.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_socmed.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-share"></i>
+                        <span>Social Media</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="manage_users.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_users.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-person-gear"></i>
-                    <span>Users</span>
-                </a>
-            </li>
-        </ul>
+                <li>
+                    <a href="manage_users.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_users.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-person-gear"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
+        <!-- Topbar - Minimalist -->
         <div class="topbar">
-            <div>
-                <button class="btn btn-link d-md-none" id="sidebarToggle">
+            <div class="topbar-left">
+                <button class="btn btn-link d-md-none p-0 text-dark" id="sidebarToggle">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <h5 class="mb-0 d-inline-block"><?php echo isset($page_title) ? $page_title : 'Dashboard'; ?></h5>
+
+                <h5><?php echo isset($page_title) ? $page_title : 'Dashboard'; ?></h5>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <a href="../public/index.php" target="_blank" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-globe me-1"></i>View Site
+            <div class="topbar-right">
+                <!-- View Site Button -->
+                <a href="../public/index.php" target="_blank" class="btn btn-outline-primary btn-sm btn-view-site d-none d-md-flex align-items-center">
+                    <i class="bi bi-globe me-2"></i>
+                    View Site
                 </a>
 
-                <div class="dropdown">
-                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <?php echo htmlspecialchars($_SESSION['username']); ?>
+                <!-- Profile Dropdown -->
+                <div class="dropdown profile-dropdown">
+                    <button class="profile-btn border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="profile-avatar">
+                            <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
+                        </div>
+                        <span class="profile-name d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                        <i class="bi bi-chevron-down d-none d-md-inline"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <a class="dropdown-item" href="logout.php">
-                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            <a class="dropdown-item text-danger" href="logout.php">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
                             </a>
                         </li>
                     </ul>
@@ -454,12 +688,30 @@ require_login();
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             <script>
+                // Topbar scroll effect
                 document.addEventListener('scroll', function() {
                     const topbar = document.querySelector('.topbar');
                     if (window.scrollY > 10) {
                         topbar.classList.add('scrolled');
                     } else {
                         topbar.classList.remove('scrolled');
+                    }
+                });
+
+                // Sidebar toggle for mobile
+                document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('active');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const sidebar = document.querySelector('.sidebar');
+                    const sidebarToggle = document.getElementById('sidebarToggle');
+
+                    if (window.innerWidth <= 768) {
+                        if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
+                            sidebar.classList.remove('active');
+                        }
                     }
                 });
             </script>

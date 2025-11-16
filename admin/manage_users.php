@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Users';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -11,14 +13,17 @@ if (isset($_GET['delete'])) {
 
     // Prevent deleting current user
     if ($uuid == $_SESSION['user_id']) {
-        $error = 'Anda tidak dapat menghapus akun yang sedang digunakan!';
+        $_SESSION['flash_error'] = 'Anda tidak dapat menghapus user yang sedang digunakan!';
     } else {
         try {
             $stmt = $pdo->prepare("DELETE FROM users WHERE uuid = ?");
             $stmt->execute([$uuid]);
-            $success = 'User berhasil dihapus!';
+            $_SESSION['flash_success'] = 'User berhasil dihapus!';
         } catch (PDOException $e) {
-            $error = 'Gagal menghapus user: ' . $e->getMessage();
+            $_SESSION['flash_error'] = 'Gagal menghapus user: ' . $e->getMessage();
+        } finally {
+            header("Location: manage_users.php");
+            exit;
         }
     }
 }
@@ -31,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validation
     if (strlen($username) < 4) {
-        $error = 'Username minimal 4 karakter!';
+        $_SESSION['flash_error'] = 'Username minimal 4 karakter!';
     } elseif (isset($_POST['uuid']) && empty($_POST['uuid']) && strlen($password) < 6) {
-        $error = 'Password minimal 6 karakter!';
+        $_SESSION['flash_error'] = 'Password minimal 6 karakter!';
     } elseif (!empty($password) && $password !== $confirm_password) {
-        $error = 'Password dan konfirmasi password tidak sama!';
+        $_SESSION['flash_error'] = 'Konfirmasi password tidak sesuai!';
     } else {
         try {
             if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
@@ -52,22 +57,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt = $pdo->prepare("UPDATE users SET username = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                     $stmt->execute([$username, $uuid]);
                 }
-                $success = 'User berhasil diupdate!';
+                $_SESSION['flash_success'] = 'User berhasil diperbarui!';
             } else {
                 // Insert - check if username exists
                 $stmt = $pdo->prepare("SELECT uuid FROM users WHERE username = ?");
                 $stmt->execute([$username]);
                 if ($stmt->fetch()) {
-                    $error = 'Username sudah digunakan!';
+                    $_SESSION['flash_error'] = 'Username sudah digunakan!';
                 } else {
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                     $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
                     $stmt->execute([$username, $hashed_password]);
-                    $success = 'User berhasil ditambahkan!';
+                    $_SESSION['flash_success'] = 'User berhasil ditambahkan!';
                 }
             }
         } catch (PDOException $e) {
-            $error = 'Terjadi kesalahan: ' . $e->getMessage();
+            $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+        } finally {
+            header("Location: manage_users.php");
+            exit;
         }
     }
 }
@@ -84,22 +92,17 @@ if (isset($_GET['edit'])) {
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
 }
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <div class="row">
     <div class="col-md-5 mb-4">
         <div class="card">
@@ -283,3 +286,12 @@ if (isset($_GET['edit'])) {
 </div>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>

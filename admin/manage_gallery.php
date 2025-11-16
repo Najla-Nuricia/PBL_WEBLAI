@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Galeri';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -23,9 +25,12 @@ if (isset($_GET['delete_gallery'])) {
         // Delete gallery (cascade will delete photos)
         $stmt = $pdo->prepare("DELETE FROM galeri WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Galeri berhasil dihapus!';
+        $_SESSION['flash_success'] = "Galeri dan semua fotonya berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus galeri: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus galeri: " . $e->getMessage();
+    } finally {
+        header("Location: manage_gallery.php");
+        exit;
     }
 }
 
@@ -43,13 +48,20 @@ if (isset($_GET['delete_photo'])) {
 
         $stmt = $pdo->prepare("DELETE FROM foto WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Foto berhasil dihapus!';
+        $_SESSION['flash_success'] = "Foto berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus foto: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus foto: " . $e->getMessage();
+    } finally {
+        $redirect_url = "manage_gallery.php";
+        if (isset($_GET['view'])) {
+            $redirect_url .= "?view=" . urlencode($_GET['view']);
+        }
+        header("Location: " . $redirect_url);
+        exit;
     }
 }
 
-
+// Handle Bulk Delete Galleries
 if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
@@ -61,13 +73,14 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
 
         // Eksekusi semua UUID
         $stmt->execute($uuids);
-
-        $success = count($uuids) . ' galeri berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . " galeri berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa galeri: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus beberapa galeri: " . $e->getMessage();
+    } finally {
+        header("Location: manage_gallery.php");
+        exit;
     }
 }
-
 
 // Handle Insert/Update Gallery
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
@@ -81,15 +94,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                 $uuid = $_POST['uuid'];
                 $stmt = $pdo->prepare("UPDATE galeri SET judul = ?, deskripsi = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                 $stmt->execute([$judul, $deskripsi, $uuid]);
-                $success = 'Galeri berhasil diupdate!';
+                $_SESSION['flash_success'] = "Galeri berhasil diperbarui!";
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO galeri (judul, deskripsi) VALUES (?, ?) RETURNING uuid");
                 $stmt->execute([$judul, $deskripsi]);
-                $success = 'Galeri berhasil ditambahkan!';
+                $_SESSION['flash_success'] = "Galeri baru berhasil ditambahkan!";
             }
         } catch (PDOException $e) {
-            $error = 'Terjadi kesalahan: ' . $e->getMessage();
+            $_SESSION['flash_error'] = "Gagal menyimpan galeri: " . $e->getMessage();
+        } finally {
+            header("Location: manage_gallery.php");
+            exit;
         }
     }
 
@@ -119,18 +135,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                             $stmt->execute([$upload_result['filename'], $gallery_id]);
                             $upload_count++;
                         } catch (PDOException $e) {
-                            $error = 'Error saving to database: ' . $e->getMessage();
+                            // Jika gagal simpan ke database, hapus file yang sudah diupload
+                            if (file_exists('../assets/img/' . $upload_result['filename'])) {
+                                unlink('../assets/img/' . $upload_result['filename']);
+                            }
+                            $_SESSION['flash_error'] = "Gagal menyimpan foto ke database: " . $e->getMessage();
                         }
                     }
                 }
             }
 
             if ($upload_count > 0) {
-                $success = "$upload_count foto berhasil diupload!";
+                $_SESSION['flash_success'] = "$upload_count foto berhasil diupload!";
             }
         } else {
-            $error = 'Pilih minimal 1 foto untuk diupload!';
+            $_SESSION['flash_error'] = "Tidak ada foto yang dipilih untuk diupload.";
         }
+        header("Location: manage_gallery.php?view=" . urlencode($gallery_id));
+        exit;
     }
 }
 
@@ -165,6 +187,15 @@ if (isset($_GET['view'])) {
     $stmt = $pdo->prepare("SELECT * FROM foto WHERE id_galeri = ? ORDER BY created_at DESC");
     $stmt->execute([$uuid]);
     $view_photos = $stmt->fetchAll();
+}
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
 }
 ?>
 

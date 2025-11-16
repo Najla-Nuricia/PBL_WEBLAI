@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Dashboard';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -29,9 +31,12 @@ if (isset($_GET['delete'])) {
             unlink($upload_dir . $foto['path_gambar']);
         }
 
-        $success = 'Foto dashboard berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Foto dashboard berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus foto: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus foto: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_dashboard.php");
+        exit;
     }
 }
 
@@ -54,23 +59,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['gambar'])) {
                     try {
                         $stmt = $pdo->prepare("INSERT INTO dashboard_foto (path_gambar) VALUES (?)");
                         $stmt->execute([$new_filename]);
-                        $success = 'Foto dashboard berhasil diupload!';
+                        $_SESSION['flash_success'] = 'Gambar berhasil diupload!';
                     } catch (PDOException $e) {
                         unlink($upload_path);
-                        $error = 'Gagal menyimpan ke database: ' . $e->getMessage();
+                        $_SESSION['flash_error'] = 'Gagal menyimpan data ke database: ' . $e->getMessage();
                     }
                 } else {
-                    $error = 'Gagal mengupload file!';
+                    $_SESSION['flash_error'] = 'Gagal mengupload file!';
                 }
             } else {
-                $error = 'Ukuran file terlalu besar! Maksimal 5MB.';
+                $_SESSION['flash_error'] = 'Ukuran file melebihi batas maksimal 5MB!';
             }
         } else {
-            $error = 'Tipe file tidak diizinkan! Hanya JPG, PNG, GIF, WEBP.';
+            $_SESSION['flash_error'] = 'Format file tidak diizinkan! Hanya JPG, PNG, GIF, WEBP yang diperbolehkan.';
         }
     } else {
-        $error = 'Error saat upload file!';
+        $_SESSION['flash_error'] = 'Terjadi kesalahan saat mengupload file!';
     }
+    header("Location: manage_dashboard.php");
+    exit;
 }
 
 // Handle Set Active
@@ -83,9 +90,12 @@ if (isset($_GET['set_active'])) {
         // Then activate selected one (mark as most recent)
         $stmt = $pdo->prepare("UPDATE dashboard_foto SET updated_at = CURRENT_TIMESTAMP WHERE id = ?");
         $stmt->execute([$id]);
-        $success = 'Foto berhasil diatur sebagai aktif!';
+        $_SESSION['flash_success'] = 'Foto dashboard berhasil diatur sebagai aktif!';
     } catch (PDOException $e) {
-        $error = 'Gagal mengatur foto: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal mengatur foto sebagai aktif: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_dashboard.php");
+        exit;
     }
 }
 
@@ -95,22 +105,18 @@ $photos = $stmt->fetchAll();
 
 // Get active photo (most recent)
 $active_photo = !empty($photos) ? $photos[0] : null;
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <!-- Info Section -->
 <div class="alert alert-info mb-4">
     <i class="bi bi-info-circle-fill me-2"></i>
@@ -289,50 +295,13 @@ $active_photo = !empty($photos) ? $photos[0] : null;
     </div>
 <?php endif; ?>
 
-<!-- Preview Section -->
-<?php if ($active_photo): ?>
-    <div class="card mt-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0 fw-bold">
-                <i class="bi bi-eye me-2"></i>Preview Hero Section
-            </h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="position-relative" style="background: url('<?php echo $upload_dir . htmlspecialchars($active_photo['path_gambar']); ?>') center/cover; min-height: 400px;">
-                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.8) 0%, rgba(74, 144, 226, 0.8) 100%);"></div>
-                <div class="position-relative text-white p-5">
-                    <h1 class="display-4 fw-bold mb-3">Applied Informatics Laboratory</h1>
-                    <p class="lead mb-4">Laboratorium penelitian dan pengembangan teknologi informasi terapan di Politeknik Negeri Malang</p>
-                    <div class="d-flex gap-3">
-                        <button class="btn btn-light btn-lg">
-                            <i class="bi bi-info-circle me-2"></i>Learn More
-                        </button>
-                        <button class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-envelope me-2"></i>Contact Us
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
-
-<!-- Usage Instructions -->
-<div class="card mt-4 border-info">
-    <div class="card-header bg-info text-white">
-        <h5 class="mb-0 fw-bold">
-            <i class="bi bi-question-circle me-2"></i>Cara Menggunakan
-        </h5>
-    </div>
-    <div class="card-body">
-        <ol class="mb-0">
-            <li class="mb-2">Upload gambar background baru menggunakan form di atas</li>
-            <li class="mb-2">Gambar yang terakhir diupdate otomatis menjadi background aktif</li>
-            <li class="mb-2">Untuk mengubah background, klik tombol "Set Aktif" pada gambar yang diinginkan</li>
-            <li class="mb-2">Preview akan menampilkan bagaimana background terlihat di halaman utama</li>
-            <li>Background akan otomatis muncul di halaman index.php dengan gradient overlay biru</li>
-        </ol>
-    </div>
-</div>
-
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>

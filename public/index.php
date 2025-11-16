@@ -40,38 +40,61 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<!-- Hero Section -->
-<section class="hero-section position-relative py-5" style="<?php echo $bg_image ? "background: url('$bg_image') center/cover no-repeat;" : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);'; ?> color: white; min-height: 500px; overflow: hidden;">
-    <!-- Gradient Overlay -->
+<!-- Hero Section with Parallax Effect -->
+<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+    <!-- Parallax Background Layer -->
+    <?php
+    $bg_style = $bg_image
+        ? "background: url('$bg_image') center/cover no-repeat;"
+        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);';
+    ?>
+    <div class="parallax-bg position-absolute top-0 start-0 w-100 h-100"
+        style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
+    </div>
+
+    Gradient Overlay
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
 
     <!-- Content -->
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center min-vh-75 py-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <h1 class="display-4 fw-bold mb-4" id="type">
+                <!-- Fixed Height untuk TypeIt -->
+                <h1 class="display-4 fw-bold mb-4" id="type" style="min-height: 150px;">
                 </h1>
                 <script>
                     document.addEventListener("DOMContentLoaded", function() {
-                            new TypeIt("#type", {
-                            speed: 80,
-                            startDelay: 500,
-                            cursorChar: "|",
-                            lifeLike: true,
+                        new TypeIt("#type", {
+                                speed: 80,
+                                startDelay: 500,
+                                cursorChar: "|",
+                                lifeLike: true,
+                                loop: true,
                             })
-                            .type("Appliedddd ", { delay: 300 })
+                            .type("Applied ", {
+                                delay: 300
+                            })
+                            .pause(200)
+                            .type("Informatics ", {
+                                delay: 250
+                            })
                             .pause(150)
-                            .delete(4, { delay: 300 })
-                            .type(" ", { delay: 300 })
-                            .pause(700)
-                            .type("Informatics ", { delay: 250 })
-                            .pause(150)
-                            .type("Lab.", { delay: 300 })
-                            .pause(700)
-                            .delete(4, { delay: 300 })
-                            .type("Laboratory", { delay: 300 })
+                            .type("Lab", {
+                                delay: 300
+                            })
+                            .pause(500)
+                            .delete(3, {
+                                delay: 300
+                            })
+                            .type("Laboratory", {
+                                delay: 300
+                            })
+                            .pause(7000) // Pause 2 detik setelah selesai sebelum delete semua
+                            .delete(null, {
+                                delay: 500
+                            }) // Delete semua text dengan delay 500ms per karakter
                             .go();
-                        });
+                    });
                 </script>
                 <p class="lead mb-4">
                     Laboratorium penelitian dan pengembangan teknologi informasi terapan
@@ -93,6 +116,43 @@ include '../includes/navbar.php';
         </div>
     </div>
 </section>
+
+<!-- Parallax JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const heroSection = document.getElementById('heroSection');
+
+        if (parallaxBg && heroSection) {
+            let ticking = false;
+
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
+
+                // Only apply parallax when hero section is visible
+                if (scrolled < heroHeight) {
+                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
+                    const yPos = scrolled * 0.5;
+                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                }
+
+                ticking = false;
+            }
+
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }
+
+            window.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+        }
+    });
+</script>
 
 <!-- Features Section -->
 <section class="py-5 bg-light">
@@ -243,24 +303,24 @@ include '../includes/navbar.php';
                         </div>
                     </div>
                 <?php endforeach; ?>
-            <!-- Pagination features -->
-            <?php if ($pages_activities > 1): ?>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mt-4">
-                        <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
-                        </li>
-                        <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
-                            <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                <!-- Pagination features -->
+                <?php if ($pages_activities > 1): ?>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
                             </li>
-                        <?php endfor; ?>
-                        <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
+                            <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
+                                <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
+                                    <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="col-12">
                     <div class="alert alert-info text-center">
@@ -312,16 +372,76 @@ include '../includes/navbar.php';
 <?php endif; ?>
 
 <!-- CTA Section -->
-<section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container text-center">
-        <h2 class="mb-3 text-white">Ready to Collaborate?</h2>
-        <p class="lead mb-4">
-            Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
-        </p>
-        <a href="contact.php" class="btn btn-light btn-lg">
-            <i class="bi bi-envelope me-2"></i>Get in Touch
-        </a>
+<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);">
+    <!-- Decorative Elements -->
+    <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(40px);"></div>
+    <div style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(60px);"></div>
+
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 text-center">
+                <!-- Icon Badge -->
+                <div class="mb-4">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);">
+                        <i class="bi bi-chat-dots" style="font-size: 2rem; color: white;"></i>
+                    </span>
+                </div>
+
+                <!-- Heading -->
+                <h2 class="mb-3 text-white" style="font-size: 2.5rem; font-weight: 700;">
+                    Ready to Collaborate?
+                </h2>
+
+                <!-- Description -->
+                <p class="lead mb-4" style="color: rgba(255,255,255,0.95); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem;">
+                    Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
+                </p>
+
+                <!-- CTA Button Group -->
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="contact.php"
+                        class="btn btn-light btn-lg px-4 py-3"
+                        style="border-radius: 50px; font-weight: 600; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s ease;"
+                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(0,0,0,0.3)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.2)';">
+                        <i class="bi bi-envelope me-2"></i>Get in Touch
+                    </a>
+                    <a href="about.php"
+                        class="btn btn-outline-light btn-lg px-4 py-3"
+                        style="border-radius: 50px; font-weight: 600; border-width: 2px; transition: all 0.3s ease;"
+                        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'; this.style.transform='translateY(-3px)';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.transform='translateY(0)';">
+                        <i class="bi bi-info-circle me-2"></i>Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
+<style>
+    /* Responsive Height untuk TypeIt */
+    #type {
+        min-height: 150px;
+    }
+
+    @media (max-width: 992px) {
+        #type {
+            min-height: 130px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #type {
+            min-height: 120px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #type {
+            min-height: 180px;
+            /* Lebih tinggi karena text wrap lebih banyak */
+        }
+    }
+</style>
 
 <?php include '../includes/footer.php'; ?>
