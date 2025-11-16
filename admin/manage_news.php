@@ -237,7 +237,6 @@ if (isset($_SESSION['flash_error'])) {
 
                                     <td><?php echo htmlspecialchars($news['penulis'] ?? ''); ?></td>
 
-
                                     <td>
                                         <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary'); ?>">
                                             <?php echo ucfirst($news['kategori']); ?>
