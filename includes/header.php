@@ -118,6 +118,50 @@
             color: #fff !important;
         }
 
+        /* Efek page-vaigation */
+        .pagination .page-link {
+            border-radius: 8px;
+            margin: 0 4px;
+            color: #1E4BA3;
+            border: 1px solid #1E4BA3;
+            background-color: #fff;
+            transition: all 0.25s ease-in-out;
+            font-weight: 500;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+
+        .pagination .page-link:hover {
+            background-color: #1E4BA3;
+            color: #fff;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 8px rgba(30, 75, 163, 0.2);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #1E4BA3;
+            border-color: #1E4BA3;
+            color: #fff;
+            transform: none;
+            box-shadow: 0 3px 6px rgba(30, 75, 163, 0.3);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            opacity: 0.6;
+            pointer-events: none;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Efek List-group Hover  */
+        .list-group-item:hover:not(.active) {
+            font-weight: bold;
+            color: var(--bs-list-group-active-bg);
+        }
+
+        .list-group-item:hover.active {
+            font-weight: bold;
+        }
+
         /* Sosial media button smooth hover */
         footer .btn-outline-light {
             border: 2px solid rgba(255, 255, 255, 0.9);
@@ -132,16 +176,6 @@
             justify-content: center;
             padding: 0;
             margin: 0;
-        }
-
-        /* Efek List-group Hover  */
-        .list-group-item:hover:not(.active) {
-            font-weight: bold;
-            color: var(--bs-list-group-active-bg);
-        }
-
-        .list-group-item:hover.active {
-            font-weight: bold;
         }
 
         /* footer logo smooth hover */
