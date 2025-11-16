@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Profile Laboratorium';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -25,30 +27,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $pdo->prepare("INSERT INTO profile (visi, misi, sejarah) VALUES (?, ?, ?)");
             $stmt->execute([$visi, $misi, $sejarah]);
         }
-        $success = 'Profile laboratorium berhasil disimpan!';
+        $_SESSION['flash_success'] = 'Profile laboratorium berhasil disimpan!';
 
         // Refresh data
         $stmt = $pdo->query("SELECT * FROM profile LIMIT 1");
         $profile = $stmt->fetch();
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_profile.php");
+        exit;
     }
 }
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
 
 <div class="row">
     <div class="col-12">
@@ -121,26 +121,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
+                    <div class="row g-2">
+                        <div class="col-12">
                             <div class="p-3 border rounded">
                                 <h6 class="fw-bold text-primary mb-3">
                                     <i class="bi bi-eye-fill me-2"></i>Visi
                                 </h6>
-                                <p class="text-muted">
+                                <p class="text-muted text-center">
                                     <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
                                 </p>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="p-3 border rounded">
                                 <h6 class="fw-bold text-primary mb-3">
                                     <i class="bi bi-bullseye me-2"></i>Misi
                                 </h6>
-                                <p class="text-muted">
-                                    <?php echo nl2br(htmlspecialchars($profile['misi'])); ?>
-                                </p>
+                                <?php 
+                                $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
+                                foreach ($misi_items as $item) {
+                                if (trim($item) !== '') {
+                                    echo '
+                                    <li class="d-flex align-items-start">
+                                        <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
+                                        <p class="text-muted">' . nl2br(htmlspecialchars($item)) . '</p>
+                                    </li>';
+                                }
+                            }?>
                             </div>
                         </div>
 
@@ -162,3 +170,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php endif; ?>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>

@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Social Media';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -11,9 +13,12 @@ if (isset($_GET['delete'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM sosmed WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Social media berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Social media berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus social media: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus social media: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_socmed.php");
+        exit;
     }
 }
 
@@ -28,15 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $uuid = $_POST['uuid'];
             $stmt = $pdo->prepare("UPDATE sosmed SET nama = ?, url = ? WHERE uuid = ?");
             $stmt->execute([$nama, $url, $uuid]);
-            $success = 'Social media berhasil diupdate!';
+            $_SESSION['flash_success'] = 'Social media berhasil diperbarui!';
         } else {
             // Insert
             $stmt = $pdo->prepare("INSERT INTO sosmed (nama, url) VALUES (?, ?)");
             $stmt->execute([$nama, $url]);
-            $success = 'Social media berhasil ditambahkan!';
+            $_SESSION['flash_success'] = 'Social media berhasil ditambahkan!';
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menyimpan social media: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_socmed.php");
+        exit;
     }
 }
 
@@ -64,22 +72,17 @@ $platforms = [
     'tiktok' => ['icon' => 'tiktok', 'color' => 'dark'],
     'whatsapp' => ['icon' => 'whatsapp', 'color' => 'success'],
 ];
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <div class="row">
     <div class="col-md-5 mb-4">
         <div class="card">
@@ -97,7 +100,7 @@ $platforms = [
 
                     <div class="mb-3">
                         <label class="form-label">Platform <span class="text-danger">*</span></label>
-                        <select name="nama" class="form-select" required>
+                        <select name="nama" class="form-select select-enhanced" required>
                             <option value="">Pilih Platform</option>
                             <?php foreach ($platforms as $key => $platform): ?>
                                 <option value="<?php echo $key; ?>"
@@ -253,3 +256,12 @@ $platforms = [
 </div>
 
 <?php include 'includes/admin_footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
+
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
+</script>

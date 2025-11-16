@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Anggota Tim';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -20,13 +22,16 @@ if (isset($_GET['delete'])) {
 
         $stmt = $pdo->prepare("DELETE FROM anggota WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Anggota berhasil dihapus!';
+        $_SESSION['flash_success'] = "Anggota berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus anggota: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus anggota: " . $e->getMessage();
+    } finally {
+        header("Location: manage_members.php");
+        exit;
     }
 }
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -38,13 +43,16 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         // Eksekusi semua UUID
         $stmt->execute($uuids);
 
-        $success = count($uuids) . ' Anggota berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . " Anggota berhasil dihapus!";
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa anggota: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menghapus beberapa anggota: " . $e->getMessage();
+    } finally {
+        header("Location: manage_members.php");
+        exit;
     }
 }
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
     $nidn = clean_input($_POST['nidn'] ?? '');
     $jabatan = clean_input($_POST['jabatan'] ?? '');
@@ -59,11 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($upload_result['success']) {
                 $path_gambar = $upload_result['filename'];
             } else {
-                $error = $upload_result['message'];
+                $_SESSION['flash_error'] = "Gagal mengupload gambar: " . $upload_result['error'];
             }
         }
-
-        if (!$error) {
+        // Only proceed if no upload error
+        if (!isset($_SESSION['flash_error'])) {
+            // Check if updating or inserting
             if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
                 // Update
                 $uuid = $_POST['uuid'];
@@ -85,20 +94,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt = $pdo->prepare("UPDATE anggota SET nama = ?, nidn = ?, jabatan = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                     $stmt->execute([$nama, $nidn, $jabatan, $status, $uuid]);
                 }
-                $success = 'Anggota berhasil diupdate!';
+                $_SESSION['flash_success'] = "Anggota berhasil diperbarui!";
             } else {
                 // Insert
                 $stmt = $pdo->prepare("INSERT INTO anggota (nama, nidn, jabatan, status, path_gambar) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$nama, $nidn, $jabatan, $status, $path_gambar]);
-                $success = 'Anggota berhasil ditambahkan!';
+                $_SESSION['flash_success'] = "Anggota baru berhasil ditambahkan!";
             }
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = "Gagal menyimpan anggota: " . $e->getMessage();
+    } finally {
+        header("Location: manage_members.php");
+        exit;
     }
 }
-
-
 
 // Get all members
 $stmt = $pdo->query("SELECT * FROM anggota ORDER BY jabatan, nama");
@@ -112,6 +122,15 @@ if (isset($_GET['edit'])) {
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
 }
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
 <!-- Form Tambah/Edit -->
 <div class="card mb-4 shadow-sm border-0 animate__animated animate__fadeInUp">
@@ -123,6 +142,7 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -220,6 +240,7 @@ if (isset($_GET['edit'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>

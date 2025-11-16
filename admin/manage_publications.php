@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Publikasi';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -11,13 +13,17 @@ if (isset($_GET['delete'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM publikasi WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $success = 'Publikasi berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Publikasi berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus publikasi: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus publikasi: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_publications.php");
+        exit;
     }
 }
 
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+// Handle Bulk Delete
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -29,14 +35,17 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         // Eksekusi semua UUID
         $stmt->execute($uuids);
 
-        $success = count($uuids) . ' Publikasi berhasil dihapus!';
+        $_SESSION['flash_success'] = count($uuids) . ' Publikasi berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa publikasi: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus publikasi: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_publications.php");
+        exit;
     }
 }
 
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $judul = clean_input($_POST['judul'] ?? '');
     $tahun = clean_input($_POST['tahun'] ?? '');
     $penulis_id = !empty($_POST['penulis_id']) ? $_POST['penulis_id'] : null;
@@ -49,20 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $uuid = $_POST['uuid'];
             $stmt = $pdo->prepare("UPDATE publikasi SET judul = ?, tahun = ?, penulis_id = ?, tautan = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
             $stmt->execute([$judul, $tahun, $penulis_id, $tautan, $kategori, $uuid]);
-            $success = 'Publikasi berhasil diupdate!';
+            $_SESSION['flash_success'] = 'Publikasi berhasil diperbarui!';
         } else {
             // Insert
             $stmt = $pdo->prepare("INSERT INTO publikasi (judul, tahun, penulis_id, tautan, kategori) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$judul, $tahun, $penulis_id, $tautan, $kategori]);
-            $success = 'Publikasi berhasil ditambahkan!';
+            $_SESSION['flash_success'] = 'Publikasi berhasil ditambahkan!';
         }
     } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menyimpan publikasi: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_publications.php");
+        exit;
     }
 }
-
-
-
 
 // Get all publications with author info
 $stmt = $pdo->query("
@@ -85,6 +94,16 @@ if (isset($_GET['edit'])) {
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
 }
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
 ?>
 <!-- Form Tambah/Edit -->
 <div class="card mb-4 shadow-sm border-0 animate__animated animate__fadeInUp" style="animation-delay: 0s;">
@@ -96,6 +115,7 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -190,6 +210,7 @@ if (isset($_GET['edit'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>

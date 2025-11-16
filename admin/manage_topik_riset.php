@@ -1,5 +1,7 @@
 <?php
+ob_start();
 $page_title = 'Kelola Topik Riset';
+include 'includes/auth.php';
 include 'includes/admin_header.php';
 
 $success = '';
@@ -11,34 +13,16 @@ if (isset($_GET['delete'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM topik_riset WHERE id = ?");
         $stmt->execute([$id]);
-        $success = 'Topik riset berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Topik riset berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus topik riset: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus topik riset: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_topik_riset.php");
+        exit;
     }
 }
 
-// Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
-    $topik = clean_input($_POST['topik'] ?? '');
-
-    try {
-        if (isset($_POST['id']) && !empty($_POST['id'])) {
-            // Update
-            $id = $_POST['id'];
-            $stmt = $pdo->prepare("UPDATE topik_riset SET topik = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-            $stmt->execute([$topik, $id]);
-            $success = 'Topik riset berhasil diupdate!';
-        } else {
-            // Insert
-            $stmt = $pdo->prepare("INSERT INTO topik_riset (topik) VALUES (?)");
-            $stmt->execute([$topik]);
-            $success = 'Topik riset berhasil ditambahkan!';
-        }
-    } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan: ' . $e->getMessage();
-    }
-}
-
+// Handle Bulk Delete
 if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $id = $_POST['selected'];
 
@@ -50,10 +34,38 @@ if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' &
 
         // Eksekusi semua UUID
         $stmt->execute($id);
-
-        $success = count($id) . ' topic berhasil dihapus!';
+        $_SESSION['flash_success'] = count($id) . ' topic riset berhasil dihapus!';
     } catch (PDOException $e) {
-        $error = 'Gagal menghapus beberapa topic: ' . $e->getMessage();
+        $_SESSION['flash_error'] = 'Gagal menghapus topik riset: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_topik_riset.php");
+        exit;
+    }
+}
+
+
+// Handle Insert/Update
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
+    $topik = clean_input($_POST['topik'] ?? '');
+
+    try {
+        if (isset($_POST['id']) && !empty($_POST['id'])) {
+            // Update
+            $id = $_POST['id'];
+            $stmt = $pdo->prepare("UPDATE topik_riset SET topik = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $stmt->execute([$topik, $id]);
+            $_SESSION['flash_success'] = 'Topik riset berhasil diperbarui!';
+        } else {
+            // Insert
+            $stmt = $pdo->prepare("INSERT INTO topik_riset (topik) VALUES (?)");
+            $stmt->execute([$topik]);
+            $_SESSION['flash_success'] = 'Topik riset berhasil ditambahkan!';
+        }
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_topik_riset.php");
+        exit;
     }
 }
 
@@ -68,6 +80,16 @@ if (isset($_GET['edit'])) {
     $stmt = $pdo->prepare("SELECT * FROM topik_riset WHERE id = ?");
     $stmt->execute([$id]);
     $edit_data = $stmt->fetch();
+}
+
+// Ambil flash message jika ada
+if (isset($_SESSION['flash_success'])) {
+    $success = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
 }
 ?>
 <!-- Form Tambah/Edit -->
