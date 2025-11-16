@@ -8,6 +8,14 @@ require '../config/mail.php';
 
 $page_title = 'Contact Us';
 
+// Fetch dashboard background
+$stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
+$dashboard_bg = $stmt_bg->fetch();
+$bg_image = '';
+if ($dashboard_bg && $dashboard_bg['path_gambar']) {
+    $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
+}
+
 $success = '';
 $error = '';
 
@@ -72,10 +80,24 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Page Header -->
-<section class="page-header py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container">
-        <div class="row">
-            <div class="col text-center">
+<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+    <!-- Parallax Background Layer -->
+    <?php
+    $bg_style = $bg_image
+        ? "background: url('$bg_image') center/cover no-repeat; z-index: 0;"
+        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); z-index: 0;';
+    ?>
+    <div class="parallax-bg position-absolute top-0 start-0 w-100 h-100"
+        style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
+    </div>
+
+    <!-- Gradient Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
+
+    <!-- Content -->
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center justify-content-center min-vh-75 py-5">
+            <div class="col-lg-6 text-center">
                 <h1 class="display-4 fw-bold mb-3">Contact Us</h1>
                 <p class="lead">Hubungi kami untuk informasi lebih lanjut atau kerjasama</p>
             </div>
@@ -83,8 +105,45 @@ include '../includes/navbar.php';
     </div>
 </section>
 
+<!-- Parallax JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const heroSection = document.getElementById('heroSection');
+
+        if (parallaxBg && heroSection) {
+            let ticking = false;
+
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
+
+                // Only apply parallax when hero section is visible
+                if (scrolled < heroHeight) {
+                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
+                    const yPos = scrolled * 0.5;
+                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                }
+
+                ticking = false;
+            }
+
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }
+
+            window.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+        }
+    });
+</script>
+
 <!-- Contact Section -->
-<section class="py-5">
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row g-4">
             <!-- Contact Form -->

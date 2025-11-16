@@ -232,14 +232,11 @@ if (isset($_GET['edit'])) {
 
                                     <td><?php echo htmlspecialchars($news['penulis'] ?? ''); ?></td>
 
-
                                     <td>
-                                        <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');?>">
+                                        <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary'); ?>">
                                             <?php echo ucfirst($news['kategori']); ?>
                                         </span>
                                     </td>
-
-                                    
 
                                     <td><?php echo htmlspecialchars($news['tempat']); ?></td>
                                     <td>
@@ -269,8 +266,8 @@ if (isset($_GET['edit'])) {
     </div>
 </div>
 
-<?php 
-include 'includes/admin_footer.php'; 
+<?php
+include 'includes/admin_footer.php';
 ob_end_flush();
 ?>
 <script>
