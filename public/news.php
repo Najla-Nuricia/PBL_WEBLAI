@@ -40,7 +40,6 @@ $query .= " ORDER BY tanggal DESC LIMIT :limit OFFSET :offset";
 
 $stmt = $pdo->prepare($query);
 
-// Bind parameters
 if ($kategori_filter) {
     $stmt->bindParam(':kategori', $kategori_filter, PDO::PARAM_STR);
 }
@@ -272,5 +271,4 @@ include '../includes/navbar.php';
             </div>
     </section>
 <?php endif; ?>
-
 <?php include '../includes/footer.php'; ?>
