@@ -1,9 +1,9 @@
 <?php
 require_once '../config/db.php';
-// require_once '../helpers/background.php';
+
 $page_title = 'News & Events';
 
-// Fetch dashboard background
+
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
 $dashboard_bg = $stmt_bg->fetch();
 $bg_image = '';
@@ -11,25 +11,45 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 
-// Get filter
 $kategori_filter = isset($_GET['kategori']) ? $_GET['kategori'] : '';
 
-// Build query
+//Konfigurasi Pagination
+$limit_berita = 3; // Jumlah berita per halaman (bisa diubah)
+$page_berita = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page_berita < 1) $page_berita = 1;
+$offset_berita = ($page_berita - 1) * $limit_berita;
+
+// Hitung total berita (dengan filter)
+$count_query = "SELECT COUNT(*) FROM berita WHERE 1=1";
+$params_count = [];
+if ($kategori_filter) {
+    $count_query .= " AND kategori = :kategori";
+    $params_count['kategori'] = $kategori_filter;
+}
+$stmt_total = $pdo->prepare($count_query);
+$stmt_total->execute($params_count);
+$total_berita = $stmt_total->fetchColumn();
+$total_pages_berita = ceil($total_berita / $limit_berita);
+
+// filter dan pagination
 $query = "SELECT * FROM berita WHERE 1=1";
 if ($kategori_filter) {
     $query .= " AND kategori = :kategori";
 }
-$query .= " ORDER BY tanggal DESC";
+$query .= " ORDER BY tanggal DESC LIMIT :limit OFFSET :offset";
 
 $stmt = $pdo->prepare($query);
+
+// Bind parameters
 if ($kategori_filter) {
-    $stmt->execute(['kategori' => $kategori_filter]);
-} else {
-    $stmt->execute();
+    $stmt->bindParam(':kategori', $kategori_filter, PDO::PARAM_STR);
 }
+$stmt->bindParam(':limit', $limit_berita, PDO::PARAM_INT);
+$stmt->bindParam(':offset', $offset_berita, PDO::PARAM_INT);
+
+$stmt->execute();
 $news_list = $stmt->fetchAll();
 
-// Get single news if ID provided
 $single_news = null;
 if (isset($_GET['id'])) {
     $stmt = $pdo->prepare("SELECT * FROM berita WHERE uuid = ?");
@@ -41,9 +61,7 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<!-- Page Header -->
 <section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
-    <!-- Parallax Background Layer -->
     <?php
     $bg_style = $bg_image
         ? "background: url('$bg_image') center/cover no-repeat; z-index: 0;"
@@ -53,10 +71,8 @@ include '../includes/navbar.php';
         style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
     </div>
 
-    <!-- Gradient Overlay -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
 
-    <!-- Content -->
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
@@ -66,7 +82,6 @@ include '../includes/navbar.php';
         </div>
     </div>
 </section>
-<!-- Parallax JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const parallaxBg = document.querySelector('.parallax-bg');
@@ -79,13 +94,10 @@ include '../includes/navbar.php';
                 const scrolled = window.pageYOffset;
                 const heroHeight = heroSection.offsetHeight;
 
-                // Only apply parallax when hero section is visible
                 if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
                     const yPos = scrolled * 0.5;
                     parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
                 }
-
                 ticking = false;
             }
 
@@ -95,16 +107,12 @@ include '../includes/navbar.php';
                     ticking = true;
                 }
             }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
+            window.addEventListener('scroll', requestTick, { passive: true });
         }
     });
 </script>
 
 <?php if ($single_news): ?>
-    <!-- Single News Detail -->
     <section class="py-5 ">
         <div class="container">
             <div class="row">
@@ -147,10 +155,8 @@ include '../includes/navbar.php';
     </section>
 
 <?php else: ?>
-    <!-- News List -->
     <section id="news-list" class="py-5" style="scroll-margin-top:180px;">
         <div class="container">
-            <!-- Filter -->
             <div class="row mb-4">
                 <div class="col">
                     <div class="btn-group" role="group">
@@ -170,7 +176,6 @@ include '../includes/navbar.php';
                 </div>
             </div>
 
-            <!-- News Grid -->
             <div class="row g-4">
                 <?php if (!empty($news_list)): ?>
                     <?php foreach ($news_list as $news): ?>
@@ -178,8 +183,8 @@ include '../includes/navbar.php';
                             <div class="card h-100 shadow-sm border-0">
                                 <div class="card-body">
                                     <span class="badge bg-<?php
-                                                            echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
-                                                            ?> mb-2">
+                                                        echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
+                                                        ?> mb-2">
                                         <?php echo ucfirst($news['kategori']); ?>
                                     </span>
 
@@ -217,7 +222,54 @@ include '../includes/navbar.php';
                     </div>
                 <?php endif; ?>
             </div>
-        </div>
+
+            <?php if ($total_pages_berita > 1): ?>
+            <div class="row mt-5">
+                <div class="col">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            
+                            <?php
+                            $prev_page = $page_berita - 1;
+                            $prev_link_params = ['page' => $prev_page];
+                            if ($kategori_filter) $prev_link_params['kategori'] = $kategori_filter;
+                            $prev_href = 'news.php?' . http_build_query($prev_link_params);
+                            ?>
+                            <li class="page-item <?php echo ($page_berita <= 1) ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="<?php echo $prev_href; ?>">
+                                    Sebelumnya
+                                </a>
+                            </li>
+                            
+                            <?php for ($i = 1; $i <= $total_pages_berita; $i++): ?>
+                                <?php
+                                $page_link_params = ['page' => $i];
+                                if ($kategori_filter) $page_link_params['kategori'] = $kategori_filter;
+                                $page_href = 'news.php?' . http_build_query($page_link_params);
+                                ?>
+                                <li class="page-item <?php echo ($i == $page_berita) ? 'active' : ''; ?>">
+                                    <a class="page-link" href="<?php echo $page_href; ?>"><?php echo $i; ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <?php
+                            $next_page = $page_berita + 1;
+                            $next_link_params = ['page' => $next_page];
+                            if ($kategori_filter) $next_link_params['kategori'] = $kategori_filter;
+                            $next_href = 'news.php?' . http_build_query($next_link_params);
+                            ?>
+                            <li class="page-item <?php echo ($page_berita >= $total_pages_berita) ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="<?php echo $next_href; ?>">
+                                    Selanjutnya
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <?php endif; ?>
+            </div>
     </section>
 <?php endif; ?>
 
