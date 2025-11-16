@@ -143,45 +143,6 @@
         .list-group-item:hover.active {
             font-weight: bold;
         }
-
-        /* footer logo smooth hover */
-        footer .btn-outline-light {
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            background-color: transparent;
-            color: white;
-            transition: all 0.3s ease;
-            border-radius: 10px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            margin: 0;
-        }
-
-        /* Hover effect */
-        footer .btn-outline-light:hover {
-            background-color: #2C5AA0(0, 30, 255, 0.15);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
-        }
-
-        /* Efek ketika hover */
-        footer .btn-outline-light i {
-            font-size: 1.3rem;
-            transition: transform 0.3s ease;
-        }
-
-        footer .btn-outline-light:hover i {
-            transform: scale(1.1);
-        }
-
-        /* Efek ketika diklik */
-        footer .btn-outline-light:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
-        }
     </style>
 </head>
 
