@@ -362,5 +362,4 @@ include '../includes/navbar.php';
         </div>
     </section>
 <?php endif; ?>
-
 <?php include '../includes/footer.php'; ?>
