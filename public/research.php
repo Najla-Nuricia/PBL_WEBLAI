@@ -11,7 +11,7 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 // data produk
-$limit_pd = 6;
+$limit_pd = 3;
 $page_pd = isset($_GET['product_page']) ? (int)$_GET['product_page'] : 1;
 $offset_pd = ($page_pd - 1) * $limit_pd;
 $stmt = $pdo->prepare("
@@ -31,7 +31,7 @@ $pages_produk = ceil($rows_produk / $limit_pd);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 //ambil data blueprint
-$limit_bp = 5;
+$limit_bp = 4;
 $page_bp = isset($_GET['blueprint_page']) ? (int)$_GET['blueprint_page'] : 1;
 $offset_bp = ($page_bp - 1) * $limit_bp;
 $stmt = $pdo->prepare("
@@ -49,7 +49,7 @@ $pages_blueprint = ceil($rows_blueprint / $limit_bp);
 $blueprint = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 //ambil data topik riset
-$limit_tp = 5;
+$limit_tp = 6;
 $page_tp = isset($_GET['topic_page']) ? (int)$_GET['topic_page'] : 1;
 $offset_tp = ($page_tp - 1) * $limit_tp;
 $stmt = $pdo->prepare("
@@ -244,50 +244,6 @@ include '../includes/navbar.php';
     </section>
 <?php endif; ?>
 
-<!-- Blueprint/Roadmap Section -->
-<?php if (!empty($blueprints)): ?>
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h2 class="section-title">Development Roadmap</h2>
-                    <p class="section-subtitle">Blueprint pengembangan laboratorium</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <?php foreach ($blueprints as $blueprint): ?>
-                    <div class="col-lg-12">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-start">
-                                    <div class="flex-shrink-0 me-4">
-                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
-                                            <i class="bi bi-diagram-3 text-primary" style="font-size: 2rem;"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h4 class="fw-bold mb-3">
-                                            <?php echo htmlspecialchars($blueprint['judul']); ?>
-                                        </h4>
-                                        <p class="text-muted mb-0" style="text-align: justify; white-space: pre-line;">
-                                            <?php echo htmlspecialchars($blueprint['deskripsi']); ?>
-                                        </p>
-                                        <small class="text-muted">
-                                            <i class="bi bi-calendar3 me-1"></i>
-                                            <?php echo date('d F Y', strtotime($blueprint['created_at'])); ?>
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-<?php endif; ?>
-
 <!--/blueprint-->
 <section id="blueprint" class="py-5" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
@@ -352,16 +308,17 @@ include '../includes/navbar.php';
             </div>
         </div>
         <?php if (!empty($topik)): ?>
-            <div class="row g-4 align-items-center">
+            <div class="row g-4 justify-content-center">
                 <?php foreach ($topik as $tp): ?>
-                    <div class="mt-3">
+                    <div class="col-md-6">
                         <div class="card border-0 shadow-sm text-center h-100 p-4">
-                            <h5 class="fw mb-0">
-                                <?php echo htmlspecialchars($tp['topik']); ?>
-                            </h5>
+                            <div class="card-body d-flex align-items-center justify-content-center">
+                                <h5 class="fw-bold mb-0">
+                                    <?php echo htmlspecialchars($tp['topik']); ?>
+                                </h5>
+                            </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
+                    </div> <?php endforeach; ?>
             </div>
             <!-- Pagination features -->
             <?php if ($pages_topik > 1): ?>

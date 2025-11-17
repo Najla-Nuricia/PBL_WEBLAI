@@ -117,7 +117,7 @@ include '../includes/navbar.php';
                     </div>
 
                     <?php if (!empty($photos)): ?>
-                        <div class="row g-3">
+                        <div class="row g-3 gallery-row">
                             <?php foreach ($photos as $photo): ?>
                                 <div class="col-6 col-md-4 col-lg-3">
                                     <div class="card border-0 shadow-sm h-100">
@@ -126,26 +126,9 @@ include '../includes/navbar.php';
                                             alt="Gallery Photo"
                                             style="height: 200px; object-fit: cover; cursor: pointer;"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#imageModal<?php echo $index . '_' . $photo['uuid']; ?>">
-                                    </div>
-
-                                    <!-- Modal for full image -->
-                                    <div class="modal fade" id="imageModal<?php echo $index . '_' . $photo['uuid']; ?>" tabindex="-1">
-                                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header border-0">
-                                                    <h5 class="modal-title">
-                                                        <?php echo htmlspecialchars($gallery['judul']); ?>
-                                                    </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body p-0">
-                                                    <img src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
-                                                        class="img-fluid w-100"
-                                                        alt="Gallery Photo">
-                                                </div>
-                                            </div>
-                                        </div>
+                                            data-bs-target="#imageModal"
+                                            data-title="<?php echo htmlspecialchars($gallery['judul']); ?>"
+                                            data-src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>">
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -170,6 +153,38 @@ include '../includes/navbar.php';
         <?php endif; ?>
     </div>
 </section>
+
+<!-- Universal Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <img src="" class="img-fluid w-100" alt="Gallery Photo">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script untuk modal universal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageModal = document.getElementById('imageModal');
+        const modalTitle = imageModal.querySelector('.modal-title');
+        const modalImg = imageModal.querySelector('img');
+
+        // Event listener untuk semua gambar gallery
+        document.querySelectorAll('.gallery-img').forEach(img => {
+            img.addEventListener('click', function() {
+                modalTitle.textContent = this.dataset.title;
+                modalImg.src = this.dataset.src;
+            });
+        });
+    });
+</script>
 
 <style>
     .gallery-img {
