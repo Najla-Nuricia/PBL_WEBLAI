@@ -2,7 +2,7 @@
 require_once '../config/db.php';
 $page_title = 'News & Events';
 
-// Fetch dashboard background
+
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
 $dashboard_bg = $stmt_bg->fetch();
 $bg_image = '';
@@ -10,7 +10,6 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 
-// Get filter
 $kategori_filter = isset($_GET['kategori']) ? $_GET['kategori'] : '';
 
 // Get single news if ID provided
@@ -100,7 +99,6 @@ include '../includes/navbar.php';
 
 <!-- Page Header -->
 <section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
-    <!-- Parallax Background Layer -->
     <?php
     $bg_style = $bg_image
         ? "background: url('$bg_image') center/cover no-repeat; z-index: 0;"
@@ -110,10 +108,8 @@ include '../includes/navbar.php';
         style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
     </div>
 
-    <!-- Gradient Overlay -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
 
-    <!-- Content -->
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
@@ -141,7 +137,6 @@ include '../includes/navbar.php';
                     const yPos = scrolled * 0.5;
                     parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
                 }
-
                 ticking = false;
             }
 
@@ -320,10 +315,8 @@ include '../includes/navbar.php';
     </script>
 
 <?php else: ?>
-    <!-- News List -->
     <section id="news-list" class="py-5" style="scroll-margin-top:180px;">
         <div class="container">
-            <!-- Filter -->
             <div class="row mb-4">
                 <div class="col">
                     <div class="btn-group" role="group">
@@ -343,7 +336,6 @@ include '../includes/navbar.php';
                 </div>
             </div>
 
-            <!-- News Grid -->
             <div class="row g-4">
                 <?php if (!empty($news_list)): ?>
                     <?php foreach ($news_list as $news):
@@ -460,5 +452,4 @@ include '../includes/navbar.php';
         </div>
     </section>
 <?php endif; ?>
-
 <?php include '../includes/footer.php'; ?>
