@@ -168,6 +168,7 @@ include '../includes/navbar.php';
         </div>
         <?php endif; ?>
 
+        <!-- Anggota Dosen  -->
         <?php if (!empty($anggota)): ?>
         <?php 
         $dosen = array_filter($anggota, fn($a) => strtolower($a['status']) === 'dosen');
@@ -204,6 +205,7 @@ include '../includes/navbar.php';
         </div>
         <?php endif; ?>
         
+        <!-- Anggota Mahasiswa -->
         <?php if (!empty($mahasiswa)): ?>
         <div>
             <h4 class="text-center mb-4 fw-bold">Anggota Mahasiswa</h4>
@@ -235,6 +237,47 @@ include '../includes/navbar.php';
         <?php endif; ?>
         <?php endif; ?>
 
+        <div class="modal fade" id="anggotaModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"><p>Loading...</p></div>
+            </div>
+        </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+        document.querySelectorAll('.card[data-uuid]').forEach(card => {
+        card.addEventListener('click', () => {
+            const uuid = card.dataset.uuid
+            const modal = new bootstrap.Modal(document.getElementById('anggotaModal'))
+            const modalTitle = document.getElementById('modalTitle')
+            const modalBody = document.getElementById('modalBody')
+            modalTitle.innerText = card.querySelector('h5, h6').innerText
+            modalBody.innerHTML = '<p>Loading...</p>'
+            modal.show()
+            function loadPage(page = 1) {
+            fetch(`get_penelitian.php?uuid=${uuid}&page=${page}`)
+                .then(res => res.text())
+                .then(html => {
+                modalBody.innerHTML = html
+                modalBody.querySelectorAll('.page-link').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                    loadPage(btn.dataset.page)
+                    })
+                })
+                })
+            }
+            loadPage()
+        })
+        })
+        </script>
+
+        <!-- pop up -->
         <div class="modal fade" id="anggotaModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
