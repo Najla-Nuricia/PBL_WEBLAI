@@ -52,7 +52,7 @@ include '../includes/navbar.php';
         style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
     </div>
 
-    Gradient Overlay
+    <!-- Gradient Overlay -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
 
     <!-- Content -->
