@@ -37,7 +37,6 @@ $stats['topik_riset'] = $stmt->fetch()['total'];
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM blueprint");
 $stats['blueprint'] = $stmt->fetch()['total'];
 
-
 // Get recent news
 $stmt = $pdo->query("SELECT * FROM berita ORDER BY created_at DESC LIMIT 5");
 $recent_news = $stmt->fetchAll();
@@ -47,60 +46,239 @@ $stmt = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT 5");
 $recent_activities = $stmt->fetchAll();
 ?>
 
+<style>
+    /* Enhanced Stats Card */
+    .stats-card-modern {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--card-color, #007bff), transparent);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .stats-card-modern:hover::before {
+        transform: scaleY(1);
+    }
+
+    .stats-card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: var(--card-color, #007bff);
+    }
+
+    .stats-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .stats-card-modern:hover .stats-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #212529;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stats-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-trend {
+        font-size: 0.8rem;
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    /* Enhanced Card */
+    .card-modern {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .card-modern:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header-modern {
+        background: white;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px 12px 0 0;
+    }
+
+    /* List Item Enhanced */
+    .list-item-modern {
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+    }
+
+    .list-item-modern:last-child {
+        border-bottom: none;
+    }
+
+    .list-item-modern:hover {
+        background: #f8f9fa;
+        padding-left: 0.5rem;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        padding-right: 0.5rem;
+        border-radius: 8px;
+    }
+
+    .badge-modern {
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+        background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .welcome-section h4 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-section p {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+    /* Quick Stats Summary */
+    .quick-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+    }
+
+    .quick-stat-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stats-number {
+            font-size: 1.5rem;
+        }
+
+        .welcome-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
 
 <!-- Stats Cards -->
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_news.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_news.php'" style="--card-color: #0d6efd;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Berita</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['berita']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Berita</p>
+                    <h3 class="stats-number"><?php echo $stats['berita']; ?></h3>
                 </div>
-                <div class="bg-primary bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-newspaper text-primary fs-2"></i>
+                <div class="stats-icon" style="background: rgba(13, 110, 253, 0.1);">
+                    <i class="bi bi-newspaper text-primary fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_activities.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_activities.php'" style="--card-color: #198754;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Kegiatan</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['kegiatan']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Kegiatan</p>
+                    <h3 class="stats-number"><?php echo $stats['kegiatan']; ?></h3>
                 </div>
-                <div class="bg-success bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-calendar-event text-success fs-2"></i>
+                <div class="stats-icon" style="background: rgba(25, 135, 84, 0.1);">
+                    <i class="bi bi-calendar-event text-success fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_publications.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_publications.php'" style="--card-color: #0dcaf0;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Publikasi</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['publikasi']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Publikasi</p>
+                    <h3 class="stats-number"><?php echo $stats['publikasi']; ?></h3>
                 </div>
-                <div class="bg-info bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-journal-text text-info fs-2"></i>
+                <div class="stats-icon" style="background: rgba(13, 202, 240, 0.1);">
+                    <i class="bi bi-journal-text text-info fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_members.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_members.php'" style="--card-color: #ffc107;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Anggota</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['anggota']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Anggota</p>
+                    <h3 class="stats-number"><?php echo $stats['anggota']; ?></h3>
                 </div>
-                <div class="bg-warning bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-people text-warning fs-2"></i>
+                <div class="stats-icon" style="background: rgba(255, 193, 7, 0.1);">
+                    <i class="bi bi-people text-warning fs-3"></i>
                 </div>
             </div>
         </div>
@@ -109,56 +287,56 @@ $recent_activities = $stmt->fetchAll();
 
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_products.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_products.php'" style="--card-color: #dc3545;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Produk</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['produk']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Produk</p>
+                    <h3 class="stats-number"><?php echo $stats['produk']; ?></h3>
                 </div>
-                <div class="bg-danger bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-box-seam text-danger fs-2"></i>
+                <div class="stats-icon" style="background: rgba(220, 53, 69, 0.1);">
+                    <i class="bi bi-box-seam text-danger fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_gallery.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_gallery.php'" style="--card-color: #6c757d;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Galeri</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['galeri']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Galeri</p>
+                    <h3 class="stats-number"><?php echo $stats['galeri']; ?></h3>
                 </div>
-                <div class="bg-secondary bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-images text-secondary fs-2"></i>
+                <div class="stats-icon" style="background: rgba(108, 117, 125, 0.1);">
+                    <i class="bi bi-images text-secondary fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_blueprint.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_blueprint.php'" style="--card-color: #6f42c1;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Blueprint</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['blueprint']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Total Blueprint</p>
+                    <h3 class="stats-number"><?php echo $stats['blueprint']; ?></h3>
                 </div>
-                <div class="bg-secondary bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-diagram-3 text-purple fs-2"></i>
+                <div class="stats-icon" style="background: rgba(111, 66, 193, 0.1); color: #6f42c1;">
+                    <i class="bi bi-diagram-3 fs-3"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card clickable-card" onclick="window.location.href='manage_topik_riset.php'">
+        <div class="stats-card-modern" onclick="window.location.href='manage_topik_riset.php'" style="--card-color: #fd7e14;">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="text-muted mb-1">Total Topik & Riset</p>
-                    <h3 class="fw-bold mb-0"><?php echo $stats['topik_riset']; ?></h3>
+                <div class="flex-grow-1">
+                    <p class="stats-label">Topik Riset</p>
+                    <h3 class="stats-number"><?php echo $stats['topik_riset']; ?></h3>
                 </div>
-                <div class="bg-secondary bg-opacity-10 p-3 rounded">
-                    <i class="bi bi-lightbulb text-warning fs-2"></i>
+                <div class="stats-icon" style="background: rgba(253, 126, 20, 0.1); color: #fd7e14;">
+                    <i class="bi bi-lightbulb fs-3"></i>
                 </div>
             </div>
         </div>
@@ -169,40 +347,40 @@ $recent_activities = $stmt->fetchAll();
 <div class="row">
     <!-- Recent News -->
     <div class="col-xl-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card card-modern h-100">
+            <div class="card-header-modern d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-newspaper me-2"></i>Berita Terbaru
+                    <i class="bi bi-newspaper me-2 text-primary"></i>Berita Terbaru
                 </h5>
                 <a href="manage_news.php" class="btn btn-sm btn-outline-primary">
-                    Lihat Semua
+                    Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
             <div class="card-body">
                 <?php if (!empty($recent_news)): ?>
-                    <div class="list-group list-group-flush">
-                        <?php foreach ($recent_news as $news): ?>
-                            <div class="list-group-item px-0">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1 fw-bold">
-                                            <?php echo htmlspecialchars($news['judul']); ?>
-                                        </h6>
-                                        <p class="mb-1 text-muted small">
-                                            <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 100) . '...'; ?>
-                                        </p>
+                    <?php foreach ($recent_news as $news): ?>
+                        <div class="list-item-modern">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-2 fw-bold">
+                                        <?php echo htmlspecialchars($news['judul']); ?>
+                                    </h6>
+                                    <p class="mb-2 text-muted small" style="line-height: 1.5;">
+                                        <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 80) . '...'; ?>
+                                    </p>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
                                         <small class="text-muted">
-                                            <i class="bi bi-calendar me-1"></i>
+                                            <i class="bi bi-calendar3 me-1"></i>
                                             <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
-                                            <span class="badge bg-primary ms-2">
-                                                <?php echo ucfirst($news['kategori']); ?>
-                                            </span>
                                         </small>
+                                        <span class="badge badge-modern bg-primary">
+                                            <?php echo ucfirst($news['kategori']); ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
+                        </div>
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <div class="alert alert-info mb-0">
                         <i class="bi bi-info-circle me-2"></i>
@@ -215,43 +393,43 @@ $recent_activities = $stmt->fetchAll();
 
     <!-- Recent Activities -->
     <div class="col-xl-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card card-modern h-100">
+            <div class="card-header-modern d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-calendar-event me-2"></i>Kegiatan Terbaru
+                    <i class="bi bi-calendar-event me-2 text-success"></i>Kegiatan Terbaru
                 </h5>
                 <a href="manage_activities.php" class="btn btn-sm btn-outline-success">
-                    Lihat Semua
+                    Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
             <div class="card-body">
                 <?php if (!empty($recent_activities)): ?>
-                    <div class="list-group list-group-flush">
-                        <?php foreach ($recent_activities as $activity): ?>
-                            <div class="list-group-item px-0">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1 fw-bold">
-                                            <?php echo htmlspecialchars($activity['nama']); ?>
-                                        </h6>
-                                        <?php if ($activity['pemateri']): ?>
-                                            <p class="mb-1 text-muted small">
-                                                <i class="bi bi-person me-1"></i>
-                                                <?php echo htmlspecialchars($activity['pemateri']); ?>
-                                            </p>
-                                        <?php endif; ?>
+                    <?php foreach ($recent_activities as $activity): ?>
+                        <div class="list-item-modern">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-2 fw-bold">
+                                        <?php echo htmlspecialchars($activity['nama']); ?>
+                                    </h6>
+                                    <?php if ($activity['pemateri']): ?>
+                                        <p class="mb-2 text-muted small">
+                                            <i class="bi bi-person-circle me-1"></i>
+                                            <?php echo htmlspecialchars($activity['pemateri']); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
                                         <small class="text-muted">
-                                            <i class="bi bi-calendar me-1"></i>
+                                            <i class="bi bi-calendar3 me-1"></i>
                                             <?php echo date('d M Y', strtotime($activity['tanggal'])); ?>
-                                            <span class="badge bg-success ms-2">
-                                                <?php echo ucfirst($activity['kategori_kegiatan']); ?>
-                                            </span>
                                         </small>
+                                        <span class="badge badge-modern bg-success">
+                                            <?php echo ucfirst($activity['kategori_kegiatan']); ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
+                        </div>
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <div class="alert alert-info mb-0">
                         <i class="bi bi-info-circle me-2"></i>
@@ -262,42 +440,5 @@ $recent_activities = $stmt->fetchAll();
         </div>
     </div>
 </div>
-
-<!-- Quick Actions
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">
-                    <i class="bi bi-lightning-fill me-2"></i>Quick Actions
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <a href="manage_news.php" class="btn btn-outline-primary w-100 py-3">
-                            <i class="bi bi-plus-circle me-2"></i>Tambah Berita
-                        </a>
-                    </div>
-                    <div class="col-md-3">
-                        <a href="manage_activities.php" class="btn btn-outline-success w-100 py-3">
-                            <i class="bi bi-plus-circle me-2"></i>Tambah Kegiatan
-                        </a>
-                    </div>
-                    <div class="col-md-3">
-                        <a href="manage_publications.php" class="btn btn-outline-info w-100 py-3">
-                            <i class="bi bi-plus-circle me-2"></i>Tambah Publikasi
-                        </a>
-                    </div>
-                    <div class="col-md-3">
-                        <a href="manage_members.php" class="btn btn-outline-warning w-100 py-3">
-                            <i class="bi bi-plus-circle me-2"></i>Tambah Anggota
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
 
 <?php include 'includes/admin_footer.php'; ?>

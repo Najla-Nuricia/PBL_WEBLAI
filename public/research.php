@@ -1,10 +1,17 @@
 <?php
 require_once '../config/db.php';
+// require_once '../helpers/background.php';
 $page_title = 'Research & Products';
 
-
+// Fetch dashboard background
+$stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
+$dashboard_bg = $stmt_bg->fetch();
+$bg_image = '';
+if ($dashboard_bg && $dashboard_bg['path_gambar']) {
+    $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
+}
 // data produk
-$limit_pd = 6;
+$limit_pd = 3;
 $page_pd = isset($_GET['product_page']) ? (int)$_GET['product_page'] : 1;
 $offset_pd = ($page_pd - 1) * $limit_pd;
 $stmt = $pdo->prepare("
@@ -24,7 +31,7 @@ $pages_produk = ceil($rows_produk / $limit_pd);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 //ambil data blueprint
-$limit_bp = 5;
+$limit_bp = 4;
 $page_bp = isset($_GET['blueprint_page']) ? (int)$_GET['blueprint_page'] : 1;
 $offset_bp = ($page_bp - 1) * $limit_bp;
 $stmt = $pdo->prepare("
@@ -42,7 +49,7 @@ $pages_blueprint = ceil($rows_blueprint / $limit_bp);
 $blueprint = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 //ambil data topik riset
-$limit_tp = 5;
+$limit_tp = 6;
 $page_tp = isset($_GET['topic_page']) ? (int)$_GET['topic_page'] : 1;
 $offset_tp = ($page_tp - 1) * $limit_tp;
 $stmt = $pdo->prepare("
@@ -64,16 +71,66 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Page Header -->
-<section class="page-header py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container">
-        <div class="row">
-            <div class="col text-center">
+<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+    <!-- Parallax Background Layer -->
+    <?php
+    $bg_style = $bg_image
+        ? "background: url('$bg_image') center/cover no-repeat; z-index: 0;"
+        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); z-index: 0;';
+    ?>
+    <div class="parallax-bg position-absolute top-0 start-0 w-100 h-100"
+        style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
+    </div>
+
+    <!-- Gradient Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
+
+    <!-- Content -->
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center justify-content-center min-vh-75 py-5">
+            <div class="col-lg-10 text-center" data-aos="fade-up" data-aos-duration="1000">
                 <h1 class="display-4 fw-bold mb-3">Research & Development</h1>
                 <p class="lead">Produk, topik riset, dan roadmap pengembangan AI Lab Polinema</p>
             </div>
         </div>
     </div>
 </section>
+<!-- Parallax JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const heroSection = document.getElementById('heroSection');
+
+        if (parallaxBg && heroSection) {
+            let ticking = false;
+
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
+
+                // Only apply parallax when hero section is visible
+                if (scrolled < heroHeight) {
+                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
+                    const yPos = scrolled * 0.5;
+                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                }
+
+                ticking = false;
+            }
+
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }
+
+            window.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+        }
+    });
+</script>
 
 <!-- Research Topics Section -->
 <?php if (!empty($research_topics)): ?>
@@ -108,7 +165,7 @@ include '../includes/navbar.php';
 
 <!-- Products Section -->
 <?php if (!empty($products)): ?>
-    <section class="py-5">
+    <section id="products" class="py-5" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
@@ -187,146 +244,8 @@ include '../includes/navbar.php';
     </section>
 <?php endif; ?>
 
-<!-- Blueprint/Roadmap Section -->
-<?php if (!empty($blueprints)): ?>
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h2 class="section-title">Development Roadmap</h2>
-                    <p class="section-subtitle">Blueprint pengembangan laboratorium</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <?php foreach ($blueprints as $blueprint): ?>
-                    <div class="col-lg-12">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-start">
-                                    <div class="flex-shrink-0 me-4">
-                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
-                                            <i class="bi bi-diagram-3 text-primary" style="font-size: 2rem;"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h4 class="fw-bold mb-3">
-                                            <?php echo htmlspecialchars($blueprint['judul']); ?>
-                                        </h4>
-                                        <p class="text-muted mb-0" style="text-align: justify; white-space: pre-line;">
-                                            <?php echo htmlspecialchars($blueprint['deskripsi']); ?>
-                                        </p>
-                                        <small class="text-muted">
-                                            <i class="bi bi-calendar3 me-1"></i>
-                                            <?php echo date('d F Y', strtotime($blueprint['created_at'])); ?>
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-<?php endif; ?>
-
-<!-- General Research Areas (Static Content) -->
-<section class="py-5">
-    <div class="container">
-        <div class="row mb-4">
-            <div class="col text-center">
-                <h2 class="section-title">Research Domains</h2>
-                <p class="section-subtitle">Domain penelitian yang kami kembangkan</p>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-robot text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Artificial Intelligence</h5>
-                    <p class="text-muted small">Machine Learning, Deep Learning, Computer Vision</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-globe text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Web Technology</h5>
-                    <p class="text-muted small">Full-stack Development, Progressive Web Apps</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-phone text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Mobile Development</h5>
-                    <p class="text-muted small">Android, iOS, Cross-platform Apps</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-database text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Data Science</h5>
-                    <p class="text-muted small">Big Data Analytics, Business Intelligence</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-shield-check text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Cyber Security</h5>
-                    <p class="text-muted small">Network Security, Ethical Hacking</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-cloud text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Cloud Computing</h5>
-                    <p class="text-muted small">AWS, Azure, Google Cloud Platform</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-diagram-3 text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">IoT</h5>
-                    <p class="text-muted small">Internet of Things, Smart Systems</p>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm text-center h-100 p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-controller text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Game Development</h5>
-                    <p class="text-muted small">2D/3D Games, Virtual Reality</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!--/blueprint-->
-<section class="py-5">
+<section id="blueprint" class="py-5" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="col text-center">
             <h2 class="section-title"> Blueprint</h2>
@@ -380,7 +299,7 @@ include '../includes/navbar.php';
 <!--//blueprint-->
 
 <!-- Research Topic Section -->
-<section class="py-5 bg-light">
+<section id="topics" class="py-5 bg-light" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row">
             <div class="col text-center">
@@ -389,16 +308,17 @@ include '../includes/navbar.php';
             </div>
         </div>
         <?php if (!empty($topik)): ?>
-            <div class="row g-4 align-items-center">
+            <div class="row g-4 justify-content-center">
                 <?php foreach ($topik as $tp): ?>
-                    <div class="mt-3">
+                    <div class="col-md-6">
                         <div class="card border-0 shadow-sm text-center h-100 p-4">
-                            <h5 class="fw mb-0">
-                                <?php echo htmlspecialchars($tp['topik']); ?>
-                            </h5>
+                            <div class="card-body d-flex align-items-center justify-content-center">
+                                <h5 class="fw-bold mb-0">
+                                    <?php echo htmlspecialchars($tp['topik']); ?>
+                                </h5>
+                            </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
+                    </div> <?php endforeach; ?>
             </div>
             <!-- Pagination features -->
             <?php if ($pages_topik > 1): ?>
@@ -426,5 +346,6 @@ include '../includes/navbar.php';
         <?php endif; ?>
     </div>
 </section>
+
 
 <?php include '../includes/footer.php'; ?>

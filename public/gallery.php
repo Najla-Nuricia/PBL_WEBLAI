@@ -1,6 +1,15 @@
 <?php
 require_once '../config/db.php';
+// require_once '../helpers/background.php';
 $page_title = 'Gallery';
+
+// Fetch dashboard background
+$stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
+$dashboard_bg = $stmt_bg->fetch();
+$bg_image = '';
+if ($dashboard_bg && $dashboard_bg['path_gambar']) {
+    $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
+}
 
 // Get galleries with photo count
 $stmt = $pdo->query("
@@ -16,11 +25,23 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<!-- Page Header -->
-<section class="page-header py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container">
-        <div class="row">
-            <div class="col text-center">
+<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+    <!-- Parallax Background Layer -->
+    <?php
+    $bg_style = $bg_image
+        ? "background: url('$bg_image') center/cover no-repeat; z-index: 0;"
+        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); z-index: 0;';
+    ?>
+    <div class="parallax-bg position-absolute top-0 start-0 w-100 h-100"
+        style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
+    </div>
+
+    <!-- Gradient Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
+    <!-- Content -->
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center justify-content-center min-vh-75 py-5">
+            <div class="col-lg-6 text-center">
                 <h1 class="display-4 fw-bold mb-3">Gallery</h1>
                 <p class="lead">Dokumentasi kegiatan dan suasana AI Lab Polinema</p>
             </div>
@@ -28,8 +49,45 @@ include '../includes/navbar.php';
     </div>
 </section>
 
+<!-- Parallax JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const heroSection = document.getElementById('heroSection');
+
+        if (parallaxBg && heroSection) {
+            let ticking = false;
+
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
+
+                // Only apply parallax when hero section is visible
+                if (scrolled < heroHeight) {
+                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
+                    const yPos = scrolled * 0.5;
+                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                }
+
+                ticking = false;
+            }
+
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }
+
+            window.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+        }
+    });
+</script>
+
 <!-- Gallery Section -->
-<section class="py-5">
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <?php if (!empty($galleries)): ?>
             <?php foreach ($galleries as $index => $gallery): ?>
@@ -59,7 +117,7 @@ include '../includes/navbar.php';
                     </div>
 
                     <?php if (!empty($photos)): ?>
-                        <div class="row g-3">
+                        <div class="row g-3 gallery-row">
                             <?php foreach ($photos as $photo): ?>
                                 <div class="col-6 col-md-4 col-lg-3">
                                     <div class="card border-0 shadow-sm h-100">
@@ -68,26 +126,9 @@ include '../includes/navbar.php';
                                             alt="Gallery Photo"
                                             style="height: 200px; object-fit: cover; cursor: pointer;"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#imageModal<?php echo $index . '_' . $photo['uuid']; ?>">
-                                    </div>
-
-                                    <!-- Modal for full image -->
-                                    <div class="modal fade" id="imageModal<?php echo $index . '_' . $photo['uuid']; ?>" tabindex="-1">
-                                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header border-0">
-                                                    <h5 class="modal-title">
-                                                        <?php echo htmlspecialchars($gallery['judul']); ?>
-                                                    </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body p-0">
-                                                    <img src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
-                                                        class="img-fluid w-100"
-                                                        alt="Gallery Photo">
-                                                </div>
-                                            </div>
-                                        </div>
+                                            data-bs-target="#imageModal"
+                                            data-title="<?php echo htmlspecialchars($gallery['judul']); ?>"
+                                            data-src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>">
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -112,6 +153,38 @@ include '../includes/navbar.php';
         <?php endif; ?>
     </div>
 </section>
+
+<!-- Universal Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <img src="" class="img-fluid w-100" alt="Gallery Photo">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script untuk modal universal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageModal = document.getElementById('imageModal');
+        const modalTitle = imageModal.querySelector('.modal-title');
+        const modalImg = imageModal.querySelector('img');
+
+        // Event listener untuk semua gambar gallery
+        document.querySelectorAll('.gallery-img').forEach(img => {
+            img.addEventListener('click', function() {
+                modalTitle.textContent = this.dataset.title;
+                modalImg.src = this.dataset.src;
+            });
+        });
+    });
+</script>
 
 <style>
     .gallery-img {

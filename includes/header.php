@@ -19,6 +19,9 @@
     <!-- Google Fonts - Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <!-- Custom CSS -->
     <link href="../assets/css/style.css" rel="stylesheet">
 
@@ -115,6 +118,50 @@
             color: #fff !important;
         }
 
+        /* Efek page-vaigation */
+        .pagination .page-link {
+            border-radius: 8px;
+            margin: 0 4px;
+            color: #1E4BA3;
+            border: 1px solid #1E4BA3;
+            background-color: #fff;
+            transition: all 0.25s ease-in-out;
+            font-weight: 500;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+
+        .pagination .page-link:hover {
+            background-color: #1E4BA3;
+            color: #fff;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 8px rgba(30, 75, 163, 0.2);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #1E4BA3;
+            border-color: #1E4BA3;
+            color: #fff;
+            transform: none;
+            box-shadow: 0 3px 6px rgba(30, 75, 163, 0.3);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            opacity: 0.6;
+            pointer-events: none;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Efek List-group Hover  */
+        .list-group-item:hover:not(.active) {
+            font-weight: bold;
+            color: var(--bs-list-group-active-bg);
+        }
+
+        .list-group-item:hover.active {
+            font-weight: bold;
+        }
+
         /* Sosial media button smooth hover */
         footer .btn-outline-light {
             border: 2px solid rgba(255, 255, 255, 0.9);
@@ -139,45 +186,6 @@
 
         .list-group-item:hover.active {
             font-weight: bold;
-        }
-
-        /* footer logo smooth hover */
-        footer .btn-outline-light {
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            background-color: transparent;
-            color: white;
-            transition: all 0.3s ease;
-            border-radius: 10px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            margin: 0;
-        }
-
-        /* Hover effect */
-        footer .btn-outline-light:hover {
-            background-color: #2C5AA0(0, 30, 255, 0.15);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
-        }
-
-        /* Efek ketika hover */
-        footer .btn-outline-light i {
-            font-size: 1.3rem;
-            transition: transform 0.3s ease;
-        }
-
-        footer .btn-outline-light:hover i {
-            transform: scale(1.1);
-        }
-
-        /* Efek ketika diklik */
-        footer .btn-outline-light:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
         }
     </style>
 </head>

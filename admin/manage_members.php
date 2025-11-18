@@ -31,7 +31,7 @@ if (isset($_GET['delete'])) {
     }
 }
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -52,7 +52,7 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
     }
 }
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
     $nidn = clean_input($_POST['nidn'] ?? '');
     $jabatan = clean_input($_POST['jabatan'] ?? '');
@@ -142,6 +142,7 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -239,6 +240,7 @@ if (isset($_SESSION['flash_error'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>

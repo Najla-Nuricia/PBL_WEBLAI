@@ -31,6 +31,28 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// Handle Bulk Delete
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM fasilitas WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($uuids);
+
+        $_SESSION['flash_success'] = count($uuids) . ' fasilitas berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus fasilitas: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_facilities.php");
+        exit;
+    }
+}
+
 // Handle Insert/Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
@@ -82,27 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = "Gagal menyimpan fasilitas: " . $e->getMessage();
-    } finally {
-        header("Location: manage_facilities.php");
-        exit;
-    }
-}
-// Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
-    $uuids = $_POST['selected'];
-
-    try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
-        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
-        $query = "DELETE FROM fasilitas WHERE uuid IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
-        $stmt->execute($uuids);
-
-        $_SESSION['flash_success'] = count($uuids) . ' fasilitas berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus fasilitas: ' . $e->getMessage();
     } finally {
         header("Location: manage_facilities.php");
         exit;

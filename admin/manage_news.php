@@ -7,13 +7,53 @@ include 'includes/admin_header.php';
 $success = '';
 $error = '';
 
-// DELETE single
+// DELETE FOTO
+if (isset($_GET['delete_foto'])) {
+    $uuid = $_GET['delete_foto'];
+    try {
+        // Ambil path file
+        $stmt = $pdo->prepare("SELECT file_path FROM berita_foto WHERE uuid = ?");
+        $stmt->execute([$uuid]);
+        $foto = $stmt->fetch();
+
+        // Hapus file fisik
+        $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/';
+        if ($foto && file_exists($upload_dir . $foto['file_path'])) {
+            unlink($upload_dir . $foto['file_path']);
+        }
+
+        // Hapus dari database
+        $stmt = $pdo->prepare("DELETE FROM berita_foto WHERE uuid = ?");
+        $stmt->execute([$uuid]);
+        $_SESSION['flash_success'] = 'Foto berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus foto: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_news.php?edit=" . $_GET['berita_id']);
+        exit;
+    }
+}
+
+// DELETE single berita
 if (isset($_GET['delete'])) {
     $uuid = $_GET['delete'];
     try {
+        $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/';
+
+        // Hapus foto-foto terkait
+        $stmt = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ?");
+        $stmt->execute([$uuid]);
+        $fotos = $stmt->fetchAll();
+
+        foreach ($fotos as $foto) {
+            if (file_exists($upload_dir . $foto['file_path'])) {
+                unlink($upload_dir . $foto['file_path']);
+            }
+        }
+
         $stmt = $pdo->prepare("DELETE FROM berita WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $_SESSION['flash_success'] = 'Berita berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Berita beserta foto berhasil dihapus!';
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Gagal menghapus berita: ' . $e->getMessage();
     } finally {
@@ -22,8 +62,40 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// BULK DELETE
+if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+    try {
+        $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/';
+
+        // Hapus foto-foto terkait
+        foreach ($uuids as $uuid) {
+            $stmt = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ?");
+            $stmt->execute([$uuid]);
+            $fotos = $stmt->fetchAll();
+
+            foreach ($fotos as $foto) {
+                if (file_exists($upload_dir . $foto['file_path'])) {
+                    unlink($upload_dir . $foto['file_path']);
+                }
+            }
+        }
+
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM berita WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($uuids);
+        $_SESSION['flash_success'] = count($uuids) . ' berita berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_news.php");
+        exit;
+    }
+}
+
 // INSERT / UPDATE
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $judul     = clean_input($_POST['judul'] ?? '');
     $penulis   = clean_input($_POST['penulis'] ?? '');
     $tanggal   = clean_input($_POST['tanggal'] ?? '');
@@ -38,35 +110,67 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['bulk_delete'])) {
                 "UPDATE berita SET judul = ?, penulis = ?, tanggal = ?, tempat = ?, deskripsi = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?"
             );
             $stmt->execute([$judul, $penulis, $tanggal, $tempat, $deskripsi, $kategori, $uuid]);
+            $berita_id = $uuid;
             $_SESSION['flash_success'] = 'Berita berhasil diupdate!';
         } else {
             $stmt = $pdo->prepare(
-                "INSERT INTO berita (judul, penulis, tanggal, tempat, deskripsi, kategori) VALUES (?, ?, ?, ?, ?, ?)"
+                "INSERT INTO berita (judul, penulis, tanggal, tempat, deskripsi, kategori) VALUES (?, ?, ?, ?, ?, ?) RETURNING uuid"
             );
             $stmt->execute([$judul, $penulis, $tanggal, $tempat, $deskripsi, $kategori]);
+            $berita_id = $stmt->fetchColumn();
             $_SESSION['flash_success'] = 'Berita berhasil ditambahkan!';
+        }
+
+        // Handle upload foto
+        if (!empty($_FILES['foto']['name'][0])) {
+            $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $max_file_size = (int)$_ENV['MAX_FILE_SIZE'];
+            $total_files = count($_FILES['foto']['name']);
+
+            // Ambil caption dan split berdasarkan baris baru
+            $captions = [];
+            if (!empty($_POST['caption'][0])) {
+                $captions = array_filter(array_map('trim', explode("\n", $_POST['caption'][0])));
+            }
+
+            for ($i = 0; $i < $total_files; $i++) {
+                if ($_FILES['foto']['error'][$i] == 0) {
+                    $file_name = $_FILES['foto']['name'][$i];
+                    $file_tmp = $_FILES['foto']['tmp_name'][$i];
+                    $file_size = $_FILES['foto']['size'][$i];
+                    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+                    // Validasi ukuran file
+                    if ($file_size > $max_file_size) {
+                        $_SESSION['flash_error'] = 'Ukuran file ' . $file_name . ' melebihi batas maksimal (' . ($max_file_size / 1048576) . 'MB)';
+                        continue;
+                    }
+
+                    $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                    if (in_array($file_ext, $allowed_ext)) {
+                        $new_file_name = uniqid() . '_' . time() . '.' . $file_ext;
+                        $destination = $upload_dir . $new_file_name;
+
+                        if (move_uploaded_file($file_tmp, $destination)) {
+                            // Ambil caption sesuai index, jika tidak ada gunakan string kosong
+                            $caption = isset($captions[$i]) ? clean_input($captions[$i]) : '';
+                            $stmt = $pdo->prepare(
+                                "INSERT INTO berita_foto (berita_id, file_path, caption) VALUES (?, ?, ?)"
+                            );
+                            $stmt->execute([$berita_id, $new_file_name, $caption]);
+                        }
+                    }
+                }
+            }
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
     } finally {
-        header("Location: manage_news.php");
-        exit;
-    }
-}
-
-// BULK DELETE
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
-    $uuids = $_POST['selected'];
-    try {
-        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
-        $query = "DELETE FROM berita WHERE uuid IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-        $stmt->execute($uuids);
-        $_SESSION['flash_success'] = count($uuids) . ' berita berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus beberapa berita: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_news.php");
+        header("Location: manage_news.php" . (isset($berita_id) ? "?edit=$berita_id" : ""));
         exit;
     }
 }
@@ -77,11 +181,19 @@ $news_list = $stmt->fetchAll();
 
 // Ambil data edit jika mode edit
 $edit_data = null;
+$berita_fotos = [];
 if (isset($_GET['edit'])) {
     $uuid = $_GET['edit'];
     $stmt = $pdo->prepare("SELECT * FROM berita WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+
+    // Ambil foto-foto berita
+    if ($edit_data) {
+        $stmt = $pdo->prepare("SELECT * FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at DESC");
+        $stmt->execute([$uuid]);
+        $berita_fotos = $stmt->fetchAll();
+    }
 }
 
 // Ambil flash message jika ada
@@ -104,7 +216,8 @@ if (isset($_SESSION['flash_error'])) {
         </h5>
     </div>
     <div class="card-body">
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -158,14 +271,65 @@ if (isset($_SESSION['flash_error'])) {
                         placeholder="Lokasi acara">
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Deskripsi Singkat <span class="text-danger">*</span></label>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Deskripsi <span class="text-danger">*</span></label>
                     <textarea name="deskripsi"
                         class="form-control"
-                        rows="3"
-                        placeholder="Deskripsi singkat tentang album ini..."
+                        rows="5"
+                        placeholder="Deskripsi lengkap tentang berita..."
                         required><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi']) : ''; ?></textarea>
                 </div>
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Upload Foto</label>
+                    <div id="foto-container">
+                        <div class="foto-item mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="file" name="foto[]" class="form-control" accept="image/*">
+                                    <small class="text-muted">Format: JPG, PNG, GIF, WEBP. Max 5MB (Multiple Up)</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="caption[]" class="form-control" placeholder="Caption foto (opsional)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if ($edit_data && !empty($berita_fotos)): ?>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Foto yang Sudah Diupload</label>
+                        <div class="row g-3">
+                            <?php foreach ($berita_fotos as $foto): ?>
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        <?php
+                                        $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']);
+                                        ?>
+                                        <img src="<?php echo $foto_path; ?>"
+                                            class="card-img-top"
+                                            style="height: 200px; object-fit: cover;"
+                                            alt="<?php echo htmlspecialchars($foto['caption'] ?: 'Foto berita'); ?>"
+                                            onerror="this.src='../assets/img/placeholder.jpg'">
+                                        <div class="card-body p-2">
+                                            <?php if (!empty($foto['caption'])): ?>
+                                                <small class="text-muted d-block mb-2">
+                                                    <?php echo htmlspecialchars($foto['caption']); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                            <a href="?delete_foto=<?php echo $foto['uuid']; ?>&berita_id=<?php echo $edit_data['uuid']; ?>"
+                                                class="btn btn-sm btn-danger w-100"
+                                                onclick="return confirmDelete('Hapus foto ini?');">
+                                                <i class="bi bi-trash"></i> Hapus
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="d-flex gap-2">
@@ -202,6 +366,7 @@ if (isset($_SESSION['flash_error'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>
@@ -213,12 +378,17 @@ if (isset($_SESSION['flash_error'])) {
                                 <th>Judul</th>
                                 <th>Penulis</th>
                                 <th>Kategori</th>
-                                <th>Tempat</th>
+                                <th>Foto</th>
                                 <th width="150">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($news_list as $index => $news): ?>
+                            <?php foreach ($news_list as $index => $news):
+                                // Hitung jumlah foto
+                                $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM berita_foto WHERE berita_id = ?");
+                                $stmt->execute([$news['uuid']]);
+                                $foto_count = $stmt->fetchColumn();
+                            ?>
                                 <tr>
                                     <td>
                                         <input type="checkbox" name="selected[]" value="<?= $news['uuid']; ?>" class="rowCheckbox">
@@ -235,16 +405,18 @@ if (isset($_SESSION['flash_error'])) {
 
                                     <td><?php echo htmlspecialchars($news['penulis'] ?? ''); ?></td>
 
-
                                     <td>
                                         <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary'); ?>">
                                             <?php echo ucfirst($news['kategori']); ?>
                                         </span>
                                     </td>
 
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-images"></i> <?php echo $foto_count; ?>
+                                        </span>
+                                    </td>
 
-
-                                    <td><?php echo htmlspecialchars($news['tempat']); ?></td>
                                     <td>
                                         <a href="?edit=<?php echo $news['uuid']; ?>"
                                             class="btn btn-sm btn-warning"
@@ -253,7 +425,7 @@ if (isset($_SESSION['flash_error'])) {
                                         </a>
                                         <a href="?delete=<?php echo $news['uuid']; ?>"
                                             class="btn btn-sm btn-danger"
-                                            onclick="return confirmDelete('Apakah Anda yakin ingin menghapus berita ini?');"
+                                            onclick="return confirmDelete('Apakah Anda yakin ingin menghapus berita ini beserta semua fotonya?');"
                                             title="Hapus">
                                             <i class="bi bi-trash"></i>
                                         </a>
@@ -267,15 +439,12 @@ if (isset($_SESSION['flash_error'])) {
                             <i class="bi bi-trash3 me-2"></i>Hapus Terpilih
                         </button>
                     </div>
+                </form>
             </div>
         <?php endif; ?>
     </div>
 </div>
 
-<?php
-include 'includes/admin_footer.php';
-ob_end_flush();
-?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const successMessage = "<?= addslashes($success ?? '') ?>";
@@ -285,3 +454,8 @@ ob_end_flush();
         if (errorMessage) showError(errorMessage);
     });
 </script>
+
+<?php
+include 'includes/admin_footer.php';
+ob_end_flush();
+?>
