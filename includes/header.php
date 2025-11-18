@@ -177,16 +177,6 @@
             padding: 0;
             margin: 0;
         }
-
-        /* Efek List-group Hover  */
-        .list-group-item:hover:not(.active) {
-            font-weight: bold;
-            color: var(--bs-list-group-active-bg);
-        }
-
-        .list-group-item:hover.active {
-            font-weight: bold;
-        }
     </style>
 </head>
 
