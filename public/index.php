@@ -52,7 +52,7 @@ include '../includes/navbar.php';
         style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
     </div>
 
-    Gradient Overlay
+    <!-- Gradient Overlay -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
 
     <!-- Content -->
@@ -154,58 +154,8 @@ include '../includes/navbar.php';
     });
 </script>
 
-<!-- Features Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col">
-                <h2 class="section-title">Why Choose AI Lab?</h2>
-                <p class="section-subtitle">Keunggulan laboratorium kami</p>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 text-center p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-lightbulb-fill text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Innovation</h5>
-                    <p class="text-muted">
-                        Fokus pada inovasi teknologi terkini dengan pendekatan riset yang komprehensif
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 text-center p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Collaboration</h5>
-                    <p class="text-muted">
-                        Kerjasama dengan industri dan institusi untuk hasil riset yang aplikatif
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 text-center p-4">
-                    <div class="mb-3">
-                        <i class="bi bi-trophy-fill text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="fw-bold">Excellence</h5>
-                    <p class="text-muted">
-                        Komitmen terhadap kualitas dan standar penelitian internasional
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- Latest News Section -->
-<section class="py-5">
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row mb-4">
             <div class="col">
@@ -265,7 +215,7 @@ include '../includes/navbar.php';
 </section>
 
 <!-- Research Activities Section -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row mb-4">
             <div class="col">

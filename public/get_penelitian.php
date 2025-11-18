@@ -19,9 +19,12 @@ if ($uuid) {
         echo '<div class="list-group mb-3">';
         foreach ($publikasis as $p) {
             echo '<div class="list-group-item">';
-            echo '<h6 class="fw-bold mb-1">'.htmlspecialchars($p['judul']).'</h6>';
+            echo '<h6 class="fw-bold mb-1">
+                    <a href="'.htmlspecialchars($p['tautan']).'" target="_blank" class="text-decoration-none item-link">
+                        '.htmlspecialchars($p['judul']).'
+                    </a>
+                  </h6>';
             echo '<p class="small text-muted mb-1">Tahun: '.htmlspecialchars($p['tahun']).'</p>';
-            echo '<p class="mb-0">'.htmlspecialchars($p['tautan']).'</p>';
             echo '</div>';
         }
         echo '</div>';
@@ -29,13 +32,30 @@ if ($uuid) {
         echo '<p class="text-muted">Belum ada penelitian.</p>';
     }
 
+    // PAGINATION
     if ($totalPages > 1) {
         echo '<nav><ul class="pagination justify-content-center">';
         for ($i = 1; $i <= $totalPages; $i++) {
             $active = ($i == $page) ? 'active' : '';
-            echo "<li class='page-item $active'><button class='page-link' data-page='$i'>$i</button></li>";
+            echo "<li class='page-item $active'>
+                    <button class='page-link' data-page='$i'>$i</button>
+                  </li>";
         }
         echo '</ul></nav>';
     }
+
 }
 ?>
+
+<style>
+.item-link {
+    color: #313131ff !important;          /* warna hitam */
+    transition: 0.15s ease;          /* smooth */
+}
+
+.item-link:hover {
+    color: #0d6efd !important;       /* hover biru bootstrap */
+    text-decoration: underline;
+}
+</style>
+

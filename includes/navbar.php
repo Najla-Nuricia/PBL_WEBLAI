@@ -28,7 +28,11 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
 
                 <!-- Research Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo $current_page == 'research' ? 'active' : ''; ?>" href="research.php" id="researchDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle <?php echo $current_page == 'research' ? 'active' : ''; ?>"
+                        href="research.php"
+                        id="researchDropdown"
+                        role="button"
+                        aria-expanded="false">
                         <i class="bi bi-lightbulb me-1"></i>Research
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="researchDropdown">
@@ -52,7 +56,11 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
 
                 <!-- News Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo $current_page == 'news' ? 'active' : ''; ?>" href="news.php" id="newsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle <?php echo $current_page == 'news' ? 'active' : ''; ?>"
+                        href="news.php"
+                        id="newsDropdown"
+                        role="button"
+                        aria-expanded="false">
                         <i class="bi bi-newspaper me-1"></i>News
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
@@ -292,3 +300,94 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manual dropdown handling without data-bs-toggle
+        const dropdownToggles = document.querySelectorAll('#researchDropdown, #newsDropdown');
+
+        dropdownToggles.forEach(function(toggle) {
+            const dropdownMenu = toggle.nextElementSibling;
+            const parentLi = toggle.closest('.dropdown');
+            let isOpen = false;
+            let clickCount = 0;
+            let clickTimer = null;
+
+            // Click handler for toggle
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const isMobile = window.innerWidth <= 991;
+
+                // Close all other dropdowns first
+                document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+                    if (menu !== dropdownMenu) {
+                        menu.classList.remove('show');
+                        menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+                        menu.closest('.dropdown').classList.remove('show');
+                    }
+                });
+
+                // Toggle current dropdown
+                isOpen = dropdownMenu.classList.contains('show');
+
+                if (isMobile) {
+                    // Mobile: Always toggle dropdown, no navigation on second click
+                    if (isOpen) {
+                        dropdownMenu.classList.remove('show');
+                        this.setAttribute('aria-expanded', 'false');
+                        parentLi.classList.remove('show');
+                    } else {
+                        dropdownMenu.classList.add('show');
+                        this.setAttribute('aria-expanded', 'true');
+                        parentLi.classList.add('show');
+                    }
+                } else {
+                    // Desktop: Second click navigates
+                    if (isOpen) {
+                        // If already open, navigate to the page
+                        window.location.href = this.getAttribute('href');
+                    } else {
+                        // Open the dropdown
+                        dropdownMenu.classList.add('show');
+                        this.setAttribute('aria-expanded', 'true');
+                        parentLi.classList.add('show');
+                    }
+                }
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+                    menu.classList.remove('show');
+                    menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+                    menu.closest('.dropdown').classList.remove('show');
+                });
+            }
+        });
+
+        // Prevent dropdown menu clicks from closing
+        document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
+            menu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                // Close all dropdowns on resize
+                document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+                    menu.classList.remove('show');
+                    menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+                    menu.closest('.dropdown').classList.remove('show');
+                });
+            }, 250);
+        });
+    });
+</script>
