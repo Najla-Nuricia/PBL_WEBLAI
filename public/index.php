@@ -285,7 +285,7 @@ include '../includes/navbar.php';
 
 <!-- Partnerships Section -->
 <?php if (!empty($partnerships)): ?>
-    <section class="py-5">
+    <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
@@ -322,7 +322,7 @@ include '../includes/navbar.php';
 <?php endif; ?>
 
 <!-- CTA Section -->
-<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);">
+<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);"  data-aos="fade-up" data-aos-duration="1000">
     <!-- Decorative Elements -->
     <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(40px);"></div>
     <div style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(60px);"></div>
