@@ -310,8 +310,6 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
             const dropdownMenu = toggle.nextElementSibling;
             const parentLi = toggle.closest('.dropdown');
             let isOpen = false;
-            let clickCount = 0;
-            let clickTimer = null;
 
             // Click handler for toggle
             toggle.addEventListener('click', function(e) {
@@ -369,10 +367,39 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
             }
         });
 
-        // Prevent dropdown menu clicks from closing
-        document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
-            menu.addEventListener('click', function(e) {
-                e.stopPropagation();
+        // Handle dropdown item clicks - FIXED: Close dropdown when item is clicked
+        document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                // Let the link navigate naturally, but close the dropdown
+                const dropdown = this.closest('.dropdown');
+                const dropdownMenu = this.closest('.dropdown-menu');
+                const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+
+                // Close the dropdown
+                dropdownMenu.classList.remove('show');
+                dropdownToggle.setAttribute('aria-expanded', 'false');
+                dropdown.classList.remove('show');
+
+                // If it's a hash link, handle smooth scroll
+                const href = this.getAttribute('href');
+                if (href && href.includes('#')) {
+                    const parts = href.split('#');
+                    const targetId = parts[1];
+
+                    // If on the same page, smooth scroll
+                    if (parts[0] === '' || parts[0] === window.location.pathname.split('/').pop()) {
+                        e.preventDefault();
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                        // Update URL without page reload
+                        history.pushState(null, '', href);
+                    }
+                }
             });
         });
 
