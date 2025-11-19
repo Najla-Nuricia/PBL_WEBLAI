@@ -109,10 +109,10 @@ include '../includes/navbar.php';
                     </a>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <!-- <div class="col-lg-6">
                 <img src="assets/img/hero-illustration.svg" alt="AI Lab" class="img-fluid"
                     onerror="this.src='https://via.placeholder.com/600x400/1E4BA3/ffffff?text=AI+Lab+Polinema'">
-            </div>
+            </div> -->
         </div>
     </div>
 </section>
