@@ -1,0 +1,32 @@
+node_modules
+vendor
+dist
+build
+.cache
+.cache/**
+
+# Compiled / minified files and maps
+*.min.js
+*.min.css
+*.map
+assets/**/*.min.*
+
+# Images and binary assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+screenshot.jpg
+
+# Lockfiles and package manager metadata
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE / editor settings
+.idea
+.vscode
+
+# Git and other VCS metadata
+.git

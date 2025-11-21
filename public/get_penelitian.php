@@ -49,13 +49,15 @@ if ($uuid) {
 
 <style>
 .item-link {
-    color: #313131ff !important;          /* warna hitam */
-    transition: 0.15s ease;          /* smooth */
+    color: #313131ff !important;
+    /* warna hitam */
+    transition: 0.15s ease;
+    /* smooth */
 }
 
 .item-link:hover {
-    color: #0d6efd !important;       /* hover biru bootstrap */
+    color: #0d6efd !important;
+    /* hover biru bootstrap */
     text-decoration: underline;
 }
 </style>
-

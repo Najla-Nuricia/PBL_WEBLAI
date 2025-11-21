@@ -61,108 +61,113 @@ if (isset($_GET['id'])) {
 </section>
 
 <?php if ($single_kegiatan): ?>
-    <!-- Single Activity Detail -->
-    <!-- (kode detail kegiatan tetap sama) -->
+<!-- Single Activity Detail -->
+<!-- (kode detail kegiatan tetap sama) -->
 <?php else: ?>
-    <!-- Activities List -->
-    <section class="py-5">
-        <div class="container">
-            <!-- Filter -->
-            <div class="row mb-4">
-                <div class="col">
-                    <div class="btn-group" role="group">
-                        <a href="activity.php" class="btn btn-<?php echo !$kategori_filter ? 'primary' : 'outline-primary'; ?>">Semua</a>
-                        <a href="activity.php?kategori=workshop" class="btn btn-<?php echo strtolower($kategori_filter) == 'workshop' ? 'primary' : 'outline-primary'; ?>">Workshop</a>
-                        <a href="activity.php?kategori=seminar" class="btn btn-<?php echo strtolower($kategori_filter) == 'seminar' ? 'primary' : 'outline-primary'; ?>">Seminar</a>
-                        <a href="activity.php?kategori=pengabdian" class="btn btn-<?php echo strtolower($kategori_filter) == 'pengabdian' ? 'primary' : 'outline-primary'; ?>">Pengabdian</a>
-                    </div>
+<!-- Activities List -->
+<section class="py-5">
+    <div class="container">
+        <!-- Filter -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="btn-group" role="group">
+                    <a href="activity.php"
+                        class="btn btn-<?php echo !$kategori_filter ? 'primary' : 'outline-primary'; ?>">Semua</a>
+                    <a href="activity.php?kategori=workshop"
+                        class="btn btn-<?php echo strtolower($kategori_filter) == 'workshop' ? 'primary' : 'outline-primary'; ?>">Workshop</a>
+                    <a href="activity.php?kategori=seminar"
+                        class="btn btn-<?php echo strtolower($kategori_filter) == 'seminar' ? 'primary' : 'outline-primary'; ?>">Seminar</a>
+                    <a href="activity.php?kategori=pengabdian"
+                        class="btn btn-<?php echo strtolower($kategori_filter) == 'pengabdian' ? 'primary' : 'outline-primary'; ?>">Pengabdian</a>
                 </div>
             </div>
+        </div>
 
-            <!-- Activities Grid -->
-            <div class="row g-4">
-                <?php if (!empty($kegiatan_list)): ?>
-                    <?php foreach ($kegiatan_list as $kegiatan): ?>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-body">
-                                    <span class="badge bg-<?php
+        <!-- Activities Grid -->
+        <div class="row g-4">
+            <?php if (!empty($kegiatan_list)): ?>
+            <?php foreach ($kegiatan_list as $kegiatan): ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <span class="badge bg-<?php
                                         echo $kegiatan['kategori_kegiatan'] == 'workshop' ? 'success' :
                                              ($kegiatan['kategori_kegiatan'] == 'seminar' ? 'info' : 'warning');
                                     ?> mb-2">
-                                        <?php echo ucfirst($kegiatan['kategori_kegiatan']); ?>
-                                    </span>
+                            <?php echo ucfirst($kegiatan['kategori_kegiatan']); ?>
+                        </span>
 
-                                    <h5 class="card-title fw-bold">
-                                        <?php echo htmlspecialchars($kegiatan['nama']); ?>
-                                    </h5>
+                        <h5 class="card-title fw-bold">
+                            <?php echo htmlspecialchars($kegiatan['nama']); ?>
+                        </h5>
 
-                                    <p class="text-muted small mb-3">
-                                        <i class="bi bi-calendar me-2"></i>
-                                        <?php echo date('d M Y', strtotime($kegiatan['tanggal'])); ?>
-                                        <br>
-                                        <i class="bi bi-person me-2"></i>
-                                        <?php echo htmlspecialchars($kegiatan['pemateri']); ?>
-                                    </p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-calendar me-2"></i>
+                            <?php echo date('d M Y', strtotime($kegiatan['tanggal'])); ?>
+                            <br>
+                            <i class="bi bi-person me-2"></i>
+                            <?php echo htmlspecialchars($kegiatan['pemateri']); ?>
+                        </p>
 
-                                    <p class="card-text text-muted">
-                                        <?php echo substr(htmlspecialchars($kegiatan['deskripsi_singkat']), 0, 120) . '...'; ?>
-                                    </p>
+                        <p class="card-text text-muted">
+                            <?php echo substr(htmlspecialchars($kegiatan['deskripsi_singkat']), 0, 120) . '...'; ?>
+                        </p>
 
-                                    <a href="research.php?id=<?php echo $kegiatan['uuid']; ?>" class="btn btn-sm btn-outline-primary">
-                                        Lihat Detail <i class="bi bi-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-12">
-                        <div class="alert alert-info text-center">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Belum ada kegiatan untuk kategori ini
-                        </div>
+                        <a href="research.php?id=<?php echo $kegiatan['uuid']; ?>"
+                            class="btn btn-sm btn-outline-primary">
+                            Lihat Detail <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
-                <?php endif; ?>
+                </div>
             </div>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Belum ada kegiatan untuk kategori ini
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
 
-            <!-- Pagination -->
-            <?php if ($total_pages > 1): ?>
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <!-- Previous button -->
-                        <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="?<?php
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous button -->
+                <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                    <a class="page-link" href="?<?php
                                 $params = $_GET;
                                 $params['page'] = max(1, $page - 1);
                                 echo http_build_query($params);
                             ?>">&laquo; Sebelumnya</a>
-                        </li>
+                </li>
 
-                        <!-- Page numbers -->
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
-                                <a class="page-link" href="?<?php
+                <!-- Page numbers -->
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                    <a class="page-link" href="?<?php
                                     $params = $_GET;
                                     $params['page'] = $i;
                                     echo http_build_query($params);
                                 ?>"><?php echo $i; ?></a>
-                            </li>
-                        <?php endfor; ?>
+                </li>
+                <?php endfor; ?>
 
-                        <!-- Next button -->
-                        <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="?<?php
+                <!-- Next button -->
+                <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                    <a class="page-link" href="?<?php
                                 $params = $_GET;
                                 $params['page'] = min($total_pages, $page + 1);
                                 echo http_build_query($params);
                             ?>">Selanjutnya &raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
-        </div>
-    </section>
+                </li>
+            </ul>
+        </nav>
+        <?php endif; ?>
+    </div>
+</section>
 <?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>

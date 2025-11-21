@@ -41,7 +41,8 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Hero Section with Parallax Effect -->
-<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+<section class="hero-section position-relative py-5" id="heroSection"
+    style="color: white; min-height: 500px; overflow: hidden;">
     <!-- Parallax Background Layer -->
     <?php
     $bg_style = $bg_image
@@ -53,7 +54,9 @@ include '../includes/navbar.php';
     </div>
 
     <!-- Gradient Overlay -->
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100"
+        style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;">
+    </div>
 
     <!-- Content -->
     <div class="container position-relative" style="z-index: 2;">
@@ -63,38 +66,38 @@ include '../includes/navbar.php';
                 <h1 class="display-4 fw-bold mb-4" id="type" style="min-height: 150px;">
                 </h1>
                 <script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        new TypeIt("#type", {
-                                speed: 80,
-                                startDelay: 500,
-                                cursorChar: "|",
-                                lifeLike: true,
-                                loop: true,
-                            })
-                            .type("Applied ", {
-                                delay: 300
-                            })
-                            .pause(200)
-                            .type("Informatics ", {
-                                delay: 250
-                            })
-                            .pause(150)
-                            .type("Lab", {
-                                delay: 300
-                            })
-                            .pause(500)
-                            .delete(3, {
-                                delay: 300
-                            })
-                            .type("Laboratory", {
-                                delay: 300
-                            })
-                            .pause(7000) // Pause 2 detik setelah selesai sebelum delete semua
-                            .delete(null, {
-                                delay: 500
-                            }) // Delete semua text dengan delay 500ms per karakter
-                            .go();
-                    });
+                document.addEventListener("DOMContentLoaded", function() {
+                    new TypeIt("#type", {
+                            speed: 80,
+                            startDelay: 500,
+                            cursorChar: "|",
+                            lifeLike: true,
+                            loop: true,
+                        })
+                        .type("Applied ", {
+                            delay: 300
+                        })
+                        .pause(200)
+                        .type("Informatics ", {
+                            delay: 250
+                        })
+                        .pause(150)
+                        .type("Lab", {
+                            delay: 300
+                        })
+                        .pause(500)
+                        .delete(3, {
+                            delay: 300
+                        })
+                        .type("Laboratory", {
+                            delay: 300
+                        })
+                        .pause(7000) // Pause 2 detik setelah selesai sebelum delete semua
+                        .delete(null, {
+                            delay: 500
+                        }) // Delete semua text dengan delay 500ms per karakter
+                        .go();
+                });
                 </script>
                 <p class="lead mb-4">
                     Laboratorium penelitian dan pengembangan teknologi informasi terapan
@@ -119,39 +122,39 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
+document.addEventListener('DOMContentLoaded', function() {
+    const parallaxBg = document.querySelector('.parallax-bg');
+    const heroSection = document.getElementById('heroSection');
 
-        if (parallaxBg && heroSection) {
-            let ticking = false;
+    if (parallaxBg && heroSection) {
+        let ticking = false;
 
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const heroHeight = heroSection.offsetHeight;
 
-                // Only apply parallax when hero section is visible
-                if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-
-                ticking = false;
+            // Only apply parallax when hero section is visible
+            if (scrolled < heroHeight) {
+                // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
+                const yPos = scrolled * 0.5;
+                parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
             }
 
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
+            ticking = false;
         }
-    });
+
+        function requestTick() {
+            if (!ticking) {
+                window.requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', requestTick, {
+            passive: true
+        });
+    }
+});
 </script>
 
 <!-- Latest News Section -->
@@ -166,50 +169,50 @@ include '../includes/navbar.php';
 
         <div class="row g-4">
             <?php if (!empty($latest_news)): ?>
-                <?php foreach ($latest_news as $news): ?>
-                    <div class="col-md-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <span class="badge bg-primary mb-2">
-                                    <?php echo ucfirst($news['kategori']); ?>
-                                </span>
-                                <h5 class="card-title fw-bold">
-                                    <?php echo htmlspecialchars($news['judul']); ?>
-                                </h5>
-                                <p class="text-muted small mb-3">
-                                    <i class="bi bi-calendar me-2"></i>
-                                    <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
-                                    <?php if ($news['tempat']): ?>
-                                        <i class="bi bi-geo-alt ms-2 me-1"></i>
-                                        <?php echo htmlspecialchars($news['tempat']); ?>
-                                    <?php endif; ?>
-                                </p>
-                                <p class="card-text text-muted">
-                                    <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 120) . '...'; ?>
-                                </p>
-                                <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary">
-                                    Read More <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="col-12">
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Belum ada berita terbaru
+            <?php foreach ($latest_news as $news): ?>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">
+                            <?php echo ucfirst($news['kategori']); ?>
+                        </span>
+                        <h5 class="card-title fw-bold">
+                            <?php echo htmlspecialchars($news['judul']); ?>
+                        </h5>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-calendar me-2"></i>
+                            <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
+                            <?php if ($news['tempat']): ?>
+                            <i class="bi bi-geo-alt ms-2 me-1"></i>
+                            <?php echo htmlspecialchars($news['tempat']); ?>
+                            <?php endif; ?>
+                        </p>
+                        <p class="card-text text-muted">
+                            <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 120) . '...'; ?>
+                        </p>
+                        <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary">
+                            Read More <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
+            </div>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Belum ada berita terbaru
+                </div>
+            </div>
             <?php endif; ?>
         </div>
 
         <?php if (!empty($latest_news)): ?>
-            <div class="text-center mt-4">
-                <a href="news.php" class="btn btn-primary">
-                    View All News <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
+        <div class="text-center mt-4">
+            <a href="news.php" class="btn btn-primary">
+                View All News <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
         <?php endif; ?>
     </div>
 </section>
@@ -226,58 +229,58 @@ include '../includes/navbar.php';
 
         <div class="row g-4">
             <?php if (!empty($latest_activities)): ?>
-                <?php foreach ($latest_activities as $activity): ?>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <span class="badge bg-success mb-2">
-                                    <?php echo ucfirst($activity['kategori_kegiatan']); ?>
-                                </span>
-                                <h6 class="card-title fw-bold">
-                                    <?php echo htmlspecialchars($activity['nama']); ?>
-                                </h6>
-                                <p class="text-muted small mb-2">
-                                    <i class="bi bi-calendar me-1"></i>
-                                    <?php echo date('d M Y', strtotime($activity['tanggal'])); ?>
-                                </p>
-                                <?php if ($activity['pemateri']): ?>
-                                    <p class="text-muted small mb-2">
-                                        <i class="bi bi-person me-1"></i>
-                                        <?php echo htmlspecialchars($activity['pemateri']); ?>
-                                    </p>
-                                <?php endif; ?>
-                                <p class="card-text text-muted small">
-                                    <?php echo substr(htmlspecialchars($activity['deskripsi_singkat']), 0, 80) . '...'; ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-                <!-- Pagination features -->
-                <?php if ($pages_activities > 1): ?>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center mt-4">
-                            <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
-                            </li>
-                            <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
-                                <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
-                                    <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-                            <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                <?php endif; ?>
-            <?php else: ?>
-                <div class="col-12">
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Belum ada kegiatan terbaru
+            <?php foreach ($latest_activities as $activity): ?>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">
+                            <?php echo ucfirst($activity['kategori_kegiatan']); ?>
+                        </span>
+                        <h6 class="card-title fw-bold">
+                            <?php echo htmlspecialchars($activity['nama']); ?>
+                        </h6>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-calendar me-1"></i>
+                            <?php echo date('d M Y', strtotime($activity['tanggal'])); ?>
+                        </p>
+                        <?php if ($activity['pemateri']): ?>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person me-1"></i>
+                            <?php echo htmlspecialchars($activity['pemateri']); ?>
+                        </p>
+                        <?php endif; ?>
+                        <p class="card-text text-muted small">
+                            <?php echo substr(htmlspecialchars($activity['deskripsi_singkat']), 0, 80) . '...'; ?>
+                        </p>
                     </div>
                 </div>
+            </div>
+            <?php endforeach; ?>
+            <!-- Pagination features -->
+            <?php if ($pages_activities > 1): ?>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
+                        <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
+                    </li>
+                    <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
+                    <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
+                        <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                    <?php endfor; ?>
+                    <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
+                        <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+            <?php endif; ?>
+            <?php else: ?>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Belum ada kegiatan terbaru
+                </div>
+            </div>
             <?php endif; ?>
         </div>
     </div>
@@ -285,54 +288,57 @@ include '../includes/navbar.php';
 
 <!-- Partnerships Section -->
 <?php if (!empty($partnerships)): ?>
-    <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h2 class="section-title">Our Partners</h2>
-                    <p class="section-subtitle">Mitra kerja sama AI Lab Polinema</p>
-                </div>
-            </div>
-
-            <div class="row g-4  justify-content-center align-items-center text-center">
-                <?php foreach ($partnerships as $partner): ?>
-                    <div class="col-6 col-md-4 col-lg-2 text-center">
-                        <a href="<?php echo htmlspecialchars($partner['website']); ?>"
-                            target="_blank"
-                            class="text-decoration-none"
-                            title="<?php echo htmlspecialchars($partner['nama']); ?>">
-                            <?php if ($partner['logo']): ?>
-                                <img src="../assets/img/<?php echo htmlspecialchars($partner['logo']); ?>"
-                                    alt="<?php echo htmlspecialchars($partner['nama']); ?>"
-                                    class="img-fluid grayscale-hover"
-                                    style="max-height: 80px; filter: grayscale(100%); transition: 0.3s;"
-                                    onmouseover="this.style.filter='grayscale(0%)'"
-                                    onmouseout="this.style.filter='grayscale(100%)'">
-                            <?php else: ?>
-                                <div class="p-3 bg-light rounded">
-                                    <strong><?php echo htmlspecialchars($partner['nama']); ?></strong>
-                                </div>
-                            <?php endif; ?>
-                        </a>
-                    </div>
-                <?php endforeach; ?>
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h2 class="section-title">Our Partners</h2>
+                <p class="section-subtitle">Mitra kerja sama AI Lab Polinema</p>
             </div>
         </div>
-    </section>
+
+        <div class="row g-4  justify-content-center align-items-center text-center">
+            <?php foreach ($partnerships as $partner): ?>
+            <div class="col-6 col-md-4 col-lg-2 text-center">
+                <a href="<?php echo htmlspecialchars($partner['website']); ?>" target="_blank"
+                    class="text-decoration-none" title="<?php echo htmlspecialchars($partner['nama']); ?>">
+                    <?php if ($partner['logo']): ?>
+                    <img src="../assets/img/<?php echo htmlspecialchars($partner['logo']); ?>"
+                        alt="<?php echo htmlspecialchars($partner['nama']); ?>" class="img-fluid grayscale-hover"
+                        style="max-height: 80px; filter: grayscale(100%); transition: 0.3s;"
+                        onmouseover="this.style.filter='grayscale(0%)'"
+                        onmouseout="this.style.filter='grayscale(100%)'">
+                    <?php else: ?>
+                    <div class="p-3 bg-light rounded">
+                        <strong><?php echo htmlspecialchars($partner['nama']); ?></strong>
+                    </div>
+                    <?php endif; ?>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 <?php endif; ?>
 
 <!-- CTA Section -->
-<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);"  data-aos="fade-up" data-aos-duration="1000">
+<section class="py-5 position-relative overflow-hidden"
+    style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);" data-aos="fade-up" data-aos-duration="1000">
     <!-- Decorative Elements -->
-    <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(40px);"></div>
-    <div style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(60px);"></div>
+    <div
+        style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(40px);">
+    </div>
+    <div
+        style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(60px);">
+    </div>
 
     <div class="container position-relative" style="z-index: 2;">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 text-center">
                 <!-- Icon Badge -->
                 <div class="mb-4">
-                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);">
+                    <span
+                        style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);">
                         <i class="bi bi-chat-dots" style="font-size: 2rem; color: white;"></i>
                     </span>
                 </div>
@@ -343,21 +349,20 @@ include '../includes/navbar.php';
                 </h2>
 
                 <!-- Description -->
-                <p class="lead mb-4" style="color: rgba(255,255,255,0.95); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem;">
+                <p class="lead mb-4"
+                    style="color: rgba(255,255,255,0.95); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem;">
                     Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
                 </p>
 
                 <!-- CTA Button Group -->
                 <div class="d-flex gap-3 justify-content-center flex-wrap">
-                    <a href="contact.php"
-                        class="btn btn-light btn-lg px-4 py-3"
+                    <a href="contact.php" class="btn btn-light btn-lg px-4 py-3"
                         style="border-radius: 50px; font-weight: 600; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s ease;"
                         onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(0,0,0,0.3)';"
                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.2)';">
                         <i class="bi bi-envelope me-2"></i>Get in Touch
                     </a>
-                    <a href="about.php"
-                        class="btn btn-outline-light btn-lg px-4 py-3"
+                    <a href="about.php" class="btn btn-outline-light btn-lg px-4 py-3"
                         style="border-radius: 50px; font-weight: 600; border-width: 2px; transition: all 0.3s ease;"
                         onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'; this.style.transform='translateY(-3px)';"
                         onmouseout="this.style.backgroundColor='transparent'; this.style.transform='translateY(0)';">
@@ -369,29 +374,29 @@ include '../includes/navbar.php';
     </div>
 </section>
 <style>
-    /* Responsive Height untuk TypeIt */
+/* Responsive Height untuk TypeIt */
+#type {
+    min-height: 150px;
+}
+
+@media (max-width: 992px) {
     #type {
-        min-height: 150px;
+        min-height: 130px;
     }
+}
 
-    @media (max-width: 992px) {
-        #type {
-            min-height: 130px;
-        }
+@media (max-width: 768px) {
+    #type {
+        min-height: 120px;
     }
+}
 
-    @media (max-width: 768px) {
-        #type {
-            min-height: 120px;
-        }
+@media (max-width: 576px) {
+    #type {
+        min-height: 180px;
+        /* Lebih tinggi karena text wrap lebih banyak */
     }
-
-    @media (max-width: 576px) {
-        #type {
-            min-height: 180px;
-            /* Lebih tinggi karena text wrap lebih banyak */
-        }
-    }
+}
 </style>
 
 <?php include '../includes/footer.php'; ?>

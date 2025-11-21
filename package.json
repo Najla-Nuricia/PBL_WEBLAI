@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@prettier/plugin-php": "^0.24.0",
+    "prettier": "^3.6.2"
+  },
+  "scripts": {
+    "format": "prettier --write \"**/*.{php,html,css,js,json,md,scss}\"",
+    "format:check": "prettier --check \"**/*.{php,html,css,js,json,md,scss}\""
+  }
+}
