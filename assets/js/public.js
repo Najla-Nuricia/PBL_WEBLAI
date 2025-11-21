@@ -1,5 +1,5 @@
 /**
- * AI Lab Polinema - Custom JavaScript
+ * AI Lab Polinema - Custom JavaScript for Public Pages
  */
 
 // Document Ready
@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Counter animation
   initCounterAnimation();
+
+  // Animate on scroll
+  animateOnScroll();
 });
 
 /**
@@ -167,166 +170,6 @@ function initCounterAnimation() {
 
   counters.forEach((counter) => counterObserver.observe(counter));
 }
-
-/**
- * Image preview before upload
- */
-function previewImage(input, previewId) {
-  const preview = document.getElementById(previewId);
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      preview.src = e.target.result;
-      preview.style.display = "block";
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-
-/**
- * Confirm delete action
- */
-function confirmDelete(
-  message = "Apakah Anda yakin ingin menghapus data ini?"
-) {
-  return Swal.fire({
-    title: "Konfirmasi",
-    text: message,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Ya, hapus",
-    cancelButtonText: "Batal",
-    cancelButtonColor: "#6c757d",
-    confirmButtonColor: "#d33",
-    reverseButtons: true,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown faster", // animasi masuk
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp faster", // animasi keluar
-    },
-  }).then((result) => result.isConfirmed);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const deleteLinks = document.querySelectorAll(
-    "a[onclick^='return confirmDelete']"
-  );
-  deleteLinks.forEach((link) => {
-    link.addEventListener("click", async function (e) {
-      e.preventDefault();
-      const confirmed = await confirmDelete(
-        "Apakah Anda yakin ingin menghapus data ini?"
-      );
-      if (confirmed) window.location.href = this.href;
-    });
-  });
-});
-
-// Succes Alert
-function showSuccess(message) {
-  Swal.fire({
-    icon: "success",
-    title: "Berhasil!",
-    text: message,
-    timer: 1300,
-    showConfirmButton: false,
-    timerProgressBar: true,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown faster",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp faster",
-    },
-  });
-}
-// show error
-function showError(message) {
-  Swal.fire({
-    icon: "error",
-    title: "Terjadi Kesalahan!",
-    text: message,
-    timer: 1500, // ⏱ Sedikit lebih cepat
-    showConfirmButton: false,
-    timerProgressBar: true,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown faster",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp faster",
-    },
-  });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  const selectAll = document.getElementById("selectAll");
-  const checkboxes = document.querySelectorAll(".rowCheckbox");
-  const bulkAction = document.getElementById("bulkAction");
-  const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
-  const bulkDeleteForm = document.getElementById("bulkDeleteForm");
-
-  // ✅ Select/Deselect All
-  selectAll.addEventListener("change", function () {
-    checkboxes.forEach((cb) => (cb.checked = this.checked));
-    toggleBulkAction();
-  });
-
-  // ✅ Show/hide bulk action bar
-  checkboxes.forEach((cb) => {
-    cb.addEventListener("change", toggleBulkAction);
-  });
-
-  function toggleBulkAction() {
-    const anyChecked = [...checkboxes].some((cb) => cb.checked);
-    bulkAction.classList.toggle("d-none", !anyChecked);
-  }
-
-  // ✅ Handle Bulk Delete
-  bulkDeleteBtn.addEventListener("click", async function (e) {
-    e.preventDefault();
-
-    const selected = [...checkboxes]
-      .filter((cb) => cb.checked)
-      .map((cb) => cb.value);
-
-    if (selected.length === 0) return;
-
-    const confirm = await Swal.fire({
-      title: "Yakin ingin menghapus?",
-      text: `${selected.length} data akan dihapus!`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, hapus",
-      cancelButtonText: "Batal",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#6c757d",
-    });
-
-    if (confirm.isConfirmed) {
-      const form = document.getElementById("bulkDeleteForm");
-      form.action = ""; // biar kirim ke halaman yang sama
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = "bulk_delete";
-      input.value = "1";
-      form.appendChild(input);
-      form.submit();
-    }
-  });
-});
-// Animasi select
-document.addEventListener("DOMContentLoaded", function () {
-  // Aktifkan Select2 di semua elemen <select> yang punya class "select-enhanced"
-  if ($(".select-enhanced").length) {
-    $(".select-enhanced").select2({
-      theme: "bootstrap-5",
-      placeholder: "Pilih opsi...",
-      allowClear: true,
-      width: "100%",
-      minimumResultsForSearch: Infinity, // nonaktifkan search bar
-    });
-  }
-});
 
 /**
  * Copy to clipboard
@@ -491,13 +334,12 @@ window.addEventListener("scroll", function () {
 });
 
 // Export functions for use in other scripts
-window.AILab = {
-  previewImage,
-  confirmDelete,
+window.AILab = window.AILab || {};
+Object.assign(window.AILab, {
   copyToClipboard,
   showToast,
   showLoading,
   hideLoading,
   formatNumber,
   formatDate,
-};
+});
