@@ -1,0 +1,17 @@
+{
+  "printWidth": 100,
+  "tabWidth": 4,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "htmlWhitespaceSensitivity": "css",
+  "embeddedLanguageFormatting": "auto",
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
+  "plugins": ["@prettier/plugin-php"],
+  "phpVersion": "8.2"
+}
