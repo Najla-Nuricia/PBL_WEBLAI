@@ -304,30 +304,65 @@ include '../includes/navbar.php';
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             document.querySelectorAll('.card[data-uuid]').forEach(card => {
-                card.addEventListener('click', () => {
-                    const uuid = card.dataset.uuid
-                    const modal = new bootstrap.Modal(document.getElementById('anggotaModal'))
-                    const modalTitle = document.getElementById('modalTitle')
-                    const modalBody = document.getElementById('modalBody')
-                    modalTitle.innerText = card.querySelector('h5, h6').innerText
-                    modalBody.innerHTML = '<p>Loading...</p>'
-                    modal.show()
+                card.style.cursor = 'pointer';
 
+                card.addEventListener('click', () => {
+                    const uuid = card.dataset.uuid;
+                    const nama = card.querySelector('h5, h6').innerText;
+                    const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
+                    const modalTitle = document.getElementById('modalTitle');
+                    const modalBody = document.getElementById('modalBody');
+
+                    // Set title modal
+                    modalTitle.innerHTML = `<i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}`;
+
+                    // Show loading
+                    modalBody.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Memuat publikasi...</p>
+            </div>
+        `;
+
+                    modal.show();
+
+                    // Function to load publications
                     function loadPage(page = 1) {
-                        fetch(`get_penelitian.php?uuid=${uuid}&page=${page}`)
-                            .then(res => res.text())
-                            .then(html => {
-                                modalBody.innerHTML = html
-                                modalBody.querySelectorAll('.page-link').forEach(btn => {
-                                    btn.addEventListener('click', () => {
-                                        loadPage(btn.dataset.page)
-                                    })
-                                })
+                        fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
+                            .then(res => {
+                                if (!res.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return res.text();
                             })
+                            .then(html => {
+                                modalBody.innerHTML = html;
+
+                                // Re-attach event listeners to pagination buttons
+                                modalBody.querySelectorAll('.page-link').forEach(btn => {
+                                    btn.addEventListener('click', (e) => {
+                                        e.preventDefault();
+                                        loadPage(btn.dataset.page);
+                                    });
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                modalBody.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Terjadi kesalahan saat memuat data publikasi.
+                        </div>
+                    `;
+                            });
                     }
-                    loadPage()
-                })
-            })
+
+                    // Load first page
+                    loadPage();
+                });
+            });
         </script>
 
         <?php if (empty($ketua) && empty($anggota)): ?>
