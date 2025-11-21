@@ -8,8 +8,14 @@ Options -Indexes
     RewriteEngine On
     RewriteBase /PBL_WEBLAI/
 
-    # Protect sensitive directories
-    RewriteRule ^(admin|config|vendor|helpers|includes|\.git) - [F,L]
+    # Allow access to admin folder
+    RewriteCond %{REQUEST_URI} ^/PBL_WEBLAI/admin/ [OR]
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Protect sensitive directories (but allow admin)
+    RewriteRule ^(config|vendor|helpers|includes|\.git) - [F,L]
 
     # Redirect to public folder if not already in public
     RewriteCond %{REQUEST_URI} !^/PBL_WEBLAI/public/
