@@ -4,7 +4,7 @@ Options -Indexes
 # Enable Rewrite Engine
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /PBL_SUKASUKI/public/
+    RewriteBase /PBL_WEBLAI/public/
 
     # Don't rewrite files or directories that actually exist
     RewriteCond %{REQUEST_FILENAME} !-f
