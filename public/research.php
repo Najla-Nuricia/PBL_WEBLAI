@@ -1,6 +1,5 @@
 <?php
 require_once '../config/db.php';
-// require_once '../helpers/background.php';
 $page_title = 'Research & Products';
 
 // Fetch dashboard background
@@ -10,27 +9,33 @@ $bg_image = '';
 if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
-// data produk
+
+// Data produk dengan multiple pembuat
 $limit_pd = 3;
 $page_pd = isset($_GET['product_page']) ? (int)$_GET['product_page'] : 1;
 $offset_pd = ($page_pd - 1) * $limit_pd;
+
 $stmt = $pdo->prepare("
-    SELECT p.*, a.nama as pembuat_nama 
+    SELECT p.*, 
+           STRING_AGG(DISTINCT a.nama, ', ' ORDER BY a.nama) as pembuat_nama
     FROM produk p 
-    LEFT JOIN anggota a ON p.pembuat_id = a.uuid 
+    LEFT JOIN anggota_produk ap ON p.uuid = ap.produk_uuid
+    LEFT JOIN anggota a ON ap.anggota_uuid = a.uuid 
+    GROUP BY p.uuid
     ORDER BY p.tahun DESC, p.nama ASC
     LIMIT :limit OFFSET :offset
 ");
 $stmt->bindValue(':limit', $limit_pd, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset_pd, PDO::PARAM_INT);
 $stmt->execute();
+
 $count_stmt_pd = $pdo->prepare("SELECT COUNT(*) FROM produk");
 $count_stmt_pd->execute();
 $rows_produk = $count_stmt_pd->fetchColumn();
 $pages_produk = ceil($rows_produk / $limit_pd);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//ambil data blueprint
+// Ambil data blueprint
 $limit_bp = 4;
 $page_bp = isset($_GET['blueprint_page']) ? (int)$_GET['blueprint_page'] : 1;
 $offset_bp = ($page_bp - 1) * $limit_bp;
@@ -48,7 +53,7 @@ $rows_blueprint = $count_stmt_bp->fetchColumn();
 $pages_blueprint = ceil($rows_blueprint / $limit_bp);
 $blueprint = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-//ambil data topik riset
+// Ambil data topik riset
 $limit_tp = 6;
 $page_tp = isset($_GET['topic_page']) ? (int)$_GET['topic_page'] : 1;
 $offset_tp = ($page_tp - 1) * $limit_tp;
@@ -95,6 +100,7 @@ include '../includes/navbar.php';
         </div>
     </div>
 </section>
+
 <!-- Parallax JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -108,13 +114,10 @@ include '../includes/navbar.php';
                 const scrolled = window.pageYOffset;
                 const heroHeight = heroSection.offsetHeight;
 
-                // Only apply parallax when hero section is visible
                 if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
                     const yPos = scrolled * 0.5;
                     parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
                 }
-
                 ticking = false;
             }
 
@@ -131,37 +134,6 @@ include '../includes/navbar.php';
         }
     });
 </script>
-
-<!-- Research Topics Section -->
-<?php if (!empty($research_topics)): ?>
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h2 class="section-title">Research Focus Areas</h2>
-                    <p class="section-subtitle">Bidang penelitian utama AI Lab Polinema</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <?php foreach ($research_topics as $topic): ?>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="mb-3">
-                                    <i class="bi bi-lightbulb-fill text-warning" style="font-size: 2.5rem;"></i>
-                                </div>
-                                <p class="mb-0 text-muted">
-                                    <?php echo nl2br(htmlspecialchars($topic['topik'])); ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-<?php endif; ?>
 
 <!-- Products Section -->
 <?php if (!empty($products)): ?>
@@ -200,10 +172,15 @@ include '../includes/navbar.php';
                                 </h5>
 
                                 <?php if ($product['pembuat_nama']): ?>
-                                    <p class="text-muted small mb-2">
-                                        <i class="bi bi-person me-1"></i>
-                                        <strong><?php echo htmlspecialchars($product['pembuat_nama']); ?></strong>
-                                    </p>
+                                    <div class="mb-2">
+                                        <i class="bi bi-people-fill text-muted me-1"></i>
+                                        <small class="text-muted">
+                                            <?php
+                                            $pembuats = explode(', ', $product['pembuat_nama']);
+                                            echo implode(', ', array_map('htmlspecialchars', $pembuats));
+                                            ?>
+                                        </small>
+                                    </div>
                                 <?php endif; ?>
 
                                 <p class="card-text text-muted flex-grow-1">
@@ -222,20 +199,21 @@ include '../includes/navbar.php';
                     </div>
                 <?php endforeach; ?>
             </div>
-            <!-- Pagination features -->
+
+            <!-- Pagination -->
             <?php if ($pages_produk > 1): ?>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mt-4">
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
                         <li class="page-item <?= ($page_pd <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?product_page=<?= $page_pd - 1 ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>">&laquo; Sebelumnya</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd - 1 ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>#products">&laquo; Sebelumnya</a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_produk; $i++): ?>
                             <li class="page-item <?= ($page_pd == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?product_page=<?= $i ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>"><?= $i ?></a>
+                                <a class="page-link" href="?product_page=<?= $i ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>#products"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_pd >= $pages_produk) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?product_page=<?= $page_pd + 1 ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>">Selanjutnya &raquo;</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd + 1 ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp ?>#products">Selanjutnya &raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -244,17 +222,17 @@ include '../includes/navbar.php';
     </section>
 <?php endif; ?>
 
-<!--/blueprint-->
-<section id="blueprint" class="py-5" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
+<!-- Blueprint Section -->
+<section id="blueprint" class="py-5 bg-light" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="col text-center">
-            <h2 class="section-title"> Blueprint</h2>
+            <h2 class="section-title">Blueprint</h2>
             <p class="section-subtitle">Blueprint penelitian AI Lab Polinema</p>
         </div>
         <?php if (!empty($blueprint)): ?>
             <div class="row g-4">
                 <?php foreach ($blueprint as $bp): ?>
-                    <div class="col-md-6 col">
+                    <div class="col-md-6">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <div class="d-flex mb-3">
@@ -270,20 +248,21 @@ include '../includes/navbar.php';
                     </div>
                 <?php endforeach; ?>
             </div>
-            <!-- Pagination features -->
+
+            <!-- Pagination -->
             <?php if ($pages_blueprint > 1): ?>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mt-4">
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
                         <li class="page-item <?= ($page_bp <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp - 1 ?>&topic_page=<?= $page_tp ?>">&laquo; Sebelumnya</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp - 1 ?>&topic_page=<?= $page_tp ?>#blueprint">&laquo; Sebelumnya</a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_blueprint; $i++): ?>
                             <li class="page-item <?= ($page_bp == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $i ?>&topic_page=<?= $page_tp ?>"><?= $i ?></a>
+                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $i ?>&topic_page=<?= $page_tp ?>#blueprint"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_bp >= $pages_blueprint) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp + 1 ?>&topic_page=<?= $page_tp ?>">Selanjutnya &raquo;</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp + 1 ?>&topic_page=<?= $page_tp ?>#blueprint">Selanjutnya &raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -296,10 +275,9 @@ include '../includes/navbar.php';
         <?php endif; ?>
     </div>
 </section>
-<!--//blueprint-->
 
 <!-- Research Topic Section -->
-<section id="topics" class="py-5 bg-light" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
+<section id="topics" class="py-5" style="scroll-margin-top:100px;" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row">
             <div class="col text-center">
@@ -318,22 +296,24 @@ include '../includes/navbar.php';
                                 </h5>
                             </div>
                         </div>
-                    </div> <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
-            <!-- Pagination features -->
+
+            <!-- Pagination -->
             <?php if ($pages_topik > 1): ?>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mt-4">
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
                         <li class="page-item <?= ($page_tp <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp - 1 ?>">&laquo; Sebelumnya</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp - 1 ?>#topics">&laquo; Sebelumnya</a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_topik; $i++): ?>
                             <li class="page-item <?= ($page_tp == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $i ?>"><?= $i ?></a>
+                                <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $i ?>#topics"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_tp >= $pages_topik) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp + 1 ?>">Selanjutnya &raquo;</a>
+                            <a class="page-link" href="?product_page=<?= $page_pd ?>&blueprint_page=<?= $page_bp ?>&topic_page=<?= $page_tp + 1 ?>#topics">Selanjutnya &raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -346,6 +326,5 @@ include '../includes/navbar.php';
         <?php endif; ?>
     </div>
 </section>
-
 
 <?php include '../includes/footer.php'; ?>

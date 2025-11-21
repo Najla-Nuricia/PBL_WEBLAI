@@ -115,7 +115,7 @@ $footer = $stmt_footer->fetch();
 </script>
 
 <!-- Custom JS -->
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/public.js"></script>
 
 </body>
 
