@@ -1,0 +1,53 @@
+# Disable Directory Listing
+
+Options -Indexes
+
+# Enable Rewrite Engine
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /PBL_SUKASUKI/
+
+    # Protect sensitive directories
+    RewriteRule ^(admin|config|vendor|helpers|includes|\.git) - [F,L]
+
+    # Redirect to public folder if not already in public
+    RewriteCond %{REQUEST_URI} !^/PBL_SUKASUKI/public/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ /PBL_SUKASUKI/public/$1 [L]
+
+</IfModule>
+
+# Protect sensitive files from direct access
+
+<FilesMatch "^\.(env|htaccess|htpasswd)$|composer\.(json|lock)$">
+<IfModule mod_authz_core.c>
+Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+Order allow,deny
+Deny from all
+</IfModule>
+</FilesMatch>
+
+# Enable Gzip Compression
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Browser Caching
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 2 days"
+    
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
