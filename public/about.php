@@ -245,7 +245,7 @@ include '../includes/navbar.php';
                                         <?php if (!empty($a['nidn'])): ?>
                                             <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
                                         <?php endif; ?>
-                                        <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
+                                        <span class="badge bg-warning"><?php echo ucfirst($a['status']); ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -276,7 +276,7 @@ include '../includes/navbar.php';
                                         <?php if (!empty($a['nidn'])): ?>
                                             <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
                                         <?php endif; ?>
-                                        <span class="badge bg-secondary"><?php echo ucfirst($a['status']); ?></span>
+                                        <span class="badge bg-success"><?php echo ucfirst($a['status']); ?></span>
                                     </div>
                                 </div>
                             </div>
