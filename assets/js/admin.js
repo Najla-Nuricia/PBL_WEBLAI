@@ -61,17 +61,6 @@ function initAdminEventListeners() {
       if (confirmed) {
         const form = document.getElementById("bulkDeleteForm");
         if(form) {
-            // Clear previous hidden inputs if any
-            form.querySelectorAll('input[name="ids[]"]').forEach(i => i.remove());
-
-            // Add selected IDs as hidden inputs
-            selectedIds.forEach(id => {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = "ids[]";
-                input.value = id;
-                form.appendChild(input);
-            });
             form.submit();
         } else {
             showError("Form bulk delete tidak ditemukan.");

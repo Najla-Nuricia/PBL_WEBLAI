@@ -63,7 +63,7 @@ if (isset($_GET['delete'])) {
 }
 
 // BULK DELETE
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
     try {
         $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/';
