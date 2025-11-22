@@ -10,23 +10,13 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 
-// Fetch latest news
+// Fetch latest news with thumbnails
 $stmt_berita = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC LIMIT 3");
 $latest_news = $stmt_berita->fetchAll();
 
-// Fetch latest activities
-$limit = 4;
-$page_la = isset($_GET['latest_activities_page']) ? (int)$_GET['latest_activities_page'] : 1;
-$offset_la = ($page_la - 1) * $limit;
-$stmt_kegiatan = $pdo->prepare("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT :limit OFFSET :offset");
-$stmt_kegiatan->bindValue(':limit', $limit, PDO::PARAM_INT);
-$stmt_kegiatan->bindValue(':offset', $offset_la, PDO::PARAM_INT);
-$stmt_kegiatan->execute();
+// Fetch latest activities with thumbnails
+$stmt_kegiatan = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT 4");
 $latest_activities = $stmt_kegiatan->fetchAll();
-$count_stmt_la = $pdo->prepare("SELECT COUNT(*) FROM blueprint");
-$count_stmt_la->execute();
-$rows_activities = $count_stmt_la->fetchColumn();
-$pages_activities = ceil($rows_activities / $limit);
 
 // Fetch partnerships
 $stmt_partnership = $pdo->query("SELECT * FROM partnership");
@@ -39,6 +29,74 @@ $profile = $stmt_profile->fetch();
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
+
+<style>
+    .line-clamp-2 {
+        display: block;
+        display: -webkit-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        /* Standar modern */
+        line-clamp: 2;
+        box-orient: vertical;
+    }
+
+    .line-clamp-3 {
+        display: block;
+        display: -webkit-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+
+        line-clamp: 3;
+        box-orient: vertical;
+    }
+
+    .card-img-top {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+
+    .card {
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Responsive Height untuk TypeIt */
+    #type {
+        min-height: 150px;
+    }
+
+    @media (max-width: 992px) {
+        #type {
+            min-height: 130px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #type {
+            min-height: 120px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #type {
+            min-height: 180px;
+        }
+    }
+</style>
 
 <!-- Hero Section with Parallax Effect -->
 <section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
@@ -60,7 +118,7 @@ include '../includes/navbar.php';
         <div class="row align-items-center min-vh-75 py-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <!-- Fixed Height untuk TypeIt -->
-                <h1 class="display-4 fw-bold mb-4" id="type" style="min-height: 150px;">
+                <h1 class="display-4 fw-bold mb-4" id="type">
                 </h1>
                 <script>
                     document.addEventListener("DOMContentLoaded", function() {
@@ -89,10 +147,10 @@ include '../includes/navbar.php';
                             .type("Laboratory", {
                                 delay: 300
                             })
-                            .pause(7000) // Pause 2 detik setelah selesai sebelum delete semua
+                            .pause(7000)
                             .delete(null, {
                                 delay: 500
-                            }) // Delete semua text dengan delay 500ms per karakter
+                            })
                             .go();
                     });
                 </script>
@@ -109,10 +167,6 @@ include '../includes/navbar.php';
                     </a>
                 </div>
             </div>
-            <!-- <div class="col-lg-6">
-                <img src="assets/img/hero-illustration.svg" alt="AI Lab" class="img-fluid"
-                    onerror="this.src='https://via.placeholder.com/600x400/1E4BA3/ffffff?text=AI+Lab+Polinema'">
-            </div> -->
         </div>
     </div>
 </section>
@@ -130,9 +184,7 @@ include '../includes/navbar.php';
                 const scrolled = window.pageYOffset;
                 const heroHeight = heroSection.offsetHeight;
 
-                // Only apply parallax when hero section is visible
                 if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
                     const yPos = scrolled * 0.5;
                     parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
                 }
@@ -166,28 +218,71 @@ include '../includes/navbar.php';
 
         <div class="row g-4">
             <?php if (!empty($latest_news)): ?>
+                <?php
+                // Cek apakah ada berita yang punya thumbnail
+                $hasAnyNewsThumbnail = false;
+                foreach ($latest_news as $n) {
+                    $stmt_check = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ? LIMIT 1");
+                    $stmt_check->execute([$n['uuid']]);
+                    if ($stmt_check->fetch()) {
+                        $hasAnyNewsThumbnail = true;
+                        break;
+                    }
+                }
+                ?>
                 <?php foreach ($latest_news as $news): ?>
+                    <?php
+                    // Ambil thumbnail berita
+                    $stmt_thumb = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1");
+                    $stmt_thumb->execute([$news['uuid']]);
+                    $thumbnail = $stmt_thumb->fetch();
+
+                    $thumb_path = "";
+                    if ($thumbnail && !empty($thumbnail['file_path'])) {
+                        // Tambahkan path prefix jika diperlukan
+                        $file_path = $thumbnail['file_path'];
+                        // Jika path tidak dimulai dengan ../ atau /, tambahkan prefix
+                        if (strpos($file_path, '../') !== 0 && strpos($file_path, '/') !== 0) {
+                            $thumb_path = '../assets/img/berita/' . $file_path;
+                        } else {
+                            $thumb_path = $file_path;
+                        }
+                    }
+                    ?>
                     <div class="col-md-4">
                         <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <span class="badge bg-primary mb-2">
+                            <?php if ($thumbnail): ?>
+                                <img src="<?php echo htmlspecialchars($thumb_path); ?>"
+                                    class="card-img-top"
+                                    style="height: 200px; object-fit: cover;"
+                                    alt="<?php echo htmlspecialchars($news['judul']); ?>"
+                                    onerror="this.src='../assets/img/placeholder.jpg'">
+                            <?php elseif ($hasAnyNewsThumbnail): ?>
+                                <!-- Placeholder jika row ini punya thumbnail tapi item ini tidak -->
+                                <div style="height: 200px; background: #f0f0f0;"></div>
+                            <?php endif; ?>
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-<?php
+                                                        echo $news['kategori'] == 'berita' ? 'primary' : ($news['kategori'] == 'agenda' ? 'success' : 'info');
+                                                        ?> mb-2 align-self-start">
                                     <?php echo ucfirst($news['kategori']); ?>
                                 </span>
-                                <h5 class="card-title fw-bold">
+                                <h5 class="card-title fw-bold line-clamp-2" style="min-height: 3em;">
                                     <?php echo htmlspecialchars($news['judul']); ?>
                                 </h5>
                                 <p class="text-muted small mb-3">
                                     <i class="bi bi-calendar me-2"></i>
                                     <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
                                     <?php if ($news['tempat']): ?>
-                                        <i class="bi bi-geo-alt ms-2 me-1"></i>
+                                        <br>
+                                        <i class="bi bi-geo-alt me-2"></i>
                                         <?php echo htmlspecialchars($news['tempat']); ?>
                                     <?php endif; ?>
                                 </p>
-                                <p class="card-text text-muted">
-                                    <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 120) . '...'; ?>
+                                <p class="card-text text-muted line-clamp-3 mb-3" style="min-height: 4.5em;">
+                                    <?php echo htmlspecialchars($news['deskripsi']); ?>
                                 </p>
-                                <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary">
+                                <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
                                     Read More <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -226,14 +321,56 @@ include '../includes/navbar.php';
 
         <div class="row g-4">
             <?php if (!empty($latest_activities)): ?>
+                <?php
+                // Cek apakah ada kegiatan yang punya thumbnail
+                $hasAnyThumbnail = false;
+                foreach ($latest_activities as $act) {
+                    $stmt_check = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE kegiatan_uuid = ? LIMIT 1");
+                    $stmt_check->execute([$act['uuid']]);
+                    if ($stmt_check->fetch()) {
+                        $hasAnyThumbnail = true;
+                        break;
+                    }
+                }
+                ?>
                 <?php foreach ($latest_activities as $activity): ?>
+                    <?php
+                    // Ambil thumbnail kegiatan
+                    $stmt_thumb = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE kegiatan_uuid = ? ORDER BY created_at ASC LIMIT 1");
+                    $stmt_thumb->execute([$activity['uuid']]);
+                    $thumbnail = $stmt_thumb->fetch();
+
+                    $thumb_path = "";
+                    if ($thumbnail && !empty($thumbnail['path_gambar'])) {
+                        // Tambahkan path prefix jika diperlukan
+                        $file_path = $thumbnail['path_gambar'];
+                        // Jika path tidak dimulai dengan ../ atau /, tambahkan prefix
+                        if (strpos($file_path, '../') !== 0 && strpos($file_path, '/') !== 0) {
+                            $thumb_path = '../assets/img/kegiatan/' . $file_path;
+                        } else {
+                            $thumb_path = $file_path;
+                        }
+                    }
+                    ?>
                     <div class="col-md-6 col-lg-3">
                         <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <span class="badge bg-success mb-2">
+                            <?php if ($thumbnail): ?>
+                                <img src="<?php echo htmlspecialchars($thumb_path); ?>"
+                                    class="card-img-top"
+                                    style="height: 180px; object-fit: cover;"
+                                    alt="<?php echo htmlspecialchars($activity['nama']); ?>"
+                                    onerror="this.src='../assets/img/placeholder.jpg'">
+                            <?php elseif ($hasAnyThumbnail): ?>
+                                <!-- Placeholder jika row ini punya thumbnail tapi item ini tidak -->
+                                <div style="height: 180px; background: #f0f0f0;"></div>
+                            <?php endif; ?>
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-<?php
+                                                        echo $activity['kategori_kegiatan'] == 'workshop' ? 'primary' : ($activity['kategori_kegiatan'] == 'seminar' ? 'success' : 'info');
+                                                        ?> mb-2 align-self-start">
                                     <?php echo ucfirst($activity['kategori_kegiatan']); ?>
                                 </span>
-                                <h6 class="card-title fw-bold">
+                                <h6 class="card-title fw-bold line-clamp-2" style="min-height: 2.5em;">
                                     <?php echo htmlspecialchars($activity['nama']); ?>
                                 </h6>
                                 <p class="text-muted small mb-2">
@@ -246,31 +383,16 @@ include '../includes/navbar.php';
                                         <?php echo htmlspecialchars($activity['pemateri']); ?>
                                     </p>
                                 <?php endif; ?>
-                                <p class="card-text text-muted small">
-                                    <?php echo substr(htmlspecialchars($activity['deskripsi_singkat']), 0, 80) . '...'; ?>
+                                <p class="card-text text-muted small line-clamp-2 mb-3" style="min-height: 3em;">
+                                    <?php echo htmlspecialchars($activity['deskripsi_singkat']); ?>
                                 </p>
+                                <a href="activity.php?id=<?php echo $activity['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
+                                    View Details <i class="bi bi-arrow-right"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
-                <!-- Pagination features -->
-                <?php if ($pages_activities > 1): ?>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center mt-4">
-                            <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
-                            </li>
-                            <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
-                                <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
-                                    <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-                            <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                <?php endif; ?>
             <?php else: ?>
                 <div class="col-12">
                     <div class="alert alert-info text-center">
@@ -280,6 +402,14 @@ include '../includes/navbar.php';
                 </div>
             <?php endif; ?>
         </div>
+
+        <?php if (!empty($latest_activities)): ?>
+            <div class="text-center mt-4">
+                <a href="activity.php" class="btn btn-primary">
+                    View All Activities <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -294,7 +424,7 @@ include '../includes/navbar.php';
                 </div>
             </div>
 
-            <div class="row g-4  justify-content-center align-items-center text-center">
+            <div class="row g-4 justify-content-center align-items-center text-center">
                 <?php foreach ($partnerships as $partner): ?>
                     <div class="col-6 col-md-4 col-lg-2 text-center">
                         <a href="<?php echo htmlspecialchars($partner['website']); ?>"
@@ -322,7 +452,7 @@ include '../includes/navbar.php';
 <?php endif; ?>
 
 <!-- CTA Section -->
-<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);"  data-aos="fade-up" data-aos-duration="1000">
+<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);" data-aos="fade-up" data-aos-duration="1000">
     <!-- Decorative Elements -->
     <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(40px);"></div>
     <div style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(60px);"></div>
@@ -368,30 +498,5 @@ include '../includes/navbar.php';
         </div>
     </div>
 </section>
-<style>
-    /* Responsive Height untuk TypeIt */
-    #type {
-        min-height: 150px;
-    }
-
-    @media (max-width: 992px) {
-        #type {
-            min-height: 130px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        #type {
-            min-height: 120px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        #type {
-            min-height: 180px;
-            /* Lebih tinggi karena text wrap lebih banyak */
-        }
-    }
-</style>
 
 <?php include '../includes/footer.php'; ?>

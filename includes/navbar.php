@@ -54,9 +54,9 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                     </a>
                 </li>
 
-                <!-- News Dropdown -->
+                <!-- News Dropdown with Activity -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?php echo $current_page == 'news' ? 'active' : ''; ?>"
+                    <a class="nav-link dropdown-toggle <?php echo ($current_page == 'news' || $current_page == 'activity') ? 'active' : ''; ?>"
                         href="news.php"
                         id="newsDropdown"
                         role="button"
@@ -68,6 +68,10 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                         <li><a class="dropdown-item" href="news.php?kategori=berita#news-list"><i class="bi bi-megaphone me-2"></i>Berita</a></li>
                         <li><a class="dropdown-item" href="news.php?kategori=agenda#news-list"><i class="bi bi-calendar-event me-2"></i>Agenda</a></li>
                         <li><a class="dropdown-item" href="news.php?kategori=pengumuman#news-list"><i class="bi bi-bell me-2"></i>Pengumuman</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="activity.php"><i class="bi bi-rocket-takeoff me-2"></i>Activities</a></li>
                     </ul>
                 </li>
 

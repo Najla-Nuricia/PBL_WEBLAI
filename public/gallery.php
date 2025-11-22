@@ -1,6 +1,5 @@
 <?php
 require_once '../config/db.php';
-// require_once '../helpers/background.php';
 $page_title = 'Gallery';
 
 // Fetch dashboard background
@@ -11,14 +10,28 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 
-// Get galleries with photo count
-$stmt = $pdo->query("
+// Pagination untuk Gallery
+$galleries_per_page = 3; // 3 galeri per halaman
+$gallery_page = isset($_GET['gallery_page']) ? max(1, (int)$_GET['gallery_page']) : 1;
+$gallery_offset = ($gallery_page - 1) * $galleries_per_page;
+
+// Count total galleries
+$count_stmt = $pdo->query("SELECT COUNT(*) FROM galeri");
+$total_galleries = $count_stmt->fetchColumn();
+$total_gallery_pages = ceil($total_galleries / $galleries_per_page);
+
+// Get galleries with photo count and pagination
+$stmt = $pdo->prepare("
     SELECT g.*, COUNT(f.uuid) as foto_count 
     FROM galeri g 
     LEFT JOIN foto f ON g.uuid = f.id_galeri 
     GROUP BY g.uuid 
     ORDER BY g.created_at DESC
+    LIMIT :limit OFFSET :offset
 ");
+$stmt->bindValue(':limit', $galleries_per_page, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $gallery_offset, PDO::PARAM_INT);
+$stmt->execute();
 $galleries = $stmt->fetchAll();
 
 include '../includes/header.php';
@@ -62,9 +75,7 @@ include '../includes/navbar.php';
                 const scrolled = window.pageYOffset;
                 const heroHeight = heroSection.offsetHeight;
 
-                // Only apply parallax when hero section is visible
                 if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
                     const yPos = scrolled * 0.5;
                     parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
                 }
@@ -92,13 +103,33 @@ include '../includes/navbar.php';
         <?php if (!empty($galleries)): ?>
             <?php foreach ($galleries as $index => $gallery): ?>
                 <?php
-                // Get photos for this gallery
-                $stmt = $pdo->prepare("SELECT * FROM foto WHERE id_galeri = ? ORDER BY created_at DESC");
-                $stmt->execute([$gallery['uuid']]);
+                // Pagination untuk foto di setiap gallery
+                $photos_per_page = 12; // 12 foto per halaman (4 kolom x 3 baris)
+                $photo_page_key = 'photo_page_' . $gallery['uuid'];
+                $photo_page = isset($_GET[$photo_page_key]) ? max(1, (int)$_GET[$photo_page_key]) : 1;
+                $photo_offset = ($photo_page - 1) * $photos_per_page;
+
+                // Count total photos for this gallery
+                $count_photo_stmt = $pdo->prepare("SELECT COUNT(*) FROM foto WHERE id_galeri = ?");
+                $count_photo_stmt->execute([$gallery['uuid']]);
+                $total_photos = $count_photo_stmt->fetchColumn();
+                $total_photo_pages = ceil($total_photos / $photos_per_page);
+
+                // Get photos for this gallery with pagination
+                $stmt = $pdo->prepare("
+                    SELECT * FROM foto 
+                    WHERE id_galeri = :galeri_id 
+                    ORDER BY created_at DESC 
+                    LIMIT :limit OFFSET :offset
+                ");
+                $stmt->bindValue(':galeri_id', $gallery['uuid']);
+                $stmt->bindValue(':limit', $photos_per_page, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $photo_offset, PDO::PARAM_INT);
+                $stmt->execute();
                 $photos = $stmt->fetchAll();
                 ?>
 
-                <div class="mb-5">
+                <div class="mb-5" id="gallery-<?php echo $gallery['uuid']; ?>">
                     <div class="row mb-3">
                         <div class="col">
                             <h3 class="fw-bold text-primary mb-2">
@@ -128,11 +159,70 @@ include '../includes/navbar.php';
                                             data-bs-toggle="modal"
                                             data-bs-target="#imageModal"
                                             data-title="<?php echo htmlspecialchars($gallery['judul']); ?>"
-                                            data-src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>">
+                                            data-src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
+                                            onerror="this.src='../assets/img/placeholder.jpg'">
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
+
+                        <!-- Photo Pagination -->
+                        <?php if ($total_photo_pages > 1): ?>
+                            <nav aria-label="Photo pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?= $photo_page <= 1 ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page - 1 ?>#gallery-<?= $gallery['uuid'] ?>">
+                                            &laquo; Sebelumnya
+                                        </a>
+                                    </li>
+
+                                    <?php
+                                    $start_page = max(1, $photo_page - 2);
+                                    $end_page = min($total_photo_pages, $photo_page + 2);
+
+                                    if ($start_page > 1): ?>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=1#gallery-<?= $gallery['uuid'] ?>">
+                                                1
+                                            </a>
+                                        </li>
+                                        <?php if ($start_page > 2): ?>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+
+                                    <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                        <li class="page-item <?= $photo_page == $i ? 'active' : '' ?>">
+                                            <a class="page-link"
+                                                href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $i ?>#gallery-<?= $gallery['uuid'] ?>">
+                                                <?= $i ?>
+                                            </a>
+                                        </li>
+                                    <?php endfor; ?>
+
+                                    <?php if ($end_page < $total_photo_pages): ?>
+                                        <?php if ($end_page < $total_photo_pages - 1): ?>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <?php endif; ?>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $total_photo_pages ?>#gallery-<?= $gallery['uuid'] ?>">
+                                                <?= $total_photo_pages ?>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+
+                                    <li class="page-item <?= $photo_page >= $total_photo_pages ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page + 1 ?>#gallery-<?= $gallery['uuid'] ?>">
+                                            Selanjutnya &raquo;
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
                     <?php else: ?>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
@@ -145,6 +235,56 @@ include '../includes/navbar.php';
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
+
+            <!-- Gallery Pagination -->
+            <?php if ($total_gallery_pages > 1): ?>
+                <nav aria-label="Gallery pagination" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <?= $gallery_page <= 1 ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?gallery_page=<?= $gallery_page - 1 ?>">
+                                &laquo; Sebelumnya
+                            </a>
+                        </li>
+
+                        <?php
+                        $start_page = max(1, $gallery_page - 2);
+                        $end_page = min($total_gallery_pages, $gallery_page + 2);
+
+                        if ($start_page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?gallery_page=1">1</a>
+                            </li>
+                            <?php if ($start_page > 2): ?>
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                            <li class="page-item <?= $gallery_page == $i ? 'active' : '' ?>">
+                                <a class="page-link" href="?gallery_page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($end_page < $total_gallery_pages): ?>
+                            <?php if ($end_page < $total_gallery_pages - 1): ?>
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            <?php endif; ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?gallery_page=<?= $total_gallery_pages ?>">
+                                    <?= $total_gallery_pages ?>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <li class="page-item <?= $gallery_page >= $total_gallery_pages ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?gallery_page=<?= $gallery_page + 1 ?>">
+                                Selanjutnya &raquo;
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+
         <?php else: ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
@@ -183,6 +323,19 @@ include '../includes/navbar.php';
                 modalImg.src = this.dataset.src;
             });
         });
+
+        // Smooth scroll to gallery anchor after page load
+        if (window.location.hash) {
+            setTimeout(function() {
+                const target = document.querySelector(window.location.hash);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }, 100);
+        }
     });
 </script>
 
@@ -193,6 +346,11 @@ include '../includes/navbar.php';
 
     .gallery-img:hover {
         transform: scale(1.05);
+    }
+
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
     }
 </style>
 
