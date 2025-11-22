@@ -11,6 +11,7 @@ $error = '';
 if (isset($_GET['delete'])) {
     $uuid = $_GET['delete'];
     try {
+        // Delete akan cascade ke anggota_publikasi
         $stmt = $pdo->prepare("DELETE FROM publikasi WHERE uuid = ?");
         $stmt->execute([$uuid]);
         $_SESSION['flash_success'] = 'Publikasi berhasil dihapus!';
@@ -27,12 +28,9 @@ if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' &
     $uuids = $_POST['selected'];
 
     try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
         $placeholders = implode(',', array_fill(0, count($uuids), '?'));
         $query = "DELETE FROM publikasi WHERE uuid IN ($placeholders)";
         $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
         $stmt->execute($uuids);
 
         $_SESSION['flash_success'] = count($uuids) . ' Publikasi berhasil dihapus!';
@@ -48,24 +46,43 @@ if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' &
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $judul = clean_input($_POST['judul'] ?? '');
     $tahun = clean_input($_POST['tahun'] ?? '');
-    $penulis_id = !empty($_POST['penulis_id']) ? $_POST['penulis_id'] : null;
+    $penulis_ids = $_POST['penulis_id'] ?? []; // Array of UUIDs
     $tautan = clean_input($_POST['tautan'] ?? '');
     $kategori = clean_input($_POST['kategori'] ?? '');
 
     try {
+        $pdo->beginTransaction();
+
         if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
             // Update
             $uuid = $_POST['uuid'];
-            $stmt = $pdo->prepare("UPDATE publikasi SET judul = ?, tahun = ?, penulis_id = ?, tautan = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-            $stmt->execute([$judul, $tahun, $penulis_id, $tautan, $kategori, $uuid]);
-            $_SESSION['flash_success'] = 'Publikasi berhasil diperbarui!';
+            $stmt = $pdo->prepare("UPDATE publikasi SET judul = ?, tahun = ?, tautan = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
+            $stmt->execute([$judul, $tahun, $tautan, $kategori, $uuid]);
+
+            // Delete existing penulis relations
+            $stmt = $pdo->prepare("DELETE FROM anggota_publikasi WHERE publikasi_uuid = ?");
+            $stmt->execute([$uuid]);
         } else {
             // Insert
-            $stmt = $pdo->prepare("INSERT INTO publikasi (judul, tahun, penulis_id, tautan, kategori) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$judul, $tahun, $penulis_id, $tautan, $kategori]);
-            $_SESSION['flash_success'] = 'Publikasi berhasil ditambahkan!';
+            $stmt = $pdo->prepare("INSERT INTO publikasi (judul, tahun, tautan, kategori) VALUES (?, ?, ?, ?) RETURNING uuid");
+            $stmt->execute([$judul, $tahun, $tautan, $kategori]);
+            $uuid = $stmt->fetchColumn();
         }
-    } catch (PDOException $e) {
+
+        // Insert penulis relations
+        if (!empty($penulis_ids)) {
+            $stmt = $pdo->prepare("INSERT INTO anggota_publikasi (anggota_uuid, publikasi_uuid) VALUES (?, ?)");
+            foreach ($penulis_ids as $anggota_uuid) {
+                if (!empty($anggota_uuid)) {
+                    $stmt->execute([$anggota_uuid, $uuid]);
+                }
+            }
+        }
+
+        $pdo->commit();
+        $_SESSION['flash_success'] = isset($_POST['uuid']) ? 'Publikasi berhasil diperbarui!' : 'Publikasi berhasil ditambahkan!';
+    } catch (Exception $e) {
+        $pdo->rollBack();
         $_SESSION['flash_error'] = 'Gagal menyimpan publikasi: ' . $e->getMessage();
     } finally {
         header("Location: manage_publications.php");
@@ -73,11 +90,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
     }
 }
 
-// Get all publications with author info
+// Get all publications with authors
 $stmt = $pdo->query("
-    SELECT p.*, a.nama as penulis_nama 
+    SELECT p.*, 
+           STRING_AGG(DISTINCT a.nama, ', ' ORDER BY a.nama) as penulis_nama,
+           ARRAY_AGG(DISTINCT a.uuid) as penulis_ids
     FROM publikasi p 
-    LEFT JOIN anggota a ON p.penulis_id = a.uuid 
+    LEFT JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
+    LEFT JOIN anggota a ON ap.anggota_uuid = a.uuid 
+    GROUP BY p.uuid
     ORDER BY p.tahun DESC, p.judul ASC
 ");
 $publications = $stmt->fetchAll();
@@ -88,11 +109,17 @@ $members = $stmt_members->fetchAll();
 
 // Get data for edit
 $edit_data = null;
+$edit_penulis_ids = [];
 if (isset($_GET['edit'])) {
     $uuid = $_GET['edit'];
     $stmt = $pdo->prepare("SELECT * FROM publikasi WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+
+    // Get penulis IDs
+    $stmt = $pdo->prepare("SELECT anggota_uuid FROM anggota_publikasi WHERE publikasi_uuid = ?");
+    $stmt->execute([$uuid]);
+    $edit_penulis_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 // Ambil flash message jika ada
@@ -143,27 +170,38 @@ if (isset($_SESSION['flash_error'])) {
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Penulis</label>
-                    <select name="penulis_id" class="form-select select-enhanced">
-                        <option value="">Pilih Penulis</option>
+                    <label class="form-label">Penulis/Author (dapat pilih lebih dari 1)</label>
+                    <select name="penulis_id[]" class="form-select select-enhanced" multiple>
                         <?php foreach ($members as $member): ?>
                             <option value="<?php echo $member['uuid']; ?>"
-                                <?php echo ($edit_data && $edit_data['penulis_id'] == $member['uuid']) ? 'selected' : ''; ?>>
+                                <?php echo in_array($member['uuid'], $edit_penulis_ids) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($member['nama']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="text-muted">Opsional - Pilih dari daftar anggota</small>
+                    <small class="text-muted">Tekan Ctrl/Cmd untuk pilih lebih dari satu author</small>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Kategori <span class="text-danger">*</span></label>
-                    <input type="text"
-                        name="kategori"
-                        class="form-control"
-                        value="<?php echo $edit_data ? htmlspecialchars($edit_data['kategori']) : ''; ?>"
-                        placeholder="Journal Paper, Conference Paper, Book Chapter"
-                        required>
+                    <label class="form-label">Kategori Publikasi <span class="text-danger">*</span></label>
+                    <select name="kategori" class="form-select" required>
+                        <option value="">Pilih Kategori</option>
+                        <option value="Scopus" <?php echo ($edit_data && $edit_data['kategori'] == 'Scopus') ? 'selected' : ''; ?>>Scopus</option>
+                        <option value="Sinta 1" <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 1') ? 'selected' : ''; ?>>Sinta 1</option>
+                        <option value="Sinta 2" <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 2') ? 'selected' : ''; ?>>Sinta 2</option>
+                        <option value="Sinta 3" <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 3') ? 'selected' : ''; ?>>Sinta 3</option>
+                        <option value="Sinta 4" <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 4') ? 'selected' : ''; ?>>Sinta 4</option>
+                        <option value="Sinta 5" <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 5') ? 'selected' : ''; ?>>Sinta 5</option>
+                        <option value="Sinta 6" <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 6') ? 'selected' : ''; ?>>Sinta 6</option>
+                        <option value="IEEE" <?php echo ($edit_data && $edit_data['kategori'] == 'IEEE') ? 'selected' : ''; ?>>IEEE</option>
+                        <option value="Springer" <?php echo ($edit_data && $edit_data['kategori'] == 'Springer') ? 'selected' : ''; ?>>Springer</option>
+                        <option value="Web of Science" <?php echo ($edit_data && $edit_data['kategori'] == 'Web of Science') ? 'selected' : ''; ?>>Web of Science</option>
+                        <option value="Google Scholar" <?php echo ($edit_data && $edit_data['kategori'] == 'Google Scholar') ? 'selected' : ''; ?>>Google Scholar</option>
+                        <option value="Conference" <?php echo ($edit_data && $edit_data['kategori'] == 'Conference') ? 'selected' : ''; ?>>Conference Paper</option>
+                        <option value="Book Chapter" <?php echo ($edit_data && $edit_data['kategori'] == 'Book Chapter') ? 'selected' : ''; ?>>Book Chapter</option>
+                        <option value="Nasional" <?php echo ($edit_data && $edit_data['kategori'] == 'Nasional') ? 'selected' : ''; ?>>Jurnal Nasional</option>
+                        <option value="Lainnya" <?php echo ($edit_data && $edit_data['kategori'] == 'Lainnya') ? 'selected' : ''; ?>>Lainnya</option>
+                    </select>
                 </div>
 
                 <div class="col-12 mb-3">
@@ -220,7 +258,7 @@ if (isset($_SESSION['flash_error'])) {
                                 <th width="50">No</th>
                                 <th width="80">Tahun</th>
                                 <th>Judul</th>
-                                <th width="150">Penulis</th>
+                                <th width="200">Penulis</th>
                                 <th width="150">Kategori</th>
                                 <th width="120">Aksi</th>
                             </tr>
@@ -246,14 +284,19 @@ if (isset($_SESSION['flash_error'])) {
                                     </td>
                                     <td>
                                         <?php if ($pub['penulis_nama']): ?>
-                                            <span class="badge bg-secondary">
-                                                <?php echo htmlspecialchars($pub['penulis_nama']); ?>
-                                            </span>
+                                            <?php
+                                            $penulis = explode(', ', $pub['penulis_nama']);
+                                            foreach ($penulis as $author):
+                                            ?>
+                                                <span class="badge bg-secondary mb-1"><?php echo htmlspecialchars($author); ?></span>
+                                            <?php endforeach; ?>
                                         <?php else: ?>
                                             <span class="text-muted small">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo htmlspecialchars($pub['kategori']); ?></td>
+                                    <td>
+                                        <span class="badge bg-info"><?php echo htmlspecialchars($pub['kategori']); ?></span>
+                                    </td>
                                     <td>
                                         <a href="?edit=<?php echo $pub['uuid']; ?>"
                                             class="btn btn-sm btn-warning"

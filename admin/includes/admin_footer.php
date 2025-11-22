@@ -18,8 +18,9 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
-<!-- Custom js -->
-<script src="../assets/js/main.js"></script>
+<!-- Custom JS -->
+<script src="../assets/js/public.js"></script>
+<script src="../assets/js/admin.js"></script>
 
 <script>
     // Sidebar Toggle for Mobile
@@ -46,23 +47,6 @@
             });
         }
     });
-
-    // Confirm delete
-    // function confirmDelete(message = 'Apakah Anda yakin ingin menghapus data ini?') {
-    //     return confirm(message);
-    // }
-
-    // Preview image before upload
-    function previewImage(input, previewId) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById(previewId).src = e.target.result;
-                document.getElementById(previewId).style.display = 'block';
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
 </script>
 
 </body>
