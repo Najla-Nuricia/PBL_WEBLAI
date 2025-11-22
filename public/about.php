@@ -1,6 +1,5 @@
 <?php
 require_once '../config/db.php';
-// require_once '../helpers/background.php';
 $page_title = 'About Us';
 
 // Fetch dashboard background
@@ -179,7 +178,7 @@ include '../includes/navbar.php';
 <!-- Team Section -->
 <section class="py-5">
     <div class="container">
-        <div class="row mb-4">
+        <div class="row mb-5">
             <div class="col text-center">
                 <h2 class="section-title">Our Team</h2>
                 <p class="section-subtitle">Tim peneliti dan pengembang AI Lab Polinema</p>
@@ -189,26 +188,36 @@ include '../includes/navbar.php';
         <!-- Ketua -->
         <?php if (!empty($ketua)): ?>
             <div class="mb-5">
-                <h4 class="text-center mb-4 fw-bold">Kepala Laboratorium</h4>
+                <h4 class="text-center mb-4 fw-bold text-primary">Kepala Laboratorium</h4>
                 <div class="row justify-content-center g-4">
                     <?php foreach ($ketua as $k): ?>
                         <div class="col-md-4 col-lg-3">
-                            <div class="card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $k['uuid']; ?>">
+                            <div class="team-card card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $k['uuid']; ?>">
                                 <div class="card-body p-4">
-                                    <div class="mb-3">
+                                    <div class="member-avatar mb-3 position-relative">
                                         <?php if ($k['path_gambar']): ?>
-                                            <img src="../assets/img/<?php echo htmlspecialchars($k['path_gambar']); ?>" alt="<?php echo htmlspecialchars($k['nama']); ?>" class="rounded-circle" style="width:120px;height:120px;object-fit:cover;">
+                                            <img src="../assets/img/<?php echo htmlspecialchars($k['path_gambar']); ?>"
+                                                alt="<?php echo htmlspecialchars($k['nama']); ?>"
+                                                class="rounded-circle member-img">
                                         <?php else: ?>
-                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width:120px;height:120px;">
+                                            <div class="rounded-circle bg-gradient-primary d-flex align-items-center justify-content-center mx-auto member-placeholder">
                                                 <i class="bi bi-person-fill text-white" style="font-size:3rem;"></i>
                                             </div>
                                         <?php endif; ?>
                                     </div>
                                     <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($k['nama']); ?></h5>
                                     <?php if ($k['nidn']): ?>
-                                        <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($k['nidn']); ?></p>
+                                        <p class="text-muted small mb-2">
+                                            <i class="bi bi-credit-card-2-front me-1"></i>
+                                            <?php echo htmlspecialchars($k['nidn']); ?>
+                                        </p>
                                     <?php endif; ?>
-                                    <span class="badge bg-primary"><?php echo ucfirst($k['status']); ?></span>
+                                    <span class="badge badge-custom bg-primary"><?php echo ucfirst($k['status']); ?></span>
+                                    <div class="member-action mt-3">
+                                        <small class="text-primary fw-semibold">
+                                            <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -226,26 +235,36 @@ include '../includes/navbar.php';
 
             <?php if (!empty($dosen)): ?>
                 <div class="mb-5">
-                    <h4 class="text-center mb-4 fw-bold">Anggota Dosen</h4>
+                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Dosen</h4>
                     <div class="row g-4">
                         <?php foreach ($dosen as $a): ?>
                             <div class="col-md-4 col-lg-3">
-                                <div class="card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
+                                <div class="team-card card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
                                     <div class="card-body p-4">
-                                        <div class="mb-3">
+                                        <div class="member-avatar mb-3 position-relative">
                                             <?php if (!empty($a['path_gambar'])): ?>
-                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>" alt="<?php echo htmlspecialchars($a['nama']); ?>" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                                    alt="<?php echo htmlspecialchars($a['nama']); ?>"
+                                                    class="rounded-circle member-img">
                                             <?php else: ?>
-                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width:100px;height:100px;">
+                                                <div class="rounded-circle bg-gradient-secondary d-flex align-items-center justify-content-center mx-auto member-placeholder">
                                                     <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
                                         <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
                                         <?php if (!empty($a['nidn'])): ?>
-                                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                                            <p class="text-muted small mb-2">
+                                                <i class="bi bi-credit-card-2-front me-1"></i>
+                                                <?php echo htmlspecialchars($a['nidn']); ?>
+                                            </p>
                                         <?php endif; ?>
-                                        <span class="badge bg-warning"><?php echo ucfirst($a['status']); ?></span>
+                                        <span class="badge badge-custom bg-info"><?php echo ucfirst($a['status']); ?></span>
+                                        <div class="member-action mt-3">
+                                            <small class="text-info fw-semibold">
+                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -257,26 +276,36 @@ include '../includes/navbar.php';
             <!-- Anggota Mahasiswa -->
             <?php if (!empty($mahasiswa)): ?>
                 <div>
-                    <h4 class="text-center mb-4 fw-bold">Anggota Mahasiswa</h4>
+                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Mahasiswa</h4>
                     <div class="row g-4">
                         <?php foreach ($mahasiswa as $a): ?>
                             <div class="col-md-4 col-lg-3">
-                                <div class="card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
+                                <div class="team-card card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
                                     <div class="card-body p-4">
-                                        <div class="mb-3">
+                                        <div class="member-avatar mb-3 position-relative">
                                             <?php if (!empty($a['path_gambar'])): ?>
-                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>" alt="<?php echo htmlspecialchars($a['nama']); ?>" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                                    alt="<?php echo htmlspecialchars($a['nama']); ?>"
+                                                    class="rounded-circle member-img">
                                             <?php else: ?>
-                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width:100px;height:100px;">
+                                                <div class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center mx-auto member-placeholder">
                                                     <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
                                         <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
                                         <?php if (!empty($a['nidn'])): ?>
-                                            <p class="text-muted small mb-2">NIDN: <?php echo htmlspecialchars($a['nidn']); ?></p>
+                                            <p class="text-muted small mb-2">
+                                                <i class="bi bi-credit-card-2-front me-1"></i>
+                                                <?php echo htmlspecialchars($a['nidn']); ?>
+                                            </p>
                                         <?php endif; ?>
-                                        <span class="badge bg-success"><?php echo ucfirst($a['status']); ?></span>
+                                        <span class="badge badge-custom bg-success"><?php echo ucfirst($a['status']); ?></span>
+                                        <div class="member-action mt-3">
+                                            <small class="text-success fw-semibold">
+                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -286,85 +315,6 @@ include '../includes/navbar.php';
             <?php endif; ?>
         <?php endif; ?>
 
-        <!-- pop up -->
-        <div class="modal fade" id="anggotaModal" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" id="modalBody">
-                        <p>Loading...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            document.querySelectorAll('.card[data-uuid]').forEach(card => {
-                card.style.cursor = 'pointer';
-
-                card.addEventListener('click', () => {
-                    const uuid = card.dataset.uuid;
-                    const nama = card.querySelector('h5, h6').innerText;
-                    const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
-                    const modalTitle = document.getElementById('modalTitle');
-                    const modalBody = document.getElementById('modalBody');
-
-                    // Set title modal
-                    modalTitle.innerHTML = `<i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}`;
-
-                    // Show loading
-                    modalBody.innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3 text-muted">Memuat publikasi...</p>
-            </div>
-        `;
-
-                    modal.show();
-
-                    // Function to load publications
-                    function loadPage(page = 1) {
-                        fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
-                            .then(res => {
-                                if (!res.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return res.text();
-                            })
-                            .then(html => {
-                                modalBody.innerHTML = html;
-
-                                // Re-attach event listeners to pagination buttons
-                                modalBody.querySelectorAll('.page-link').forEach(btn => {
-                                    btn.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        loadPage(btn.dataset.page);
-                                    });
-                                });
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                modalBody.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Terjadi kesalahan saat memuat data publikasi.
-                        </div>
-                    `;
-                            });
-                    }
-
-                    // Load first page
-                    loadPage();
-                });
-            });
-        </script>
-
         <?php if (empty($ketua) && empty($anggota)): ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
@@ -372,6 +322,214 @@ include '../includes/navbar.php';
             </div>
         <?php endif; ?>
     </div>
+</section>
+
+<!-- Modal Publikasi -->
+<div class="modal fade" id="anggotaModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalTitle">
+                    <i class="bi bi-journal-text me-2"></i>Publikasi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Memuat publikasi...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Team Card Styles */
+    .team-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+    .team-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .team-card:hover .member-img {
+        transform: scale(1.05);
+    }
+
+    .member-avatar {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+
+    .member-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        border: 4px solid #f8f9fa;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .member-placeholder {
+        width: 120px;
+        height: 120px;
+        border: 4px solid #f8f9fa;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .member-badge {
+        position: absolute;
+        bottom: 5px;
+        right: calc(50% - 60px);
+        background: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-gradient-secondary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .badge-custom {
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .member-action {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .team-card:hover .member-action {
+        opacity: 1;
+    }
+
+    /* Modal Enhancements */
+    .modal-content {
+        border: none;
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        border-bottom: 2px solid #e9ecef;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-body {
+        max-height: 60vh;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+
+        .member-avatar,
+        .member-img,
+        .member-placeholder {
+            width: 100px;
+            height: 100px;
+        }
+
+        .member-badge {
+            right: calc(50% - 50px);
+            width: 28px;
+            height: 28px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
+            card.addEventListener('click', () => {
+                const uuid = card.dataset.uuid;
+                const nama = card.querySelector('h5, h6').innerText;
+                const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+
+                // Set title modal
+                modalTitle.innerHTML = `<i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}`;
+
+                // Show loading
+                modalBody.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                </div>
+            `;
+
+                modal.show();
+
+                // Function to load publications
+                function loadPage(page = 1) {
+                    fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return res.text();
+                        })
+                        .then(html => {
+                            modalBody.innerHTML = html;
+
+                            // Re-attach event listeners to pagination buttons
+                            modalBody.querySelectorAll('.page-link').forEach(btn => {
+                                btn.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    loadPage(btn.dataset.page);
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            modalBody.innerHTML = `
+                            <div class="alert alert-danger m-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Terjadi kesalahan saat memuat data publikasi.
+                            </div>
+                        `;
+                        });
+                }
+
+                // Load first page
+                loadPage();
+            });
+        });
+    });
+</script>
+
+<?php if (empty($ketua) && empty($anggota)): ?>
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle me-2"></i>
+        Data anggota tim belum tersedia
+    </div>
+<?php endif; ?>
+</div>
 </section>
 
 <!-- Facilities Section -->
