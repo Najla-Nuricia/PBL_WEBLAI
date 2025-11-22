@@ -2,8 +2,7 @@
 require_once '../config/db.php';
 $page_title = 'News & Events';
 
-
-$stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
+$stmt_bg = $pdo->query('SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1');
 $dashboard_bg = $stmt_bg->fetch();
 $bg_image = '';
 if ($dashboard_bg && $dashboard_bg['path_gambar']) {
@@ -16,13 +15,15 @@ $kategori_filter = isset($_GET['kategori']) ? $_GET['kategori'] : '';
 $single_news = null;
 $news_fotos = [];
 if (isset($_GET['id'])) {
-    $stmt = $pdo->prepare("SELECT * FROM berita WHERE uuid = ?");
+    $stmt = $pdo->prepare('SELECT * FROM berita WHERE uuid = ?');
     $stmt->execute([$_GET['id']]);
     $single_news = $stmt->fetch();
 
     // Ambil foto-foto berita
     if ($single_news) {
-        $stmt_foto = $pdo->prepare("SELECT * FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC");
+        $stmt_foto = $pdo->prepare(
+            'SELECT * FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC',
+        );
         $stmt_foto->execute([$single_news['uuid']]);
         $news_fotos = $stmt_foto->fetchAll();
     }
@@ -33,9 +34,9 @@ if (isset($_GET['id'])) {
     $offset = ($page - 1) * $items_per_page;
 
     // Count total items
-    $count_query = "SELECT COUNT(*) FROM berita WHERE 1=1";
+    $count_query = 'SELECT COUNT(*) FROM berita WHERE 1=1';
     if ($kategori_filter) {
-        $count_query .= " AND kategori = :kategori";
+        $count_query .= ' AND kategori = :kategori';
     }
     $count_stmt = $pdo->prepare($count_query);
     if ($kategori_filter) {
@@ -47,11 +48,11 @@ if (isset($_GET['id'])) {
     $total_pages = ceil($total_items / $items_per_page);
 
     // Build query with pagination
-    $query = "SELECT * FROM berita WHERE 1=1";
+    $query = 'SELECT * FROM berita WHERE 1=1';
     if ($kategori_filter) {
-        $query .= " AND kategori = :kategori";
+        $query .= ' AND kategori = :kategori';
     }
-    $query .= " ORDER BY tanggal DESC LIMIT :limit OFFSET :offset";
+    $query .= ' ORDER BY tanggal DESC LIMIT :limit OFFSET :offset';
 
     $stmt = $pdo->prepare($query);
     if ($kategori_filter) {
@@ -98,17 +99,18 @@ include '../includes/navbar.php';
 </style>
 
 <!-- Page Header -->
-<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
-    <?php
-    $bg_style = $bg_image
+<section class="hero-section position-relative py-5" id="heroSection"
+    style="color: white; min-height: 500px; overflow: hidden;">
+    <?php $bg_style = $bg_image
         ? "background: url('$bg_image') center/cover no-repeat; z-index: 0;"
-        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); z-index: 0;';
-    ?>
+        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); z-index: 0;'; ?>
     <div class="parallax-bg position-absolute top-0 start-0 w-100 h-100"
         style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
     </div>
 
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100"
+        style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;">
+    </div>
 
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
@@ -171,7 +173,8 @@ include '../includes/navbar.php';
                                 <?php if (count($news_fotos) > 1): ?>
                                     <div class="carousel-indicators">
                                         <?php foreach ($news_fotos as $index => $foto): ?>
-                                            <button type="button" data-bs-target="#newsCarousel" data-bs-slide-to="<?php echo $index; ?>"
+                                            <button type="button" data-bs-target="#newsCarousel"
+                                                data-bs-slide-to="<?php echo $index; ?>"
                                                 class="<?php echo $index === 0 ? 'active' : ''; ?>"
                                                 aria-current="<?php echo $index === 0 ? 'true' : 'false'; ?>"
                                                 aria-label="Slide <?php echo $index + 1; ?>"></button>
@@ -181,31 +184,37 @@ include '../includes/navbar.php';
 
                                 <div class="carousel-inner">
                                     <?php foreach ($news_fotos as $index => $foto):
-                                        $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']);
-                                    ?>
+                                        $foto_path =
+                                            rtrim($_ENV['UPLOAD_DIR'], '/') .
+                                            '/berita/' .
+                                            htmlspecialchars($foto['file_path']); ?>
                                         <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
-                                            <img src="<?php echo $foto_path; ?>"
-                                                class="d-block w-100"
-                                                style="max-height: 500px; object-fit: cover;"
-                                                alt="<?php echo htmlspecialchars($foto['caption'] ?: 'Foto berita'); ?>"
-                                                onerror="this.src='../assets/img/placeholder.jpg'">
+                                            <img src="<?php echo $foto_path; ?>" class="d-block w-100"
+                                                style="max-height: 500px; object-fit: cover;" alt="<?php echo htmlspecialchars(
+                                                                                                        $foto['caption'] ?: 'Foto berita',
+                                                                                                    ); ?>" onerror="this.src='../assets/img/placeholder.jpg'">
                                             <?php if (!empty($foto['caption'])): ?>
                                                 <div class="carousel-caption d-none d-md-block">
                                                     <div class="bg-dark bg-opacity-75 rounded p-2">
-                                                        <p class="mb-0"><?php echo htmlspecialchars($foto['caption']); ?></p>
+                                                        <p class="mb-0"><?php echo htmlspecialchars(
+                                                                            $foto['caption'],
+                                                                        ); ?></p>
                                                     </div>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php
+                                    endforeach; ?>
                                 </div>
 
                                 <?php if (count($news_fotos) > 1): ?>
-                                    <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel"
+                                        data-bs-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                         <span class="visually-hidden">Previous</span>
                                     </button>
-                                    <button class="carousel-control-next" type="button" data-bs-target="#newsCarousel" data-bs-slide="next">
+                                    <button class="carousel-control-next" type="button" data-bs-target="#newsCarousel"
+                                        data-bs-slide="next">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                         <span class="visually-hidden">Next</span>
                                     </button>
@@ -214,13 +223,17 @@ include '../includes/navbar.php';
                         <?php endif; ?>
 
                         <div class="card-body p-4 p-md-5">
-                            <span class="badge bg-<?php
-                                                    echo $single_news['kategori'] == 'agenda' ? 'success' : ($single_news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
-                                                    ?> mb-3 fs-6">
+                            <span class="badge bg-<?php echo $single_news['kategori'] == 'agenda'
+                                                        ? 'success'
+                                                        : ($single_news['kategori'] == 'pengumuman'
+                                                            ? 'warning'
+                                                            : 'primary'); ?> mb-3 fs-6">
                                 <?php echo ucfirst($single_news['kategori']); ?>
                             </span>
 
-                            <h1 class="fw-bold mb-3"><?php echo htmlspecialchars($single_news['judul']); ?></h1>
+                            <h1 class="fw-bold mb-3"><?php echo htmlspecialchars(
+                                                            $single_news['judul'],
+                                                        ); ?></h1>
 
                             <div class="d-flex flex-wrap gap-3 text-muted mb-4">
                                 <?php if (!empty($single_news['penulis'])): ?>
@@ -252,25 +265,31 @@ include '../includes/navbar.php';
                                 <h5 class="fw-bold mb-3">Galeri Foto</h5>
                                 <div class="row g-3">
                                     <?php foreach ($news_fotos as $foto):
-                                        $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']);
-                                    ?>
+                                        $foto_path =
+                                            rtrim($_ENV['UPLOAD_DIR'], '/') .
+                                            '/berita/' .
+                                            htmlspecialchars($foto['file_path']); ?>
                                         <div class="col-md-4 col-sm-6">
                                             <a href="<?php echo $foto_path; ?>" data-bs-toggle="modal" data-bs-target="#photoModal"
-                                                data-photo="<?php echo $foto_path; ?>"
-                                                data-caption="<?php echo htmlspecialchars($foto['caption'] ?: ''); ?>">
-                                                <img src="<?php echo $foto_path; ?>"
-                                                    class="img-fluid rounded shadow-sm hover-zoom"
+                                                data-photo="<?php echo $foto_path; ?>" data-caption="<?php echo htmlspecialchars(
+                                                                                                            $foto['caption'] ?: '',
+                                                                                                        ); ?>">
+                                                <img src="<?php echo $foto_path; ?>" class="img-fluid rounded shadow-sm hover-zoom"
                                                     style="height: 200px; width: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s;"
-                                                    alt="<?php echo htmlspecialchars($foto['caption'] ?: 'Foto berita'); ?>"
-                                                    onerror="this.src='../assets/img/placeholder.jpg'"
+                                                    alt="<?php echo htmlspecialchars(
+                                                                $foto['caption'] ?: 'Foto berita',
+                                                            ); ?>" onerror="this.src='../assets/img/placeholder.jpg'"
                                                     onmouseover="this.style.transform='scale(1.05)'"
                                                     onmouseout="this.style.transform='scale(1)'">
                                             </a>
                                             <?php if (!empty($foto['caption'])): ?>
-                                                <small class="text-muted d-block mt-2"><?php echo htmlspecialchars($foto['caption']); ?></small>
+                                                <small class="text-muted d-block mt-2"><?php echo htmlspecialchars(
+                                                                                            $foto['caption'],
+                                                                                        ); ?></small>
                                             <?php endif; ?>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php
+                                    endforeach; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -285,7 +304,8 @@ include '../includes/navbar.php';
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content bg-transparent border-0">
                 <div class="modal-header border-0">
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
                     <img id="modalImage" src="" class="img-fluid rounded" alt="Preview">
@@ -314,88 +334,145 @@ include '../includes/navbar.php';
         });
     </script>
 
-<?php else: ?>
+<?php
+// Ambil foto pertama untuk thumbnail
+// Smart pagination - show limited page numbers
+
+else: ?>
     <section id="news-list" class="py-5" style="scroll-margin-top:180px;">
         <div class="container">
             <div class="row mb-4">
                 <div class="col">
                     <div class="btn-group" role="group">
-                        <a href="news.php" class="btn btn-<?php echo !$kategori_filter ? 'primary' : 'outline-primary'; ?>">
+                        <a href="news.php" class="btn btn-<?php echo !$kategori_filter
+                                                                ? 'primary'
+                                                                : 'outline-primary'; ?>">
                             Semua
                         </a>
-                        <a href="news.php?kategori=berita" class="btn btn-<?php echo $kategori_filter == 'berita' ? 'primary' : 'outline-primary'; ?>">
+                        <a href="news.php?kategori=berita" class="btn btn-<?php echo $kategori_filter ==
+                                                                                'berita'
+                                                                                ? 'primary'
+                                                                                : 'outline-primary'; ?>">
                             Berita
                         </a>
-                        <a href="news.php?kategori=agenda" class="btn btn-<?php echo $kategori_filter == 'agenda' ? 'primary' : 'outline-primary'; ?>">
+                        <a href="news.php?kategori=agenda" class="btn btn-<?php echo $kategori_filter ==
+                                                                                'agenda'
+                                                                                ? 'primary'
+                                                                                : 'outline-primary'; ?>">
                             Agenda
                         </a>
-                        <a href="news.php?kategori=pengumuman" class="btn btn-<?php echo $kategori_filter == 'pengumuman' ? 'primary' : 'outline-primary'; ?>">
+                        <a href="news.php?kategori=pengumuman" class="btn btn-<?php echo $kategori_filter ==
+                                                                                    'pengumuman'
+                                                                                    ? 'primary'
+                                                                                    : 'outline-primary'; ?>">
                             Pengumuman
                         </a>
                     </div>
                 </div>
             </div>
 
+            <!-- tampil berita -->
             <div class="row g-4">
                 <?php if (!empty($news_list)): ?>
-                    <?php foreach ($news_list as $news):
-                        // Ambil foto pertama untuk thumbnail
-                        $stmt_thumb = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1");
-                        $stmt_thumb->execute([$news['uuid']]);
-                        $thumbnail = $stmt_thumb->fetch();
+
+                    <?php
+                    // Ambil semua berita jadi array indexed
+                    $news_array = array_values($news_list);
+                    $perRow = 3;
+                    $total = count($news_array);
+
+                    for ($i = 0; $i < $total; $i += $perRow):
+
+                        // Ambil 3 item per baris
+                        $rowItems = array_slice($news_array, $i, $perRow);
+
+                        // Cek apakah baris ini punya thumbnail
+                        $rowHasThumbnail = false;
+                        foreach ($rowItems as $n):
+                            $stmt_thumb = $pdo->prepare(
+                                "SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1"
+                            );
+                            $stmt_thumb->execute([$n['uuid']]);
+                            if ($stmt_thumb->fetch()) {
+                                $rowHasThumbnail = true;
+                                break;
+                            }
+                        endforeach;
                     ?>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                                <?php if ($thumbnail):
-                                    $thumb_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($thumbnail['file_path']);
+
+                        <div class="row g-4 mb-3">
+
+                            <?php foreach ($rowItems as $news): ?>
+
+                                <?php
+                                // Ambil thumbnail per berita
+                                $stmt_thumb = $pdo->prepare(
+                                    "SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1"
+                                );
+                                $stmt_thumb->execute([$news['uuid']]);
+                                $thumbnail = $stmt_thumb->fetch();
+
+                                $thumb_path = "";
+                                if ($thumbnail) {
+                                    $thumb_path = rtrim($_ENV['UPLOAD_DIR'], "/") . "/berita/" . htmlspecialchars($thumbnail['file_path']);
+                                }
                                 ?>
-                                    <img src="<?php echo $thumb_path; ?>"
-                                        class="card-img-top"
-                                        style="height: 200px; object-fit: cover;"
-                                        alt="<?php echo htmlspecialchars($news['judul']); ?>"
-                                        onerror="this.src='../assets/img/placeholder.jpg'">
-                                <?php else: ?>
-                                    <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center"
-                                        style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                        <i class="bi bi-<?php
-                                                        echo $news['kategori'] == 'agenda' ? 'calendar-event' : ($news['kategori'] == 'pengumuman' ? 'megaphone' : 'newspaper');
-                                                        ?> text-white" style="font-size: 3rem; opacity: 0.5;"></i>
-                                    </div>
-                                <?php endif; ?>
 
-                                <div class="card-body d-flex flex-column">
-                                    <span class="badge bg-<?php
-                                                            echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
-                                                            ?> mb-2 align-self-start">
-                                        <?php echo ucfirst($news['kategori']); ?>
-                                    </span>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 shadow-sm border-0 overflow-hidden">
 
-                                    <h5 class="card-title fw-bold line-clamp-2" style="min-height: 3em;">
-                                        <?php echo htmlspecialchars($news['judul']); ?>
-                                    </h5>
+                                        <?php if ($thumbnail): ?>
+                                            <img src="<?= $thumb_path ?>" class="card-img-top" style="height:200px; object-fit:cover;"
+                                                alt="<?= htmlspecialchars($news['judul']) ?>"
+                                                onerror="this.src='../assets/img/placeholder.jpg'">
 
-                                    <p class="text-muted small mb-3">
-                                        <i class="bi bi-calendar me-2"></i>
-                                        <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
-                                        <?php if ($news['tempat']): ?>
-                                            <br>
-                                            <i class="bi bi-geo-alt me-2"></i>
-                                            <?php echo htmlspecialchars($news['tempat']); ?>
+                                        <?php else: ?>
+                                            <?php if ($rowHasThumbnail): ?>
+                                                <!-- Baris ini punya thumbnail → kasih placeholder -->
+                                                <div style="height:200px;"></div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
-                                    </p>
 
-                                    <!-- Deskripsi dengan batasan 3 baris -->
-                                    <p class="card-text text-muted line-clamp-3" style="line-height: 1.5; min-height: 4.5em;">
-                                        <?php echo htmlspecialchars($news['deskripsi']); ?>
-                                    </p>
+                                        <div class="card-body d-flex flex-column">
+                                            <span class="badge bg-<?=
+                                                                    $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
+                                                                    ?> mb-2 align-self-start">
+                                                <?= ucfirst($news['kategori']); ?>
+                                            </span>
 
-                                    <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                        Baca Selengkapnya <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                            <h5 class="card-title fw-bold line-clamp-2" style="min-height:3em;">
+                                                <?= htmlspecialchars($news['judul']); ?>
+                                            </h5>
+
+                                            <p class="text-muted small mb-3">
+                                                <i class="bi bi-calendar me-2"></i>
+                                                <?= date("d M Y", strtotime($news['tanggal'])); ?>
+
+                                                <?php if ($news['tempat']): ?>
+                                                    <br>
+                                                    <i class="bi bi-geo-alt me-2"></i>
+                                                    <?= htmlspecialchars($news['tempat']); ?>
+                                                <?php endif; ?>
+                                            </p>
+
+                                            <p class="card-text text-muted line-clamp-3" style="line-height:1.5; min-height:4.5em;">
+                                                <?= htmlspecialchars($news['deskripsi']); ?>
+                                            </p>
+
+                                            <a href="news.php?id=<?= $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
+                                                Baca Selengkapnya <i class="bi bi-arrow-right"></i>
+                                            </a>
+                                        </div>
+
+                                    </div>
                                 </div>
-                            </div>
+
+                            <?php endforeach; ?>
+
                         </div>
-                    <?php endforeach; ?>
+
+                    <?php endfor; ?>
+
                 <?php else: ?>
                     <div class="col-12">
                         <div class="alert alert-info text-center">
@@ -410,27 +487,34 @@ include '../includes/navbar.php';
             <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation" class="mt-5">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page - 1 ?>">&laquo; Sebelumnya</a>
+                        <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?<?= $kategori_filter
+                                                            ? 'kategori=' . $kategori_filter . '&'
+                                                            : '' ?>page=<?= $page - 1 ?>">&laquo;
+                                Sebelumnya</a>
                         </li>
 
                         <?php
-                        // Smart pagination - show limited page numbers
                         $start_page = max(1, $page - 2);
                         $end_page = min($total_pages, $page + 2);
 
                         if ($start_page > 1): ?>
                             <li class="page-item">
-                                <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=1">1</a>
+                                <a class="page-link" href="?<?= $kategori_filter
+                                                                ? 'kategori=' . $kategori_filter . '&'
+                                                                : '' ?>page=1">1</a>
                             </li>
                             <?php if ($start_page > 2): ?>
                                 <li class="page-item disabled"><span class="page-link">...</span></li>
                             <?php endif; ?>
-                        <?php endif; ?>
+                        <?php endif;
+                        ?>
 
                         <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                            <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                                <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $i ?>"><?= $i ?></a>
+                            <li class="page-item <?= $page == $i ? 'active' : '' ?>">
+                                <a class="page-link" href="?<?= $kategori_filter
+                                                                ? 'kategori=' . $kategori_filter . '&'
+                                                                : '' ?>page=<?= $i ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
 
@@ -439,12 +523,17 @@ include '../includes/navbar.php';
                                 <li class="page-item disabled"><span class="page-link">...</span></li>
                             <?php endif; ?>
                             <li class="page-item">
-                                <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $total_pages ?>"><?= $total_pages ?></a>
+                                <a class="page-link" href="?<?= $kategori_filter
+                                                                ? 'kategori=' . $kategori_filter . '&'
+                                                                : '' ?>page=<?= $total_pages ?>"><?= $total_pages ?></a>
                             </li>
                         <?php endif; ?>
 
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page + 1 ?>">Selanjutnya &raquo;</a>
+                        <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?<?= $kategori_filter
+                                                            ? 'kategori=' . $kategori_filter . '&'
+                                                            : '' ?>page=<?= $page + 1 ?>">Selanjutnya
+                                &raquo;</a>
                         </li>
                     </ul>
                 </nav>
