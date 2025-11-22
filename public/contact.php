@@ -75,6 +75,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $stmt = $pdo->query("SELECT * FROM sosmed");
 $social_media = $stmt->fetchAll();
 
+// Get current contact info
+$stmt = $pdo->query("SELECT uuid, type, label, value FROM contact_address_email");
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$contact = [];
+foreach ($rows as $row) {
+    if ($row['type'] === 'email') {
+        $contact['email_' . $row['label'] . '_uuid'] = $row['uuid'];
+        $contact['email_' . $row['label']] = $row['value'];
+    } else {
+        $contact[$row['type'] . '_uuid'] = $row['uuid'];
+        $contact[$row['type']] = $row['value'];
+    }
+}
+
+// Get working hours
+$stmt = $pdo->query("SELECT * FROM contact_working_hours ORDER BY ordering ASC");
+$working_hours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
@@ -230,9 +249,7 @@ include '../includes/navbar.php';
                             <div class="flex-grow-1 ms-3">
                                 <h6 class="fw-bold mb-1">Address</h6>
                                 <p class="text-muted mb-0">
-                                    Politeknik Negeri Malang<br>
-                                    Jl. Soekarno Hatta No.9<br>
-                                    Malang, Jawa Timur 65141
+                                    <?= nl2br(htmlspecialchars($contact['address'] ?? '')) ?>
                                 </p>
                             </div>
                         </div>
@@ -246,8 +263,8 @@ include '../includes/navbar.php';
                             <div class="flex-grow-1 ms-3">
                                 <h6 class="fw-bold mb-1">Email</h6>
                                 <p class="text-muted mb-0">
-                                    ailab@polinema.ac.id<br>
-                                    info@ailab-polinema.ac.id
+                                    <?= htmlspecialchars($contact['email_Email'] ?? '') ?><br>
+                                    <?= htmlspecialchars($contact['email_Email2'] ?? '') ?>
                                 </p>
                             </div>
                         </div>
@@ -261,8 +278,55 @@ include '../includes/navbar.php';
                             <div class="flex-grow-1 ms-3">
                                 <h6 class="fw-bold mb-1">Working Hours</h6>
                                 <p class="text-muted mb-0">
-                                    Senin - Jumat: 08:00 - 16:00<br>
-                                    Sabtu - Minggu: Tutup
+                                    <?php
+                                        $order = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+                                        usort($working_hours, function($a, $b) use ($order) {
+                                            return array_search($a['day_name'], $order) - array_search($b['day_name'], $order);
+                                        });
+
+                                        function formatHours($row) {
+                                            if ($row['is_closed']) {
+                                                return "Tutup";
+                                            }
+                                            if (empty($row['open_time']) || empty($row['close_time'])) {
+                                                return "Tutup";
+                                            }
+                                            return substr($row['open_time'], 0, 5) . " - " . substr($row['close_time'], 0, 5);
+                                        }
+
+                                        $groups = [];
+                                        $currentGroup = [
+                                            "start" => $working_hours[0]['day_name'],
+                                            "end"   => $working_hours[0]['day_name'],
+                                            "time"  => formatHours($working_hours[0])
+                                        ];
+
+                                        for ($i = 1; $i < count($working_hours); $i++) {
+                                            $row = $working_hours[$i];
+                                            $time = formatHours($row);
+
+                                            if ($time === $currentGroup['time']) {
+                                                $currentGroup['end'] = $row['day_name'];
+                                            } else {
+                                                $groups[] = $currentGroup;
+                                                $currentGroup = [
+                                                    "start" => $row['day_name'],
+                                                    "end"   => $row['day_name'],
+                                                    "time"  => $time
+                                                ];
+                                            }
+                                        }
+                                        $groups[] = $currentGroup;
+                                        foreach ($groups as $g) {
+                                            if ($g['start'] === $g['end']) {
+                                                echo "<p class='text-muted mb-1'>
+                                                        <strong>{$g['start']}:</strong> {$g['time']}</p>";
+                                            } else {
+                                                echo "<p class='text-muted mb-1'>
+                                                        <strong>{$g['start']} - {$g['end']}:</strong> {$g['time']}</p>";
+                                            }
+                                        }
+                                    ?>
                                 </p>
                             </div>
                         </div>

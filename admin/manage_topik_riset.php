@@ -23,7 +23,7 @@ if (isset($_GET['delete'])) {
 }
 
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $id = $_POST['selected'];
 
     try {

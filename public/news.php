@@ -70,32 +70,32 @@ include '../includes/navbar.php';
 
 <!-- Add CSS for line-clamp -->
 <style>
-    /* Untuk teks maksimal 2 baris */
-    .line-clamp-2 {
-        display: block;
-        display: -webkit-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
+/* Untuk teks maksimal 2 baris */
+.line-clamp-2 {
+    display: block;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 
-        /* Standar modern */
-        line-clamp: 2;
-        box-orient: vertical;
-    }
+    /* Standar modern */
+    line-clamp: 2;
+    box-orient: vertical;
+}
 
-    /* Untuk teks maksimal 3 baris */
-    .line-clamp-3 {
-        display: block;
-        display: -webkit-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
+/* Untuk teks maksimal 3 baris */
+.line-clamp-3 {
+    display: block;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
 
-        line-clamp: 3;
-        box-orient: vertical;
-    }
+    line-clamp: 3;
+    box-orient: vertical;
+}
 </style>
 
 <!-- Page Header -->
@@ -124,47 +124,63 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
+document.addEventListener('DOMContentLoaded', function() {
+    const parallaxBg = document.querySelector('.parallax-bg');
+    const heroSection = document.getElementById('heroSection');
 
-        if (parallaxBg && heroSection) {
-            let ticking = false;
+    if (parallaxBg && heroSection) {
+        let ticking = false;
 
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const heroHeight = heroSection.offsetHeight;
 
-                if (scrolled < heroHeight) {
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-                ticking = false;
+            if (scrolled < heroHeight) {
+                const yPos = scrolled * 0.5;
+                parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
             }
-
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
+            ticking = false;
         }
-    });
+
+        function requestTick() {
+            if (!ticking) {
+                window.requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', requestTick, {
+            passive: true
+        });
+    }
+});
 </script>
 
 <?php if ($single_news): ?>
-    <!-- Single News Detail -->
-    <section class="py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-10 mx-auto">
-                    <a href="news.php" class="btn btn-outline-primary mb-4">
-                        <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Berita
-                    </a>
+<!-- Single News Detail -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <a href="news.php" class="btn btn-outline-primary mb-4">
+                    <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Berita
+                </a>
+
+                <div class="card border-0 shadow-sm">
+                    <?php if (!empty($news_fotos)): ?>
+                    <!-- Photo Gallery Carousel -->
+                    <div id="newsCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <?php if (count($news_fotos) > 1): ?>
+                        <div class="carousel-indicators">
+                            <?php foreach ($news_fotos as $index => $foto): ?>
+                            <button type="button" data-bs-target="#newsCarousel"
+                                data-bs-slide-to="<?php echo $index; ?>"
+                                class="<?php echo $index === 0 ? 'active' : ''; ?>"
+                                aria-current="<?php echo $index === 0 ? 'true' : 'false'; ?>"
+                                aria-label="Slide <?php echo $index + 1; ?>"></button>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
 
                     <div class="card border-0 shadow-sm">
                         <?php if (!empty($news_fotos)): ?>
@@ -220,7 +236,9 @@ include '../includes/navbar.php';
                                     </button>
                                 <?php endif; ?>
                             </div>
-                        <?php endif; ?>
+                            <?php
+                            endforeach; ?>
+                        </div>
 
                         <div class="card-body p-4 p-md-5">
                             <span class="badge bg-<?php echo $single_news['kategori'] == 'agenda'
@@ -230,34 +248,54 @@ include '../includes/navbar.php';
                                                             : 'primary'); ?> mb-3 fs-6">
                                 <?php echo ucfirst($single_news['kategori']); ?>
                             </span>
+                            <?php endif; ?>
+                            <span>
+                                <i class="bi bi-calendar me-1"></i>
+                                <?php echo date('d F Y', strtotime($single_news['tanggal'])); ?>
+                            </span>
+                            <?php if ($single_news['tempat']): ?>
+                            <span>
+                                <i class="bi bi-geo-alt me-1"></i>
+                                <?php echo htmlspecialchars($single_news['tempat']); ?>
+                            </span>
+                            <?php endif; ?>
+                        </div>
 
                             <h1 class="fw-bold mb-3"><?php echo htmlspecialchars(
                                                             $single_news['judul'],
                                                         ); ?></h1>
 
-                            <div class="d-flex flex-wrap gap-3 text-muted mb-4">
-                                <?php if (!empty($single_news['penulis'])): ?>
-                                    <span>
-                                        <i class="bi bi-person me-1"></i>
-                                        <?php echo htmlspecialchars($single_news['penulis']); ?>
-                                    </span>
-                                <?php endif; ?>
-                                <span>
-                                    <i class="bi bi-calendar me-1"></i>
-                                    <?php echo date('d F Y', strtotime($single_news['tanggal'])); ?>
-                                </span>
-                                <?php if ($single_news['tempat']): ?>
-                                    <span>
-                                        <i class="bi bi-geo-alt me-1"></i>
-                                        <?php echo htmlspecialchars($single_news['tempat']); ?>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
+                        <div class="content" style="text-align: justify; line-height: 1.8; font-size: 1.05rem;">
+                            <?php echo nl2br(htmlspecialchars($single_news['deskripsi'])); ?>
+                        </div>
 
-                            <hr>
-
-                            <div class="content" style="text-align: justify; line-height: 1.8; font-size: 1.05rem;">
-                                <?php echo nl2br(htmlspecialchars($single_news['deskripsi'])); ?>
+                        <?php if (!empty($news_fotos) && count($news_fotos) > 1): ?>
+                        <hr class="my-4">
+                        <h5 class="fw-bold mb-3">Galeri Foto</h5>
+                        <div class="row g-3">
+                            <?php foreach ($news_fotos as $foto):
+                                $foto_path =
+                                    rtrim($_ENV['UPLOAD_DIR'], '/') .
+                                    '/berita/' .
+                                    htmlspecialchars($foto['file_path']); ?>
+                            <div class="col-md-4 col-sm-6">
+                                <a href="<?php echo $foto_path; ?>" data-bs-toggle="modal" data-bs-target="#photoModal"
+                                    data-photo="<?php echo $foto_path; ?>" data-caption="<?php echo htmlspecialchars(
+    $foto['caption'] ?: '',
+); ?>">
+                                    <img src="<?php echo $foto_path; ?>" class="img-fluid rounded shadow-sm hover-zoom"
+                                        style="height: 200px; width: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s;"
+                                        alt="<?php echo htmlspecialchars(
+                                            $foto['caption'] ?: 'Foto berita',
+                                        ); ?>" onerror="this.src='../assets/img/placeholder.jpg'"
+                                        onmouseover="this.style.transform='scale(1.05)'"
+                                        onmouseout="this.style.transform='scale(1)'">
+                                </a>
+                                <?php if (!empty($foto['caption'])): ?>
+                                <small class="text-muted d-block mt-2"><?php echo htmlspecialchars(
+                                    $foto['caption'],
+                                ); ?></small>
+                                <?php endif; ?>
                             </div>
 
                             <?php if (!empty($news_fotos) && count($news_fotos) > 1): ?>
@@ -293,6 +331,7 @@ include '../includes/navbar.php';
                                 </div>
                             <?php endif; ?>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -314,23 +353,22 @@ include '../includes/navbar.php';
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const photoModal = document.getElementById('photoModal');
-            if (photoModal) {
-                photoModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    const photoSrc = button.getAttribute('data-photo');
-                    const caption = button.getAttribute('data-caption');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const photoModal = document.getElementById('photoModal');
+    if (photoModal) {
+        photoModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const photoSrc = button.getAttribute('data-photo');
+            const caption = button.getAttribute('data-caption');
 
-                    const modalImage = document.getElementById('modalImage');
-                    const modalCaption = document.getElementById('modalCaption');
+            const modalImage = document.getElementById('modalImage');
+            const modalCaption = document.getElementById('modalCaption');
 
-                    modalImage.src = photoSrc;
-                    modalCaption.textContent = caption;
-                });
-            }
+            modalImage.src = photoSrc;
+            modalCaption.textContent = caption;
         });
     </script>
 
@@ -370,6 +408,7 @@ else: ?>
                     </div>
                 </div>
             </div>
+        </div>
 
             <!-- tampil berita -->
             <div class="row g-4">
@@ -479,9 +518,9 @@ else: ?>
                             <i class="bi bi-info-circle me-2"></i>
                             Belum ada berita untuk kategori ini
                         </div>
+
                     </div>
-                <?php endif; ?>
-            </div>
+                </div>
 
             <!-- Pagination -->
             <?php if ($total_pages > 1): ?>
@@ -539,6 +578,63 @@ else: ?>
                 </nav>
             <?php endif; ?>
         </div>
-    </section>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?<?= $kategori_filter
+                        ? 'kategori=' . $kategori_filter . '&'
+                        : '' ?>page=<?= $page - 1 ?>">&laquo;
+                        Sebelumnya</a>
+                </li>
+
+                <?php
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+
+                if ($start_page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?<?= $kategori_filter
+                        ? 'kategori=' . $kategori_filter . '&'
+                        : '' ?>page=1">1</a>
+                </li>
+                <?php if ($start_page > 2): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <?php endif;
+                ?>
+
+                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                <li class="page-item <?= $page == $i ? 'active' : '' ?>">
+                    <a class="page-link" href="?<?= $kategori_filter
+                        ? 'kategori=' . $kategori_filter . '&'
+                        : '' ?>page=<?= $i ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+
+                <?php if ($end_page < $total_pages): ?>
+                <?php if ($end_page < $total_pages - 1): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <li class="page-item">
+                    <a class="page-link" href="?<?= $kategori_filter
+                        ? 'kategori=' . $kategori_filter . '&'
+                        : '' ?>page=<?= $total_pages ?>"><?= $total_pages ?></a>
+                </li>
+                <?php endif; ?>
+
+                <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?<?= $kategori_filter
+                        ? 'kategori=' . $kategori_filter . '&'
+                        : '' ?>page=<?= $page + 1 ?>">Selanjutnya
+                        &raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        <?php endif; ?>
+    </div>
+</section>
 <?php endif; ?>
 <?php include '../includes/footer.php'; ?>

@@ -77,8 +77,6 @@ $footer = $stmt_footer->fetch();
                                 <i class="bi bi-<?php echo strtolower($sosmed['nama']); ?>"></i>
                             </a>
                         <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="text-light">No social media links available.</p>
                     <?php endif; ?>
                 </div>
             </div>

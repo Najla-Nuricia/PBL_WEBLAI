@@ -134,6 +134,13 @@ require_login();
                     </a>
                 </li>
 
+                <li>
+                    <a href="manage_contactInfo.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_contactInfo.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-person-vcard"></i>
+                        <span>Contact Information</span>
+                    </a>
+                </li>
+
                 <div class="menu-category">
                     <small>Tim & Mitra</small>
                 </div>

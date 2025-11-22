@@ -7,13 +7,53 @@ include 'includes/admin_header.php';
 $success = '';
 $error = '';
 
+// DELETE FOTO
+if (isset($_GET['delete_foto'])) {
+    $uuid = $_GET['delete_foto'];
+    try {
+        // Ambil path file
+        $stmt = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE uuid = ?");
+        $stmt->execute([$uuid]);
+        $foto = $stmt->fetch();
+
+        // Hapus file fisik
+        $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/kegiatan/';
+        if ($foto && file_exists($upload_dir . $foto['path_gambar'])) {
+            unlink($upload_dir . $foto['path_gambar']);
+        }
+
+        // Hapus dari database
+        $stmt = $pdo->prepare("DELETE FROM kegiatan_foto WHERE uuid = ?");
+        $stmt->execute([$uuid]);
+        $_SESSION['flash_success'] = 'Foto berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus foto: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_activities.php?edit=" . $_GET['kegiatan_id']);
+        exit;
+    }
+}
+
 // Handle Delete
 if (isset($_GET['delete'])) {
     $uuid = $_GET['delete'];
     try {
+        $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/kegiatan/';
+
+        // Hapus foto-foto terkait
+        $stmt = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE kegiatan_uuid = ?");
+        $stmt->execute([$uuid]);
+        $fotos = $stmt->fetchAll();
+
+        foreach ($fotos as $foto) {
+            if (file_exists($upload_dir . $foto['path_gambar'])) {
+                unlink($upload_dir . $foto['path_gambar']);
+            }
+        }
+
         $stmt = $pdo->prepare("DELETE FROM kegiatan WHERE uuid = ?");
         $stmt->execute([$uuid]);
-        $_SESSION['flash_success'] = 'Kegiatan berhasil dihapus!';
+        $_SESSION['flash_success'] = 'Kegiatan beserta foto berhasil dihapus!';
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Gagal menghapus kegiatan: ' . $e->getMessage();
     } finally {
@@ -23,10 +63,25 @@ if (isset($_GET['delete'])) {
 }
 
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
+        $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/kegiatan/';
+
+        // Hapus foto-foto terkait
+        foreach ($uuids as $uuid) {
+            $stmt = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE kegiatan_uuid = ?");
+            $stmt->execute([$uuid]);
+            $fotos = $stmt->fetchAll();
+
+            foreach ($fotos as $foto) {
+                if (file_exists($upload_dir . $foto['path_gambar'])) {
+                    unlink($upload_dir . $foto['path_gambar']);
+                }
+            }
+        }
+
         // Buat placeholder dinamis sebanyak jumlah UUID
         $placeholders = implode(',', array_fill(0, count($uuids), '?'));
         $query = "DELETE FROM kegiatan WHERE uuid IN ($placeholders)";
@@ -57,16 +112,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'  && ($_POST['action'] ?? '') === 'save'
             $uuid = $_POST['uuid'];
             $stmt = $pdo->prepare("UPDATE kegiatan SET nama=?, tanggal=?, pemateri=?, kategori_kegiatan=?, deskripsi_singkat=?, updated_at=CURRENT_TIMESTAMP WHERE uuid=?");
             $stmt->execute([$nama, $tanggal, $pemateri, $kategori_kegiatan, $deskripsi_singkat, $uuid]);
+            $kegiatan_id = $uuid;
             $_SESSION['flash_success'] = 'Kegiatan berhasil diupdate!';
         } else {
-            $stmt = $pdo->prepare("INSERT INTO kegiatan (nama, tanggal, pemateri, kategori_kegiatan, deskripsi_singkat) VALUES (?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO kegiatan (nama, tanggal, pemateri, kategori_kegiatan, deskripsi_singkat) VALUES (?, ?, ?, ?, ?) RETURNING uuid");
             $stmt->execute([$nama, $tanggal, $pemateri, $kategori_kegiatan, $deskripsi_singkat]);
+            $kegiatan_id = $stmt->fetchColumn();
             $_SESSION['flash_success'] = 'Kegiatan berhasil ditambahkan!';
+        }
+
+        // Handle upload foto
+        if (!empty($_FILES['foto']['name'][0])) {
+            $upload_dir = rtrim($_ENV['UPLOAD_DIR'], '/') . '/kegiatan/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $max_file_size = (int)$_ENV['MAX_FILE_SIZE'];
+            $total_files = count($_FILES['foto']['name']);
+
+            // Ambil keterangan dan split berdasarkan baris baru
+            $keterangans = [];
+            if (!empty($_POST['keterangan'][0])) {
+                $keterangans = array_filter(array_map('trim', explode("\n", $_POST['keterangan'][0])));
+            }
+
+            for ($i = 0; $i < $total_files; $i++) {
+                if ($_FILES['foto']['error'][$i] == 0) {
+                    $file_name = $_FILES['foto']['name'][$i];
+                    $file_tmp = $_FILES['foto']['tmp_name'][$i];
+                    $file_size = $_FILES['foto']['size'][$i];
+                    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+                    // Validasi ukuran file
+                    if ($file_size > $max_file_size) {
+                        $_SESSION['flash_error'] = 'Ukuran file ' . $file_name . ' melebihi batas maksimal (' . ($max_file_size / 1048576) . 'MB)';
+                        continue;
+                    }
+
+                    $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                    if (in_array($file_ext, $allowed_ext)) {
+                        $new_file_name = uniqid() . '_' . time() . '.' . $file_ext;
+                        $destination = $upload_dir . $new_file_name;
+
+                        if (move_uploaded_file($file_tmp, $destination)) {
+                            // Ambil keterangan sesuai index, jika tidak ada gunakan string kosong
+                            $keterangan = isset($keterangans[$i]) ? clean_input($keterangans[$i]) : '';
+                            $stmt = $pdo->prepare(
+                                "INSERT INTO kegiatan_foto (kegiatan_uuid, path_gambar, keterangan) VALUES (?, ?, ?)"
+                            );
+                            $stmt->execute([$kegiatan_id, $new_file_name, $keterangan]);
+                        }
+                    }
+                }
+            }
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
     } finally {
-        header("Location: manage_activities.php");
+        header("Location: manage_activities.php" . (isset($kegiatan_id) ? "?edit=$kegiatan_id" : ""));
         exit;
     }
 }
@@ -78,11 +182,19 @@ $activities = $stmt->fetchAll();
 
 // Get data for edit
 $edit_data = null;
+$kegiatan_fotos = [];
 if (isset($_GET['edit'])) {
     $uuid = $_GET['edit'];
     $stmt = $pdo->prepare("SELECT * FROM kegiatan WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+
+    // Ambil foto-foto kegiatan
+    if ($edit_data) {
+        $stmt = $pdo->prepare("SELECT * FROM kegiatan_foto WHERE kegiatan_uuid = ? ORDER BY created_at DESC");
+        $stmt->execute([$uuid]);
+        $kegiatan_fotos = $stmt->fetchAll();
+    }
 }
 
 if (isset($_SESSION['flash_success'])) {
@@ -105,7 +217,7 @@ if (isset($_SESSION['flash_error'])) {
         </h5>
     </div>
     <div class="card-body">
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
             <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
@@ -158,6 +270,58 @@ if (isset($_SESSION['flash_error'])) {
                         placeholder="Deskripsi singkat kegiatan..."
                         required><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi_singkat']) : ''; ?></textarea>
                 </div>
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Upload Foto</label>
+                    <div id="foto-container">
+                        <div class="foto-item mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="file" name="foto[]" class="form-control" accept="image/*" multiple>
+                                    <small class="text-muted">Format: JPG, PNG, GIF, WEBP. Max 5MB (Multiple Upload)</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <textarea name="keterangan[]" class="form-control" rows="2" placeholder="Keterangan untuk setiap foto (pisahkan dengan enter/baris baru)"></textarea>
+                                    <small class="text-muted">Masukkan keterangan untuk setiap foto, satu baris per foto</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if ($edit_data && !empty($kegiatan_fotos)): ?>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Foto yang Sudah Diupload</label>
+                        <div class="row g-3">
+                            <?php foreach ($kegiatan_fotos as $foto): ?>
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        <?php
+                                        $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/kegiatan/' . htmlspecialchars($foto['path_gambar']);
+                                        ?>
+                                        <img src="<?php echo $foto_path; ?>"
+                                            class="card-img-top"
+                                            style="height: 200px; object-fit: cover;"
+                                            alt="<?php echo htmlspecialchars($foto['keterangan'] ?: 'Foto kegiatan'); ?>"
+                                            onerror="this.src='../assets/img/placeholder.jpg'">
+                                        <div class="card-body p-2">
+                                            <?php if (!empty($foto['keterangan'])): ?>
+                                                <small class="text-muted d-block mb-2">
+                                                    <?php echo htmlspecialchars($foto['keterangan']); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                            <a href="?delete_foto=<?php echo $foto['uuid']; ?>&kegiatan_id=<?php echo $edit_data['uuid']; ?>"
+                                                class="btn btn-sm btn-danger w-100"
+                                                onclick="return confirmDelete('Hapus foto ini?');">
+                                                <i class="bi bi-trash"></i> Hapus
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="d-flex gap-2">
@@ -206,11 +370,17 @@ if (isset($_SESSION['flash_error'])) {
                                 <th>Nama Kegiatan</th>
                                 <th>Kategori</th>
                                 <th>Pemateri</th>
+                                <th>Foto</th>
                                 <th width="120">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($activities as $index => $activity): ?>
+                            <?php foreach ($activities as $index => $activity):
+                                // Hitung jumlah foto
+                                $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM kegiatan_foto WHERE kegiatan_uuid = ?");
+                                $stmt->execute([$activity['uuid']]);
+                                $foto_count = $stmt->fetchColumn();
+                            ?>
                                 <tr>
                                     <td>
                                         <input type="checkbox" name="selected[]" value="<?= $activity['uuid']; ?>" class="rowCheckbox">
@@ -232,10 +402,15 @@ if (isset($_SESSION['flash_error'])) {
                                     </td>
                                     <td><?= htmlspecialchars($activity['pemateri']); ?></td>
                                     <td>
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-images"></i> <?php echo $foto_count; ?>
+                                        </span>
+                                    </td>
+                                    <td>
                                         <a href="?edit=<?= $activity['uuid']; ?>" class="btn btn-sm btn-warning" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="?delete=<?= $activity['uuid']; ?>" class="btn btn-sm btn-danger" onclick="return confirmDelete();" title="Hapus">
+                                        <a href="?delete=<?= $activity['uuid']; ?>" class="btn btn-sm btn-danger" onclick="return confirmDelete('Apakah Anda yakin ingin menghapus kegiatan ini beserta semua fotonya?');" title="Hapus">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>

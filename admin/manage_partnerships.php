@@ -34,7 +34,7 @@ if (isset($_GET['delete'])) {
 
 // Handle Bulk Delete
 // Penambahan pengecekan action
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
