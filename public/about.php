@@ -30,7 +30,8 @@ include '../includes/navbar.php';
 ?>
 
 <!-- Hero Section with Parallax Effect -->
-<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+<section class="hero-section position-relative py-5" id="heroSection"
+    style="color: white; min-height: 500px; overflow: hidden;">
     <!-- Parallax Background Layer -->
     <?php
     $bg_style = $bg_image
@@ -42,14 +43,17 @@ include '../includes/navbar.php';
     </div>
 
     <!-- Gradient Overlay -->
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100"
+        style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1; pointer-events: none;">
+    </div>
 
     <!-- Content -->
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center py-5" style="min-height: 400px;">
             <div class="col-lg-8 text-center">
                 <h1 class="display-4 fw-bold mb-3" data-aos="fade-up" data-aos-duration="1000">About AI Lab</h1>
-                <p class="lead" data-aos="fade-up" data-aos-duration="1000">Mengenal lebih dekat Applied Informatics Laboratory</p>
+                <p class="lead" data-aos="fade-up" data-aos-duration="1000">Mengenal lebih dekat Applied Informatics
+                    Laboratory</p>
             </div>
         </div>
     </div>
@@ -57,69 +61,69 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
+document.addEventListener('DOMContentLoaded', function() {
+    const parallaxBg = document.querySelector('.parallax-bg');
+    const heroSection = document.getElementById('heroSection');
 
-        if (parallaxBg && heroSection) {
-            let ticking = false;
+    if (parallaxBg && heroSection) {
+        let ticking = false;
 
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const heroHeight = heroSection.offsetHeight;
 
-                // Only apply parallax when hero section is visible
-                if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-
-                ticking = false;
+            // Only apply parallax when hero section is visible
+            if (scrolled < heroHeight) {
+                // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
+                const yPos = scrolled * 0.5;
+                parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
             }
 
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
+            ticking = false;
         }
-    });
+
+        function requestTick() {
+            if (!ticking) {
+                window.requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', requestTick, {
+            passive: true
+        });
+    }
+});
 </script>
 
 <!-- Visi & Misi Section -->
 <?php if ($profile): ?>
-    <section class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <!-- Kartu Visi -->
-                    <div class="card border-0 shadow-sm mb-4" data-aos="fade-up" data-aos-duration="1000">
-                        <div class="card-body p-4 text-center">
-                            <div class="d-flex justify-content-center align-items-center mb-3">
-                                <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Visi</h3>
-                            </div>
-                            <p class="text-muted mb-0 text-center">
-                                <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
-                            </p>
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Kartu Visi -->
+                <div class="card border-0 shadow-sm mb-4" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
+                            <h3 class="fw-bold mb-0">Visi</h3>
                         </div>
+                        <p class="text-muted mb-0 text-center">
+                            <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
+                        </p>
                     </div>
+                </div>
 
-                    <!-- Misi -->
-                    <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-duration="1000">
-                        <div class="card-body p-4 text-baseline" style="text-align: justify;">
-                            <div class="d-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Misi</h3>
-                            </div>
+                <!-- Misi -->
+                <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="card-body p-4 text-baseline" style="text-align: justify;">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
+                            <h3 class="fw-bold mb-0">Misi</h3>
+                        </div>
 
-                            <?php
+                        <?php
                             // Mengubah setiap baris menjadi poin list
                             $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
                             if (!empty($misi_items)) {
@@ -138,41 +142,41 @@ include '../includes/navbar.php';
                                 echo '<p class="text-muted">Belum ada misi yang terdaftar.</p>';
                             }
                             ?>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Sejarah Section -->
-    <?php if ($profile['sejarah']): ?>
-        <section class="py-5 bg-light">
-            <div class="container">
-                <div class="row" data-aos="fade-up" data-aos-duration="1000">
-                    <div class="col-lg-10 mx-auto">
-                        <h2 class="section-title text-center mb-4">Sejarah Laboratorium</h2>
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body p-4">
-                                <p class="text-muted" style="text-align: justify;">
-                                    <?php echo nl2br(htmlspecialchars($profile['sejarah'])); ?>
-                                </p>
-                            </div>
-                        </div>
+<!-- Sejarah Section -->
+<?php if ($profile['sejarah']): ?>
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row" data-aos="fade-up" data-aos-duration="1000">
+            <div class="col-lg-10 mx-auto">
+                <h2 class="section-title text-center mb-4">Sejarah Laboratorium</h2>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <p class="text-muted" style="text-align: justify;">
+                            <?php echo nl2br(htmlspecialchars($profile['sejarah'])); ?>
+                        </p>
                     </div>
                 </div>
             </div>
-        </section>
-    <?php endif; ?>
-<?php else: ?>
-    <section class="py-5">
-        <div class="container">
-            <div class="alert alert-info text-center">
-                <i class="bi bi-info-circle me-2"></i>
-                Informasi profil laboratorium belum tersedia
-            </div>
         </div>
-    </section>
+    </div>
+</section>
+<?php endif; ?>
+<?php else: ?>
+<section class="py-5">
+    <div class="container">
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle me-2"></i>
+            Informasi profil laboratorium belum tersedia
+        </div>
+    </div>
+</section>
 <?php endif; ?>
 
 <!-- Team Section -->
@@ -187,139 +191,146 @@ include '../includes/navbar.php';
 
         <!-- Ketua -->
         <?php if (!empty($ketua)): ?>
-            <div class="mb-5">
-                <h4 class="text-center mb-4 fw-bold text-primary">Kepala Laboratorium</h4>
-                <div class="row justify-content-center g-4">
-                    <?php foreach ($ketua as $k): ?>
-                        <div class="col-md-4 col-lg-3">
-                            <div class="team-card card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $k['uuid']; ?>">
-                                <div class="card-body p-4">
-                                    <div class="member-avatar mb-3 position-relative">
-                                        <?php if ($k['path_gambar']): ?>
-                                            <img src="../assets/img/<?php echo htmlspecialchars($k['path_gambar']); ?>"
-                                                alt="<?php echo htmlspecialchars($k['nama']); ?>"
-                                                class="rounded-circle member-img">
-                                        <?php else: ?>
-                                            <div class="rounded-circle bg-gradient-primary d-flex align-items-center justify-content-center mx-auto member-placeholder">
-                                                <i class="bi bi-person-fill text-white" style="font-size:3rem;"></i>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($k['nama']); ?></h5>
-                                    <?php if ($k['nidn']): ?>
-                                        <p class="text-muted small mb-2">
-                                            <i class="bi bi-credit-card-2-front me-1"></i>
-                                            <?php echo htmlspecialchars($k['nidn']); ?>
-                                        </p>
-                                    <?php endif; ?>
-                                    <span class="badge badge-custom bg-primary"><?php echo ucfirst($k['status']); ?></span>
-                                    <div class="member-action mt-3">
-                                        <small class="text-primary fw-semibold">
-                                            <i class="bi bi-eye me-1"></i>Lihat Publikasi
-                                        </small>
-                                    </div>
+        <div class="mb-5">
+            <h4 class="text-center mb-4 fw-bold text-primary">Kepala Laboratorium</h4>
+            <div class="row justify-content-center g-4">
+                <?php foreach ($ketua as $k): ?>
+                <div class="col-md-4 col-lg-3">
+                    <div class="team-card card border-0 shadow-sm text-center h-100"
+                        data-uuid="<?php echo $k['uuid']; ?>"
+                        data-keahlian="<?php echo htmlspecialchars($k['keahlian'] ?? ''); ?>">
+
+                        <div class="card-body p-4">
+                            <div class="member-avatar mb-3 position-relative">
+                                <?php if ($k['path_gambar']): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($k['path_gambar']); ?>"
+                                    alt="<?php echo htmlspecialchars($k['nama']); ?>" class="rounded-circle member-img">
+                                <?php else: ?>
+                                <div
+                                    class="rounded-circle bg-gradient-primary d-flex align-items-center justify-content-center mx-auto member-placeholder">
+                                    <i class="bi bi-person-fill text-white" style="font-size:3rem;"></i>
                                 </div>
+                                <?php endif; ?>
+                            </div>
+                            <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($k['nama']); ?></h5>
+                            <?php if ($k['nidn']): ?>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-credit-card-2-front me-1"></i>
+                                <?php echo htmlspecialchars($k['nidn']); ?>
+                            </p>
+                            <?php endif; ?>
+                            <span class="badge badge-custom bg-primary"><?php echo ucfirst($k['status']); ?></span>
+                            <div class="member-action mt-3">
+                                <small class="text-primary fw-semibold">
+                                    <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                </small>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                    </div>
                 </div>
+                <?php endforeach; ?>
             </div>
+        </div>
         <?php endif; ?>
 
         <!-- Anggota Dosen  -->
         <?php if (!empty($anggota)): ?>
-            <?php
+        <?php
             $dosen = array_filter($anggota, fn($a) => strtolower($a['status']) === 'dosen');
             $mahasiswa = array_filter($anggota, fn($a) => strtolower($a['status']) === 'mahasiswa');
             ?>
 
-            <?php if (!empty($dosen)): ?>
-                <div class="mb-5">
-                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Dosen</h4>
-                    <div class="row g-4">
-                        <?php foreach ($dosen as $a): ?>
-                            <div class="col-md-4 col-lg-3">
-                                <div class="team-card card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
-                                    <div class="card-body p-4">
-                                        <div class="member-avatar mb-3 position-relative">
-                                            <?php if (!empty($a['path_gambar'])): ?>
-                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
-                                                    alt="<?php echo htmlspecialchars($a['nama']); ?>"
-                                                    class="rounded-circle member-img">
-                                            <?php else: ?>
-                                                <div class="rounded-circle bg-gradient-secondary d-flex align-items-center justify-content-center mx-auto member-placeholder">
-                                                    <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
-                                        <?php if (!empty($a['nidn'])): ?>
-                                            <p class="text-muted small mb-2">
-                                                <i class="bi bi-credit-card-2-front me-1"></i>
-                                                <?php echo htmlspecialchars($a['nidn']); ?>
-                                            </p>
-                                        <?php endif; ?>
-                                        <span class="badge badge-custom bg-info"><?php echo ucfirst($a['status']); ?></span>
-                                        <div class="member-action mt-3">
-                                            <small class="text-info fw-semibold">
-                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
-                                            </small>
-                                        </div>
-                                    </div>
+        <?php if (!empty($dosen)): ?>
+        <div class="mb-5">
+            <h4 class="text-center mb-4 fw-bold text-primary">Anggota Dosen</h4>
+            <div class="row g-4">
+                <?php foreach ($dosen as $a): ?>
+                <div class="col-md-4 col-lg-3">
+                    <div class="team-card card border-0 shadow-sm text-center h-100"
+                        data-uuid="<?php echo $a['uuid']; ?>"
+                        data-keahlian="<?php echo htmlspecialchars($a['keahlian'] ?? ''); ?>">
+                        <div class="card-body p-4">
+                            <div class="member-avatar mb-3 position-relative">
+                                <?php if (!empty($a['path_gambar'])): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                    alt="<?php echo htmlspecialchars($a['nama']); ?>" class="rounded-circle member-img">
+                                <?php else: ?>
+                                <div
+                                    class="rounded-circle bg-gradient-secondary d-flex align-items-center justify-content-center mx-auto member-placeholder">
+                                    <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
                                 </div>
+                                <?php endif; ?>
                             </div>
-                        <?php endforeach; ?>
+                            <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                            <?php if (!empty($a['nidn'])): ?>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-credit-card-2-front me-1"></i>
+                                <?php echo htmlspecialchars($a['nidn']); ?>
+                            </p>
+                            <?php endif; ?>
+                            <span class="badge badge-custom bg-info"><?php echo ucfirst($a['status']); ?></span>
+                            <div class="member-action mt-3">
+                                <small class="text-info fw-semibold">
+                                    <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                </small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
-            <!-- Anggota Mahasiswa -->
-            <?php if (!empty($mahasiswa)): ?>
-                <div>
-                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Mahasiswa</h4>
-                    <div class="row g-4">
-                        <?php foreach ($mahasiswa as $a): ?>
-                            <div class="col-md-4 col-lg-3">
-                                <div class="team-card card border-0 shadow-sm text-center h-100" data-uuid="<?php echo $a['uuid']; ?>">
-                                    <div class="card-body p-4">
-                                        <div class="member-avatar mb-3 position-relative">
-                                            <?php if (!empty($a['path_gambar'])): ?>
-                                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
-                                                    alt="<?php echo htmlspecialchars($a['nama']); ?>"
-                                                    class="rounded-circle member-img">
-                                            <?php else: ?>
-                                                <div class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center mx-auto member-placeholder">
-                                                    <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
-                                        <?php if (!empty($a['nidn'])): ?>
-                                            <p class="text-muted small mb-2">
-                                                <i class="bi bi-credit-card-2-front me-1"></i>
-                                                <?php echo htmlspecialchars($a['nidn']); ?>
-                                            </p>
-                                        <?php endif; ?>
-                                        <span class="badge badge-custom bg-success"><?php echo ucfirst($a['status']); ?></span>
-                                        <div class="member-action mt-3">
-                                            <small class="text-success fw-semibold">
-                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
-                                            </small>
-                                        </div>
-                                    </div>
+        <!-- Anggota Mahasiswa -->
+        <?php if (!empty($mahasiswa)): ?>
+        <div>
+            <h4 class="text-center mb-4 fw-bold text-primary">Anggota Mahasiswa</h4>
+            <div class="row g-4">
+                <?php foreach ($mahasiswa as $a): ?>
+                <div class="col-md-4 col-lg-3">
+                    <div class="team-card card border-0 shadow-sm text-center h-100"
+                        data-uuid="<?php echo $a['uuid']; ?>"
+                        data-keahlian="<?php echo htmlspecialchars($a['keahlian'] ?? ''); ?>">
+                        <div class="card-body p-4">
+                            <div class="member-avatar mb-3 position-relative">
+                                <?php if (!empty($a['path_gambar'])): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($a['path_gambar']); ?>"
+                                    alt="<?php echo htmlspecialchars($a['nama']); ?>" class="rounded-circle member-img">
+                                <?php else: ?>
+                                <div
+                                    class="rounded-circle bg-gradient-success d-flex align-items-center justify-content-center mx-auto member-placeholder">
+                                    <i class="bi bi-person-fill text-white" style="font-size:2.5rem;"></i>
                                 </div>
+                                <?php endif; ?>
                             </div>
-                        <?php endforeach; ?>
+                            <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($a['nama']); ?></h6>
+                            <?php if (!empty($a['nidn'])): ?>
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-credit-card-2-front me-1"></i>
+                                <?php echo htmlspecialchars($a['nidn']); ?>
+                            </p>
+                            <?php endif; ?>
+                            <span class="badge badge-custom bg-success"><?php echo ucfirst($a['status']); ?></span>
+                            <div class="member-action mt-3">
+                                <small class="text-success fw-semibold">
+                                    <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                </small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
         <?php endif; ?>
 
         <?php if (empty($ketua) && empty($anggota)): ?>
-            <div class="alert alert-info text-center">
-                <i class="bi bi-info-circle me-2"></i>
-                Data anggota tim belum tersedia
-            </div>
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle me-2"></i>
+            Data anggota tim belum tersedia
+        </div>
         <?php endif; ?>
     </div>
 </section>
@@ -347,134 +358,158 @@ include '../includes/navbar.php';
 </div>
 
 <style>
-    /* Team Card Styles */
-    .team-card {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        overflow: hidden;
-    }
+/* Team Card Styles */
+.team-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
 
-    .team-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
-    }
+.team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+}
 
-    .team-card:hover .member-img {
-        transform: scale(1.05);
-    }
+.team-card:hover .member-img {
+    transform: scale(1.05);
+}
 
-    .member-avatar {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto;
-    }
+.member-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
 
-    .member-img {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-        border: 4px solid #f8f9fa;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+.member-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border: 4px solid #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
+.member-placeholder {
+    width: 120px;
+    height: 120px;
+    border: 4px solid #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.member-badge {
+    position: absolute;
+    bottom: 5px;
+    right: calc(50% - 60px);
+    background: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.badge-custom {
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.member-action {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.team-card:hover .member-action {
+    opacity: 1;
+}
+
+/* Modal Enhancements */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom: 2px solid #e9ecef;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+    max-height: 60vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+    .member-avatar,
+    .member-img,
     .member-placeholder {
-        width: 120px;
-        height: 120px;
-        border: 4px solid #f8f9fa;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100px;
+        height: 100px;
     }
 
     .member-badge {
-        position: absolute;
-        bottom: 5px;
-        right: calc(50% - 60px);
-        background: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        right: calc(50% - 50px);
+        width: 28px;
+        height: 28px;
     }
-
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .bg-gradient-secondary {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .bg-gradient-success {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .badge-custom {
-        padding: 0.4rem 0.8rem;
-        font-weight: 500;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-    }
-
-    .member-action {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .team-card:hover .member-action {
-        opacity: 1;
-    }
-
-    /* Modal Enhancements */
-    .modal-content {
-        border: none;
-        border-radius: 12px;
-    }
-
-    .modal-header {
-        border-bottom: 2px solid #e9ecef;
-        border-radius: 12px 12px 0 0;
-    }
-
-    .modal-body {
-        max-height: 60vh;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-
-        .member-avatar,
-        .member-img,
-        .member-placeholder {
-            width: 100px;
-            height: 100px;
-        }
-
-        .member-badge {
-            right: calc(50% - 50px);
-            width: 28px;
-            height: 28px;
-        }
-    }
+}
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
-            card.addEventListener('click', () => {
-                const uuid = card.dataset.uuid;
-                const nama = card.querySelector('h5, h6').innerText;
-                const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
-                const modalTitle = document.getElementById('modalTitle');
-                const modalBody = document.getElementById('modalBody');
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
+        card.addEventListener('click', () => {
+            const uuid = card.dataset.uuid;
+            const nama = card.querySelector('h5, h6').innerText;
+            const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
 
-                // Set title modal
-                modalTitle.innerHTML = `<i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}`;
+            const keahlian = card.dataset.keahlian || "";
+            let badges = "";
 
-                // Show loading
-                modalBody.innerHTML = `
+            // split keahlian berdasarkan koma
+            if (keahlian.trim() !== "") {
+                keahlian.split(",").forEach(k => {
+                    badges +=
+                        `<span class="badge bg-primary me-1">${k.trim()}</span>`;
+                });
+            }
+
+            // Set title modal
+            modalTitle.innerHTML = `
+                <i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}
+
+                <div class="mt-3">
+                    <small class="text-muted d-block mb-1" style="font-size: 0.8rem;">
+                        Bidang Keahlian
+                    </small>
+
+                    <div class="d-flex flex-wrap gap-1">
+                        ${badges}
+                    </div>
+                </div>
+            `;
+
+
+            // Show loading
+            modalBody.innerHTML = `
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -483,94 +518,92 @@ include '../includes/navbar.php';
                 </div>
             `;
 
-                modal.show();
+            modal.show();
 
-                // Function to load publications
-                function loadPage(page = 1) {
-                    fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
-                        .then(res => {
-                            if (!res.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return res.text();
-                        })
-                        .then(html => {
-                            modalBody.innerHTML = html;
+            // Function to load publications
+            function loadPage(page = 1) {
+                fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return res.text();
+                    })
+                    .then(html => {
+                        modalBody.innerHTML = html;
 
-                            // Re-attach event listeners to pagination buttons
-                            modalBody.querySelectorAll('.page-link').forEach(btn => {
-                                btn.addEventListener('click', (e) => {
-                                    e.preventDefault();
-                                    loadPage(btn.dataset.page);
-                                });
+                        // Re-attach event listeners to pagination buttons
+                        modalBody.querySelectorAll('.page-link').forEach(btn => {
+                            btn.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                loadPage(btn.dataset.page);
                             });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            modalBody.innerHTML = `
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        modalBody.innerHTML = `
                             <div class="alert alert-danger m-3">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Terjadi kesalahan saat memuat data publikasi.
                             </div>
                         `;
-                        });
-                }
+                    });
+            }
 
-                // Load first page
-                loadPage();
-            });
+            // Load first page
+            loadPage();
         });
     });
+});
 </script>
 
 <?php if (empty($ketua) && empty($anggota)): ?>
-    <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle me-2"></i>
-        Data anggota tim belum tersedia
-    </div>
+<div class="alert alert-info text-center">
+    <i class="bi bi-info-circle me-2"></i>
+    Data anggota tim belum tersedia
+</div>
 <?php endif; ?>
 </div>
 </section>
 
 <!-- Facilities Section -->
 <?php if (!empty($fasilitas)): ?>
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h2 class="section-title">Laboratory Facilities</h2>
-                    <p class="section-subtitle">Fasilitas penunjang penelitian dan pengembangan</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <?php foreach ($fasilitas as $fas): ?>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <?php if ($fas['path_gambar']): ?>
-                                <img src="../assets/img/<?php echo htmlspecialchars($fas['path_gambar']); ?>"
-                                    class="card-img-top"
-                                    alt="<?php echo htmlspecialchars($fas['nama']); ?>"
-                                    style="height: 200px; object-fit: cover;">
-                            <?php endif; ?>
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold"><?php echo htmlspecialchars($fas['nama']); ?></h5>
-                                <?php if ($fas['kuantitas']): ?>
-                                    <p class="text-muted small">
-                                        <i class="bi bi-box me-1"></i>
-                                        Jumlah: <?php echo $fas['kuantitas']; ?> unit
-                                    </p>
-                                <?php endif; ?>
-                                <p class="card-text text-muted">
-                                    <?php echo htmlspecialchars($fas['deskripsi']); ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h2 class="section-title">Laboratory Facilities</h2>
+                <p class="section-subtitle">Fasilitas penunjang penelitian dan pengembangan</p>
             </div>
         </div>
-    </section>
+
+        <div class="row g-4">
+            <?php foreach ($fasilitas as $fas): ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <?php if ($fas['path_gambar']): ?>
+                    <img src="../assets/img/<?php echo htmlspecialchars($fas['path_gambar']); ?>" class="card-img-top"
+                        alt="<?php echo htmlspecialchars($fas['nama']); ?>" style="height: 200px; object-fit: cover;">
+                    <?php endif; ?>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold"><?php echo htmlspecialchars($fas['nama']); ?></h5>
+                        <?php if ($fas['kuantitas']): ?>
+                        <p class="text-muted small">
+                            <i class="bi bi-box me-1"></i>
+                            Jumlah: <?php echo $fas['kuantitas']; ?> unit
+                        </p>
+                        <?php endif; ?>
+                        <p class="card-text text-muted">
+                            <?php echo htmlspecialchars($fas['deskripsi']); ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 <?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>
