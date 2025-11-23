@@ -475,6 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
         card.addEventListener('click', () => {
+
             const uuid = card.dataset.uuid;
             const nama = card.querySelector('h5, h6').innerText;
             const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
@@ -487,62 +488,113 @@ document.addEventListener('DOMContentLoaded', function() {
             // split keahlian berdasarkan koma
             if (keahlian.trim() !== "") {
                 keahlian.split(",").forEach(k => {
-                    badges +=
-                        `<span class="badge bg-primary me-1">${k.trim()}</span>`;
+                    badges += `<span class="badge bg-primary me-1">${k.trim()}</span>`;
                 });
             }
 
-            // Set title modal
+            // title modal
             modalTitle.innerHTML = `
                 <i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}
-
-                <div class="mt-3">
-                    <small class="text-muted d-block mb-1" style="font-size: 0.8rem;">
-                        Bidang Keahlian
-                    </small>
-
-                    <div class="d-flex flex-wrap gap-1">
-                        ${badges}
-                    </div>
-                </div>
             `;
 
-
-            // Show loading
+            // base layout (keahlian + research page + publikasi)
             modalBody.innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                <div id="keahlianSection" class="px-3 pt-2">
+                    <h6 class="text-muted mb-1">Bidang Keahlian</h6>
+                    <div id="keahlianBox" class="d-flex flex-wrap gap-1">${badges}</div>
+                </div>
+
+                <div id="researchSection" class="px-3 pt-3">
+                    <h6 class="text-muted mb-1">Research Page</h6>
+                    <div id="researchPageBox" class="mb-4 small text-muted">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="ms-2">Memuat...</span>
                     </div>
-                    <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                </div>
+
+                <div id="publicationContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                    </div>
                 </div>
             `;
 
             modal.show();
 
-            // Function to load publications
+            // hide bidang keahlian kalau kosong
+            if (badges.trim() === "") {
+                document.getElementById("keahlianSection").style.display = "none";
+            }
+
+            // icon research page
+            function getResearchIcon(url) {
+                const u = url.toLowerCase();
+
+                if (u.includes("scholar.google")) return `<i class="bi bi-google"></i>`;
+                if (u.includes("researchgate")) return `<i class="bi bi-r-square"></i>`;
+                if (u.includes("orcid")) return `<i class="bi bi-person-badge"></i>`;
+                return `<i class="bi bi-globe2"></i>`; // default
+            }
+
+            // load research page dari db
+            function loadResearchPage() {
+                fetch(`fetch_research_page.php?uuid=${uuid}`)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        const section = document.getElementById("researchSection");
+                        const box = document.getElementById("researchPageBox");
+
+                        // kalau ga ada data → hide section
+                        if (!data || data.length === 0) {
+                            section.style.display = "none";
+                            return;
+                        }
+
+                        let html =
+                        `<div class="d-flex align-items-center flex-wrap gap-3">`;
+
+                        data.forEach(r => {
+                            html += `
+                                <a href="${r.link_page}" target="_blank"
+                                   class="text-decoration-none"
+                                   title="${r.nama_web}">
+                                    <span style="font-size: 1.6rem;">
+                                        ${getResearchIcon(r.link_page)}
+                                    </span>
+                                </a>
+                            `;
+                        });
+
+                        html += `</div>`;
+                        box.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        document.getElementById("researchSection").style.display = "none";
+                    });
+            }
+
+            // load publikasi
             function loadPage(page = 1) {
                 fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
-                    .then(res => {
-                        if (!res.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return res.text();
-                    })
+                    .then(res => res.text())
                     .then(html => {
-                        modalBody.innerHTML = html;
+                        document.getElementById("publicationContainer").innerHTML = html;
 
-                        // Re-attach event listeners to pagination buttons
-                        modalBody.querySelectorAll('.page-link').forEach(btn => {
-                            btn.addEventListener('click', (e) => {
-                                e.preventDefault();
-                                loadPage(btn.dataset.page);
+                        // reattach pagination click event
+                        document.querySelectorAll('#publicationContainer .page-link')
+                            .forEach(btn => {
+                                btn.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    loadPage(btn.dataset.page);
+                                });
                             });
-                        });
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        modalBody.innerHTML = `
+                        document.getElementById("publicationContainer").innerHTML = `
                             <div class="alert alert-danger m-3">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Terjadi kesalahan saat memuat data publikasi.
@@ -551,12 +603,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
             }
 
-            // Load first page
-            loadPage();
+            loadResearchPage(); // load research page
+            loadPage(); // load publikasi
         });
     });
 });
 </script>
+
+
 
 <?php if (empty($ketua) && empty($anggota)): ?>
 <div class="alert alert-info text-center">

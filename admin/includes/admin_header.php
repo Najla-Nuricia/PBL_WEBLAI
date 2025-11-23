@@ -23,7 +23,8 @@ require_login();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
@@ -35,7 +36,8 @@ require_login();
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Optional: Tema Bootstrap 5 untuk Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
 
     <!-- Animated css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -51,7 +53,8 @@ require_login();
             <!-- Logo -->
             <a href="../admin/dashboard.php" class="text-decoration-none text-white">
                 <div class="sidebar-brand d-flex align-items-center">
-                    <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 50px; height: 50px; object-fit: contain;">
+                    <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2"
+                        style="width: 50px; height: 50px; object-fit: contain;">
                     <div>
                         <h4>AI Lab Admin</h4>
                         <small>Dashboard Panel</small>
@@ -61,7 +64,8 @@ require_login();
 
             <ul class="sidebar-menu">
                 <li>
-                    <a href="dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
+                    <a href="dashboard.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
                         <i class="bi bi-speedometer2"></i>
                         <span>Dashboard</span>
                     </a>
@@ -72,70 +76,80 @@ require_login();
                 </div>
 
                 <li>
-                    <a href="manage_profile.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_profile.php' ? 'active' : ''; ?>">
+                    <a href="manage_profile.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_profile.php' ? 'active' : ''; ?>">
                         <i class="bi bi-building"></i>
                         <span>Profile Lab</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_dashboard.php' ? 'active' : ''; ?>">
+                    <a href="manage_dashboard.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_dashboard.php' ? 'active' : ''; ?>">
                         <i class="bi bi-image"></i>
                         <span>Dashboard Background</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_news.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_news.php' ? 'active' : ''; ?>">
+                    <a href="manage_news.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_news.php' ? 'active' : ''; ?>">
                         <i class="bi bi-newspaper"></i>
                         <span>Berita & Agenda</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_activities.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_activities.php' ? 'active' : ''; ?>">
+                    <a href="manage_activities.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_activities.php' ? 'active' : ''; ?>">
                         <i class="bi bi-calendar-event"></i>
                         <span>Kegiatan</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_publications.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_publications.php' ? 'active' : ''; ?>">
+                    <a href="manage_publications.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_publications.php' ? 'active' : ''; ?>">
                         <i class="bi bi-journal-text"></i>
                         <span>Publikasi</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_products.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_products.php' ? 'active' : ''; ?>">
+                    <a href="manage_products.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_products.php' ? 'active' : ''; ?>">
                         <i class="bi bi-box-seam"></i>
                         <span>Produk</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_topik_riset.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_topik_riset.php' ? 'active' : ''; ?>">
+                    <a href="manage_topik_riset.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_topik_riset.php' ? 'active' : ''; ?>">
                         <i class="bi bi-lightbulb"></i>
                         <span>Topik Riset</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_blueprint.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_blueprint.php' ? 'active' : ''; ?>">
+                    <a href="manage_blueprint.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_blueprint.php' ? 'active' : ''; ?>">
                         <i class="bi bi-diagram-3"></i>
                         <span>Blueprint/Roadmap</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_gallery.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_gallery.php' ? 'active' : ''; ?>">
+                    <a href="manage_gallery.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_gallery.php' ? 'active' : ''; ?>">
                         <i class="bi bi-images"></i>
                         <span>Galeri</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_contactInfo.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_contactInfo.php' ? 'active' : ''; ?>">
+                    <a href="manage_contactInfo.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_contactInfo.php' ? 'active' : ''; ?>">
                         <i class="bi bi-person-vcard"></i>
                         <span>Contact Information</span>
                     </a>
@@ -146,21 +160,32 @@ require_login();
                 </div>
 
                 <li>
-                    <a href="manage_members.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_members.php' ? 'active' : ''; ?>">
+                    <a href="manage_members.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_members.php' ? 'active' : ''; ?>">
                         <i class="bi bi-people"></i>
                         <span>Anggota Tim</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_partnerships.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_partnerships.php' ? 'active' : ''; ?>">
+                    <a href="manage_research_page.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_members.php' ? 'active' : ''; ?>">
+                        <i class="bi bi-link-45deg"></i>
+                        <span>Research Web</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href=" manage_partnerships.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_partnerships.php' ? 'active' : ''; ?>">
                         <i class="fa-regular fa-handshake"></i>
                         <span>Partnership</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_facilities.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_facilities.php' ? 'active' : ''; ?>">
+                    <a href="manage_facilities.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_facilities.php' ? 'active' : ''; ?>">
                         <i class="bi bi-tools"></i>
                         <span>Fasilitas</span>
                     </a>
@@ -171,14 +196,16 @@ require_login();
                 </div>
 
                 <li>
-                    <a href="manage_socmed.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_socmed.php' ? 'active' : ''; ?>">
+                    <a href="manage_socmed.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_socmed.php' ? 'active' : ''; ?>">
                         <i class="bi bi-share"></i>
                         <span>Social Media</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="manage_users.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_users.php' ? 'active' : ''; ?>">
+                    <a href="manage_users.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_users.php' ? 'active' : ''; ?>">
                         <i class="bi bi-person-gear"></i>
                         <span>Users</span>
                     </a>
@@ -189,7 +216,8 @@ require_login();
                 </div>
 
                 <li>
-                    <a href="view_email.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'view_email.php' ? 'active' : ''; ?>">
+                    <a href="view_email.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'view_email.php' ? 'active' : ''; ?>">
                         <i class="bi bi-envelope"></i>
                         <span>Email</span>
                     </a>
@@ -213,7 +241,8 @@ require_login();
 
             <div class="topbar-right">
                 <!-- View Site Button -->
-                <a href="../public/index.php" target="_blank" class="btn btn-outline-primary btn-sm btn-view-site d-none d-md-flex align-items-center">
+                <a href="../public/index.php" target="_blank"
+                    class="btn btn-outline-primary btn-sm btn-view-site d-none d-md-flex align-items-center">
                     <i class="bi bi-globe me-2"></i>
                     View Site
                 </a>
@@ -224,7 +253,8 @@ require_login();
                         <div class="profile-avatar">
                             <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
                         </div>
-                        <span class="profile-name d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                        <span
+                            class="profile-name d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
                         <i class="bi bi-chevron-down d-none d-md-inline"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -242,30 +272,30 @@ require_login();
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             <script>
-                // Topbar scroll effect
-                document.addEventListener('scroll', function() {
-                    const topbar = document.querySelector('.topbar');
-                    if (window.scrollY > 10) {
-                        topbar.classList.add('scrolled');
-                    } else {
-                        topbar.classList.remove('scrolled');
+            // Topbar scroll effect
+            document.addEventListener('scroll', function() {
+                const topbar = document.querySelector('.topbar');
+                if (window.scrollY > 10) {
+                    topbar.classList.add('scrolled');
+                } else {
+                    topbar.classList.remove('scrolled');
+                }
+            });
+
+            // Sidebar toggle for mobile
+            document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('active');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const sidebar = document.querySelector('.sidebar');
+                const sidebarToggle = document.getElementById('sidebarToggle');
+
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
+                        sidebar.classList.remove('active');
                     }
-                });
-
-                // Sidebar toggle for mobile
-                document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('active');
-                });
-
-                // Close sidebar when clicking outside on mobile
-                document.addEventListener('click', function(event) {
-                    const sidebar = document.querySelector('.sidebar');
-                    const sidebarToggle = document.getElementById('sidebarToggle');
-
-                    if (window.innerWidth <= 768) {
-                        if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
-                            sidebar.classList.remove('active');
-                        }
-                    }
-                });
+                }
+            });
             </script>
