@@ -282,7 +282,7 @@ include '../includes/navbar.php';
         <div class="row">
             <div class="col text-center">
                 <h2 class="section-title">Topik Riset</h2>
-                <p class="section-subtitle">Topik riset prioritas AI Lab Polinema (2025)</p>
+                <p class="section-subtitle">Topik riset prioritas AI Lab Polinema</p>
             </div>
         </div>
         <?php if (!empty($topik)): ?>
