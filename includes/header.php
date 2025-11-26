@@ -26,6 +26,8 @@
     <link href="../assets/css/style.css" rel="stylesheet">
 
     <link rel="stylesheet" href="../assets/css/public_header.css">
+
+    <link rel="icon" type="image/x-icon" href="../assets/icons/logo.ico">
 </head>
 
 <body>
