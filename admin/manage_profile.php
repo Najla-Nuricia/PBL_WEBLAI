@@ -90,7 +90,7 @@ if (isset($_SESSION['flash_error'])) {
 ?>
 
 <!-- Content Profile -->
-<div class="row">
+<div class="row animate__animated animate__fadeInUp">
     <div class="col-12">
         <div class="card">
             <div class="card-header bg-white">
@@ -152,7 +152,7 @@ if (isset($_SESSION['flash_error'])) {
 </div>
 
 <!-- Content Footer -->
-<div class="row mt-4">
+<div class="row mt-4 animate__animated animate__fadeInUp">
     <div class="col-12">
         <div class="card">
             <div class="card-header bg-white">
@@ -163,12 +163,12 @@ if (isset($_SESSION['flash_error'])) {
             <div class="card-body">
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="update_footer">
-                    
+
                     <div class="mb-4">
                         <label class="form-label fw-bold">
                             <i class="bi bi-building me-2"></i>Judul Footer <span class="text-danger">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="text"
                             name="judul_footer"
                             class="form-control"
                             required
@@ -206,7 +206,7 @@ if (isset($_SESSION['flash_error'])) {
                         <label class="form-label fw-bold">
                             <i class="bi bi-lightning-charge me-2"></i>Powered By <span class="text-danger">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="text"
                             name="powered_by"
                             required
                             class="form-control"
@@ -219,7 +219,7 @@ if (isset($_SESSION['flash_error'])) {
                         <label class="form-label fw-bold">
                             <i class="bi bi-link-45deg me-2"></i>Link Powered By
                         </label>
-                        <input type="url" 
+                        <input type="url"
                             name="link_powered_by"
                             class="form-control"
                             value="<?= htmlspecialchars($footer['link_powered_by'] ?? '') ?>"
@@ -243,7 +243,7 @@ if (isset($_SESSION['flash_error'])) {
 
 <!-- Preview Section Profile -->
 <?php if ($profile): ?>
-    <div class="row mt-4">
+    <div class="row mt-4 animate__animated animate__fadeInUp">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-white">
@@ -269,17 +269,17 @@ if (isset($_SESSION['flash_error'])) {
                                 <h6 class="fw-bold text-primary mb-3">
                                     <i class="bi bi-bullseye me-2"></i>Misi
                                 </h6>
-                                <?php 
+                                <?php
                                 $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
                                 foreach ($misi_items as $item) {
                                     if (trim($item) !== '') {
-                                    echo '
+                                        echo '
                                     <li class="d-flex align-items-start">
                                                 <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
                                         <p class="text-muted">' . nl2br(htmlspecialchars($item)) . '</p>
                                     </li>';
                                     }
-                            }?>
+                                } ?>
                             </div>
                         </div>
 
@@ -402,11 +402,11 @@ if (isset($_SESSION['flash_error'])) {
                                 <div class="col-md-6 text-center text-md-end">
                                     <p class="mb-0 small">Powered by
                                         <?php if (!empty($footer['link_powered_by'])): ?>
-                                            <a href="<?php echo htmlspecialchars($footer['link_powered_by']); ?>" 
-                                                class="text-light text-decoration-none" 
+                                            <a href="<?php echo htmlspecialchars($footer['link_powered_by']); ?>"
+                                                class="text-light text-decoration-none"
                                                 target="_blank"
                                                 style="font-weight: 500;">
-                                                    <?php echo htmlspecialchars($footer['powered_by']); ?>
+                                                <?php echo htmlspecialchars($footer['powered_by']); ?>
                                             </a>
                                         <?php else: ?>
                                             <span style="font-weight: 500;">
@@ -426,11 +426,11 @@ if (isset($_SESSION['flash_error'])) {
 
 <?php include 'includes/admin_footer.php'; ?>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const successMessage = "<?= addslashes($success ?? '') ?>";
-    const errorMessage = "<?= addslashes($error ?? '') ?>";
+    document.addEventListener("DOMContentLoaded", function() {
+        const successMessage = "<?= addslashes($success ?? '') ?>";
+        const errorMessage = "<?= addslashes($error ?? '') ?>";
 
-    if (successMessage) showSuccess(successMessage);
-    if (errorMessage) showError(errorMessage);
-});
+        if (successMessage) showSuccess(successMessage);
+        if (errorMessage) showError(errorMessage);
+    });
 </script>
