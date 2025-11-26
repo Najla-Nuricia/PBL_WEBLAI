@@ -70,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         $_SESSION['flash_success'] = "Informasi kontak berhasil diperbarui!";
         header("Location: manage_contactInfo.php");
         exit;
-
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = "Gagal menyimpan data: " . $e->getMessage();
     }
@@ -90,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         foreach ($_POST['hours'] as $uuid => $data) {
             // Checkbox: jika 1 = true (tutup), if 0 = false (buka)
             $is_closed  = isset($data['is_closed']) ? 1 : 0;
-            
+
             // open_time and close_time
             $open_time  = !empty($data['open_time']) ? $data['open_time'] : null;
             $close_time = !empty($data['close_time']) ? $data['close_time'] : null;
@@ -102,7 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         $_SESSION['flash_success'] = "Jam operasional berhasil diperbarui!";
         header("Location: manage_contactInfo.php");
         exit;
-
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = "Gagal menyimpan jam operasional: " . $e->getMessage();
     }
@@ -139,7 +137,7 @@ if (isset($_SESSION['flash_error'])) {
                         </label>
                         <textarea name="address"
                             class="form-control"
-                            rows="4" 
+                            rows="4"
                             required
                             placeholder="Masukkan alamat lengkap laboratorium..."><?= htmlspecialchars($contact['address'] ?? '') ?></textarea>
                         <small class="text-muted">
@@ -153,11 +151,11 @@ if (isset($_SESSION['flash_error'])) {
                             <i class="bi bi-envelope me-2"></i>Email Utama
                             <span class="text-danger">*</span>
                         </label>
-                        <input type="email" 
+                        <input type="email"
                             name="email"
                             class="form-control"
-                            value="<?= htmlspecialchars($contact['email_Email'] ?? '') ?>" 
-                            required 
+                            value="<?= htmlspecialchars($contact['email_Email'] ?? '') ?>"
+                            required
                             placeholder="contoh: ailab@polinema.ac.id">
                         <small class="text-muted">
                             <i class="bi bi-info-circle me-1"></i>
@@ -170,10 +168,10 @@ if (isset($_SESSION['flash_error'])) {
                             <i class="bi bi-envelope-plus me-2"></i>Email Kedua
                             <span class="text-muted">(Opsional)</span>
                         </label>
-                        <input type="email" 
+                        <input type="email"
                             name="email2"
                             class="form-control"
-                            value="<?= htmlspecialchars($contact['email_Email2'] ?? '') ?>" 
+                            value="<?= htmlspecialchars($contact['email_Email2'] ?? '') ?>"
                             placeholder="contoh: info@ailab-polinema.ac.id">
                         <small class="text-muted">
                             <i class="bi bi-info-circle me-1"></i>
@@ -198,7 +196,7 @@ if (isset($_SESSION['flash_error'])) {
             <div class="card-body">
                 <form method="POST">
                     <input type="hidden" name="action" value="update_hours">
-                    
+
                     <?php foreach ($working_hours as $wh): ?>
                         <div class="border rounded p-3 mb-3 bg-light">
                             <div class="row align-items-center">
@@ -208,7 +206,7 @@ if (isset($_SESSION['flash_error'])) {
                                         <?= htmlspecialchars($wh['day_name']) ?>
                                     </strong>
                                 </div>
-                                
+
                                 <div class="col-md-3">
                                     <div class="form-check">
                                         <input type="checkbox"
@@ -309,12 +307,13 @@ if (isset($_SESSION['flash_error'])) {
                             <?php
                             // Sort days according to calendar order
                             $order = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
-                            usort($working_hours, function($a, $b) use ($order) {
+                            usort($working_hours, function ($a, $b) use ($order) {
                                 return array_search($a['day_name'], $order) - array_search($b['day_name'], $order);
                             });
 
                             // Function to format hours
-                            function formatHours($row) {
+                            function formatHours($row)
+                            {
                                 if ($row['is_closed']) {
                                     return "Tutup";
                                 }
@@ -374,16 +373,16 @@ if (isset($_SESSION['flash_error'])) {
 </div>
 
 <script>
-// disable/enable inputs when the checkbox is checked
-function toggleTime(checkbox, uuid) {
-    const timeInputs = document.querySelectorAll(`#time_${uuid} input`);
-    timeInputs.forEach(input => {
-        input.disabled = checkbox.checked;
-        if (checkbox.checked) {
-            input.value = '';
-        }
-    });
-}
+    // disable/enable inputs when the checkbox is checked
+    function toggleTime(checkbox, uuid) {
+        const timeInputs = document.querySelectorAll(`#time_${uuid} input`);
+        timeInputs.forEach(input => {
+            input.disabled = checkbox.checked;
+            if (checkbox.checked) {
+                input.value = '';
+            }
+        });
+    }
 </script>
 
 <?php include 'includes/admin_footer.php'; ?>
