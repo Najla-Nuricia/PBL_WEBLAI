@@ -2,7 +2,7 @@
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+<nav class="navbar navbar-expand-xl navbar-light sticky-top">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
             <img src="../assets/img/LOGO-3.png" alt="Logo AI Lab" class="navbar-logo">

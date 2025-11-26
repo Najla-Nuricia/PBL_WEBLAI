@@ -17,7 +17,7 @@ require_login();
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Admin Dashboard - AI Lab</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -43,6 +43,8 @@ require_login();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <link rel="stylesheet" href="../assets/css/admin_header.css">
+
+    <link rel="icon" type="image/x-icon" href="../assets/icons/logo.ico">
 </head>
 
 <body>
@@ -272,30 +274,30 @@ require_login();
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             <script>
-            // Topbar scroll effect
-            document.addEventListener('scroll', function() {
-                const topbar = document.querySelector('.topbar');
-                if (window.scrollY > 10) {
-                    topbar.classList.add('scrolled');
-                } else {
-                    topbar.classList.remove('scrolled');
-                }
-            });
-
-            // Sidebar toggle for mobile
-            document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('active');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function(event) {
-                const sidebar = document.querySelector('.sidebar');
-                const sidebarToggle = document.getElementById('sidebarToggle');
-
-                if (window.innerWidth <= 768) {
-                    if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
-                        sidebar.classList.remove('active');
+                // Topbar scroll effect
+                document.addEventListener('scroll', function() {
+                    const topbar = document.querySelector('.topbar');
+                    if (window.scrollY > 10) {
+                        topbar.classList.add('scrolled');
+                    } else {
+                        topbar.classList.remove('scrolled');
                     }
-                }
-            });
+                });
+
+                // Sidebar toggle for mobile
+                document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('active');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const sidebar = document.querySelector('.sidebar');
+                    const sidebarToggle = document.getElementById('sidebarToggle');
+
+                    if (window.innerWidth <= 768) {
+                        if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
             </script>
