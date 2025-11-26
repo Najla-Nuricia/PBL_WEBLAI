@@ -7,17 +7,6 @@
     transition: all 0.3s ease;
 }
 
-/* BRAND HOVER */
-.navbar-brand:hover .navbar-logo {
-    transform: rotate(5deg) scale(1.1);
-    filter: drop-shadow(0 4px 8px rgba(0, 123, 255, 0.3));
-}
-
-.navbar-brand:hover .navbar-logo-text {
-    color: #007bff;
-    letter-spacing: 0.5px;
-}
-
 /* NAV LINK EFFECTS */
 .nav-link {
     position: relative;

@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <!-- Left Side -->
                         <div class="col-lg-5 login-left">
                             <div>
-                                <img src="../assets/img/logo.png" alt="Logo AI Lab" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
+                                <img src="../assets/icons/logo.png" alt="Logo AI Lab" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
                                 <h2 class="fw-bold mb-3">AI Lab Polinema</h2>
                                 <p class="lead mb-2">Applied Informatics Laboratory</p>
                                 <p class="mb-0">Dashboard Admin untuk mengelola konten website laboratorium</p>
