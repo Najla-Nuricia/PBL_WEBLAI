@@ -19,7 +19,6 @@ if (isset($_GET['id'])) {
     $stmt->execute([$_GET['id']]);
     $single_news = $stmt->fetch();
 
-    // Ambil foto-foto berita
     if ($single_news) {
         $stmt_foto = $pdo->prepare(
             'SELECT * FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC',
@@ -68,33 +67,140 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<!-- Add CSS for line-clamp -->
+<!-- Add CSS for line-clamp and minimalist filter -->
 <style>
-    /* Untuk teks maksimal 2 baris */
+    /* Line clamp fix - Remove conflicting properties */
     .line-clamp-2 {
-        display: block;
-        display: -webkit-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-
-        /* Standar modern */
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 2 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        word-break: break-word;
+        line-height: 1.5 !important;
+        max-height: 3em !important;
         line-clamp: 2;
-        box-orient: vertical;
+        /* 2 lines * 1.5 line-height */
     }
 
-    /* Untuk teks maksimal 3 baris */
     .line-clamp-3 {
-        display: block;
-        display: -webkit-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 3 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        word-break: break-word;
+        line-height: 1.5 !important;
+        max-height: 4.5em !important;
         line-clamp: 3;
-        box-orient: vertical;
+        /* 3 lines * 1.5 line-height */
+    }
+
+    /* Force card body spacing */
+    .card-body-fixed {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .card-body-fixed>* {
+        flex-shrink: 0;
+    }
+
+    /* Filter Pills - Navbar Style */
+    .filter-pills-container {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filter-pill {
+        position: relative;
+        padding: 8px 16px;
+        border-radius: 8px;
+        color: var(--text-dark, #2c3e50);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+        background: transparent;
+        border: none;
+    }
+
+    .filter-pill i {
+        transition: 0.3s ease;
+        font-size: 1rem;
+    }
+
+    /* Hover icon animation */
+    .filter-pill:hover i {
+        transform: translateY(-2px) scale(1.1);
+    }
+
+    /* Underline effect */
+    .filter-pill::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #007bff, #00d4ff);
+        transform: translateX(-50%);
+        transition: width 0.3s ease;
+    }
+
+    .filter-pill:hover::before {
+        width: 80%;
+    }
+
+    .filter-pill:hover {
+        background: rgba(0, 123, 255, 0.08);
+        color: #007bff !important;
+        transform: translateY(-2px);
+    }
+
+    .filter-pill.active {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: #fff !important;
+    }
+
+    .filter-pill.active::before {
+        width: 0;
+    }
+
+    /* Card hover effect */
+    .news-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* Hover effect for images */
+    .hover-zoom {
+        transition: transform 0.3s ease;
+    }
+
+    .hover-zoom:hover {
+        transform: scale(1.05);
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 767px) {
+        .filter-pill {
+            font-size: 0.85rem;
+            padding: 0.4rem 1.2rem;
+        }
+
+        .filter-pills-container {
+            gap: 0.4rem;
+        }
     }
 </style>
 
@@ -184,27 +290,21 @@ include '../includes/navbar.php';
 
                                 <div class="carousel-inner">
                                     <?php foreach ($news_fotos as $index => $foto):
-                                        $foto_path =
-                                            rtrim($_ENV['UPLOAD_DIR'], '/') .
-                                            '/berita/' .
-                                            htmlspecialchars($foto['file_path']); ?>
+                                        $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']); ?>
                                         <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
                                             <img src="<?php echo $foto_path; ?>" class="d-block w-100"
-                                                style="max-height: 500px; object-fit: cover;" alt="<?php echo htmlspecialchars(
-                                                                                                        $foto['caption'] ?: 'Foto berita',
-                                                                                                    ); ?>" onerror="this.src='../assets/img/placeholder.jpg'">
+                                                style="max-height: 500px; object-fit: cover;"
+                                                alt="<?php echo htmlspecialchars($foto['caption'] ?: 'Foto berita'); ?>"
+                                                onerror="this.src='../assets/img/placeholder.jpg'">
                                             <?php if (!empty($foto['caption'])): ?>
                                                 <div class="carousel-caption d-none d-md-block">
                                                     <div class="bg-dark bg-opacity-75 rounded p-2">
-                                                        <p class="mb-0"><?php echo htmlspecialchars(
-                                                                            $foto['caption'],
-                                                                        ); ?></p>
+                                                        <p class="mb-0"><?php echo htmlspecialchars($foto['caption']); ?></p>
                                                     </div>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
-                                    <?php
-                                    endforeach; ?>
+                                    <?php endforeach; ?>
                                 </div>
 
                                 <?php if (count($news_fotos) > 1): ?>
@@ -231,9 +331,7 @@ include '../includes/navbar.php';
                                 <?php echo ucfirst($single_news['kategori']); ?>
                             </span>
 
-                            <h1 class="fw-bold mb-3"><?php echo htmlspecialchars(
-                                                            $single_news['judul'],
-                                                        ); ?></h1>
+                            <h1 class="fw-bold mb-3"><?php echo htmlspecialchars($single_news['judul']); ?></h1>
 
                             <div class="d-flex flex-wrap gap-3 text-muted mb-4">
                                 <?php if (!empty($single_news['penulis'])): ?>
@@ -265,31 +363,22 @@ include '../includes/navbar.php';
                                 <h5 class="fw-bold mb-3">Galeri Foto</h5>
                                 <div class="row g-3">
                                     <?php foreach ($news_fotos as $foto):
-                                        $foto_path =
-                                            rtrim($_ENV['UPLOAD_DIR'], '/') .
-                                            '/berita/' .
-                                            htmlspecialchars($foto['file_path']); ?>
+                                        $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']); ?>
                                         <div class="col-md-4 col-sm-6">
                                             <a href="<?php echo $foto_path; ?>" data-bs-toggle="modal" data-bs-target="#photoModal"
-                                                data-photo="<?php echo $foto_path; ?>" data-caption="<?php echo htmlspecialchars(
-                                                                                                            $foto['caption'] ?: '',
-                                                                                                        ); ?>">
-                                                <img src="<?php echo $foto_path; ?>" class="img-fluid rounded shadow-sm hover-zoom"
-                                                    style="height: 200px; width: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s;"
-                                                    alt="<?php echo htmlspecialchars(
-                                                                $foto['caption'] ?: 'Foto berita',
-                                                            ); ?>" onerror="this.src='../assets/img/placeholder.jpg'"
-                                                    onmouseover="this.style.transform='scale(1.05)'"
-                                                    onmouseout="this.style.transform='scale(1)'">
+                                                data-photo="<?php echo $foto_path; ?>"
+                                                data-caption="<?php echo htmlspecialchars($foto['caption'] ?: ''); ?>">
+                                                <img src="<?php echo $foto_path; ?>"
+                                                    class="img-fluid rounded shadow-sm hover-zoom"
+                                                    style="height: 200px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                    alt="<?php echo htmlspecialchars($foto['caption'] ?: 'Foto berita'); ?>"
+                                                    onerror="this.src='../assets/img/placeholder.jpg'">
                                             </a>
                                             <?php if (!empty($foto['caption'])): ?>
-                                                <small class="text-muted d-block mt-2"><?php echo htmlspecialchars(
-                                                                                            $foto['caption'],
-                                                                                        ); ?></small>
+                                                <small class="text-muted d-block mt-2"><?php echo htmlspecialchars($foto['caption']); ?></small>
                                             <?php endif; ?>
                                         </div>
-                                    <?php
-                                    endforeach; ?>
+                                    <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -334,56 +423,43 @@ include '../includes/navbar.php';
         });
     </script>
 
-<?php
-// Ambil foto pertama untuk thumbnail
-// Smart pagination - show limited page numbers
-
-else: ?>
+<?php else: ?>
+    <!-- News List View -->
     <section id="news-list" class="py-5" style="scroll-margin-top:180px;">
         <div class="container">
-            <div class="row mb-4">
-                <div class="col">
-                    <div class="btn-group" role="group">
-                        <a href="news.php" class="btn btn-<?php echo !$kategori_filter
-                                                                ? 'primary'
-                                                                : 'outline-primary'; ?>">
-                            Semua
+            <!-- Minimalist Filter Pills (Desktop & Mobile) -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="filter-pills-container">
+                        <a href="news.php" class="filter-pill <?php echo !$kategori_filter ? 'active' : ''; ?>">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                            <span>Semua</span>
                         </a>
-                        <a href="news.php?kategori=berita" class="btn btn-<?php echo $kategori_filter ==
-                                                                                'berita'
-                                                                                ? 'primary'
-                                                                                : 'outline-primary'; ?>">
-                            Berita
+                        <a href="news.php?kategori=berita" class="filter-pill <?php echo $kategori_filter == 'berita' ? 'active' : ''; ?>">
+                            <i class="bi bi-newspaper"></i>
+                            <span>Berita</span>
                         </a>
-                        <a href="news.php?kategori=agenda" class="btn btn-<?php echo $kategori_filter ==
-                                                                                'agenda'
-                                                                                ? 'primary'
-                                                                                : 'outline-primary'; ?>">
-                            Agenda
+                        <a href="news.php?kategori=agenda" class="filter-pill <?php echo $kategori_filter == 'agenda' ? 'active' : ''; ?>">
+                            <i class="bi bi-calendar-event"></i>
+                            <span>Agenda</span>
                         </a>
-                        <a href="news.php?kategori=pengumuman" class="btn btn-<?php echo $kategori_filter ==
-                                                                                    'pengumuman'
-                                                                                    ? 'primary'
-                                                                                    : 'outline-primary'; ?>">
-                            Pengumuman
+                        <a href="news.php?kategori=pengumuman" class="filter-pill <?php echo $kategori_filter == 'pengumuman' ? 'active' : ''; ?>">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Pengumuman</span>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- tampil berita -->
+            <!-- News Cards -->
             <div class="row g-4">
                 <?php if (!empty($news_list)): ?>
-
                     <?php
-                    // Ambil semua berita jadi array indexed
                     $news_array = array_values($news_list);
                     $perRow = 3;
                     $total = count($news_array);
 
                     for ($i = 0; $i < $total; $i += $perRow):
-
-                        // Ambil 3 item per baris
                         $rowItems = array_slice($news_array, $i, $perRow);
 
                         // Cek apakah baris ini punya thumbnail
@@ -400,76 +476,66 @@ else: ?>
                         endforeach;
                     ?>
 
-                        <div class="row g-4 mb-3">
+                        <?php foreach ($rowItems as $news): ?>
+                            <?php
+                            // Ambil thumbnail per berita
+                            $stmt_thumb = $pdo->prepare(
+                                "SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1"
+                            );
+                            $stmt_thumb->execute([$news['uuid']]);
+                            $thumbnail = $stmt_thumb->fetch();
 
-                            <?php foreach ($rowItems as $news): ?>
+                            $thumb_path = "";
+                            if ($thumbnail) {
+                                $thumb_path = rtrim($_ENV['UPLOAD_DIR'], "/") . "/berita/" . htmlspecialchars($thumbnail['file_path']);
+                            }
+                            ?>
 
-                                <?php
-                                // Ambil thumbnail per berita
-                                $stmt_thumb = $pdo->prepare(
-                                    "SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1"
-                                );
-                                $stmt_thumb->execute([$news['uuid']]);
-                                $thumbnail = $stmt_thumb->fetch();
-
-                                $thumb_path = "";
-                                if ($thumbnail) {
-                                    $thumb_path = rtrim($_ENV['UPLOAD_DIR'], "/") . "/berita/" . htmlspecialchars($thumbnail['file_path']);
-                                }
-                                ?>
-
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="card h-100 shadow-sm border-0 overflow-hidden">
-
-                                        <?php if ($thumbnail): ?>
-                                            <img src="<?= $thumb_path ?>" class="card-img-top" style="height:200px; object-fit:cover;"
-                                                alt="<?= htmlspecialchars($news['judul']) ?>"
-                                                onerror="this.src='../assets/img/placeholder.jpg'">
-
-                                        <?php else: ?>
-                                            <?php if ($rowHasThumbnail): ?>
-                                                <!-- Baris ini punya thumbnail → kasih placeholder -->
-                                                <div style="height:200px;"></div>
-                                            <?php endif; ?>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card news-card h-100 shadow-sm border-0 overflow-hidden">
+                                    <?php if ($thumbnail): ?>
+                                        <img src="<?= $thumb_path ?>"
+                                            class="card-img-top"
+                                            style="height:200px; object-fit:cover;"
+                                            alt="<?= htmlspecialchars($news['judul']) ?>"
+                                            onerror="this.src='../assets/img/placeholder.jpg'">
+                                    <?php else: ?>
+                                        <?php if ($rowHasThumbnail): ?>
+                                            <div style="height:200px;"></div>
                                         <?php endif; ?>
+                                    <?php endif; ?>
 
-                                        <div class="card-body d-flex flex-column">
-                                            <span class="badge bg-<?=
-                                                                    $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary');
-                                                                    ?> mb-2 align-self-start">
-                                                <?= ucfirst($news['kategori']); ?>
-                                            </span>
+                                    <div class="card-body d-flex flex-column">
+                                        <span class="badge bg-<?= $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary'); ?> mb-2 align-self-start">
+                                            <?= ucfirst($news['kategori']); ?>
+                                        </span>
 
-                                            <h5 class="card-title fw-bold line-clamp-2" style="min-height:3em;">
-                                                <?= htmlspecialchars($news['judul']); ?>
-                                            </h5>
+                                        <h5 class="card-title fw-bold line-clamp-2" style="min-height:3em;">
+                                            <?= htmlspecialchars($news['judul']); ?>
+                                        </h5>
 
-                                            <p class="text-muted small mb-3">
-                                                <i class="bi bi-calendar me-2"></i>
-                                                <?= date("d M Y", strtotime($news['tanggal'])); ?>
+                                        <p class="text-muted small mb-3">
+                                            <i class="bi bi-calendar me-2"></i>
+                                            <?= date("d M Y", strtotime($news['tanggal'])); ?>
 
-                                                <?php if ($news['tempat']): ?>
-                                                    <br>
-                                                    <i class="bi bi-geo-alt me-2"></i>
-                                                    <?= htmlspecialchars($news['tempat']); ?>
-                                                <?php endif; ?>
-                                            </p>
+                                            <?php if ($news['tempat']): ?>
+                                                <br>
+                                                <i class="bi bi-geo-alt me-2"></i>
+                                                <?= htmlspecialchars($news['tempat']); ?>
+                                            <?php endif; ?>
+                                        </p>
 
-                                            <p class="card-text text-muted line-clamp-3" style="line-height:1.5; min-height:4.5em;">
-                                                <?= htmlspecialchars($news['deskripsi']); ?>
-                                            </p>
+                                        <p class="card-text text-muted line-clamp-3" style="line-height:1.5; min-height:4.5em;">
+                                            <?= htmlspecialchars($news['deskripsi']); ?>
+                                        </p>
 
-                                            <a href="news.php?id=<?= $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                                Baca Selengkapnya <i class="bi bi-arrow-right"></i>
-                                            </a>
-                                        </div>
-
+                                        <a href="news.php?id=<?= $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
+                                            Baca Selengkapnya <i class="bi bi-arrow-right"></i>
+                                        </a>
                                     </div>
                                 </div>
-
-                            <?php endforeach; ?>
-
-                        </div>
+                            </div>
+                        <?php endforeach; ?>
 
                     <?php endfor; ?>
 
@@ -488,10 +554,9 @@ else: ?>
                 <nav aria-label="Page navigation" class="mt-5">
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?<?= $kategori_filter
-                                                            ? 'kategori=' . $kategori_filter . '&'
-                                                            : '' ?>page=<?= $page - 1 ?>">&laquo;
-                                Sebelumnya</a>
+                            <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page - 1 ?>">
+                                &laquo; Sebelumnya
+                            </a>
                         </li>
 
                         <?php
@@ -500,21 +565,18 @@ else: ?>
 
                         if ($start_page > 1): ?>
                             <li class="page-item">
-                                <a class="page-link" href="?<?= $kategori_filter
-                                                                ? 'kategori=' . $kategori_filter . '&'
-                                                                : '' ?>page=1">1</a>
+                                <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=1">1</a>
                             </li>
                             <?php if ($start_page > 2): ?>
                                 <li class="page-item disabled"><span class="page-link">...</span></li>
                             <?php endif; ?>
-                        <?php endif;
-                        ?>
+                        <?php endif; ?>
 
                         <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
                             <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                                <a class="page-link" href="?<?= $kategori_filter
-                                                                ? 'kategori=' . $kategori_filter . '&'
-                                                                : '' ?>page=<?= $i ?>"><?= $i ?></a>
+                                <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $i ?>">
+                                    <?= $i ?>
+                                </a>
                             </li>
                         <?php endfor; ?>
 
@@ -523,17 +585,16 @@ else: ?>
                                 <li class="page-item disabled"><span class="page-link">...</span></li>
                             <?php endif; ?>
                             <li class="page-item">
-                                <a class="page-link" href="?<?= $kategori_filter
-                                                                ? 'kategori=' . $kategori_filter . '&'
-                                                                : '' ?>page=<?= $total_pages ?>"><?= $total_pages ?></a>
+                                <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $total_pages ?>">
+                                    <?= $total_pages ?>
+                                </a>
                             </li>
                         <?php endif; ?>
 
                         <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?<?= $kategori_filter
-                                                            ? 'kategori=' . $kategori_filter . '&'
-                                                            : '' ?>page=<?= $page + 1 ?>">Selanjutnya
-                                &raquo;</a>
+                            <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page + 1 ?>">
+                                Selanjutnya &raquo;
+                            </a>
                         </li>
                     </ul>
                 </nav>
@@ -541,4 +602,5 @@ else: ?>
         </div>
     </section>
 <?php endif; ?>
+
 <?php include '../includes/footer.php'; ?>
