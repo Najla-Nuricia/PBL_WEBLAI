@@ -7,16 +7,6 @@ $limit = 5;
 $offset = ($page - 1) * $limit;
 
 if ($uuid) {
-    // Hitung total publikasi untuk anggota ini
-    $countStmt = $pdo->prepare("
-        SELECT COUNT(DISTINCT p.uuid) 
-        FROM publikasi p
-        JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
-        WHERE ap.anggota_uuid = ?
-    ");
-    $countStmt->execute([$uuid]);
-    $total = $countStmt->fetchColumn();
-    $totalPages = ceil($total / $limit);
 
     // Ambil publikasi dengan semua authors
     $stmt = $pdo->prepare("
@@ -81,55 +71,6 @@ $publikasis = $stmt->fetchAll();
         echo '</div>';
     }
 
-    // PAGINATION
-    if ($totalPages > 1) {
-        echo '<nav><ul class="pagination pagination-sm justify-content-center">';
-
-        // Previous button
-        if ($page > 1) {
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='" . ($page - 1) . "'>&laquo;</button>";
-            echo "</li>";
-        }
-
-        // Page numbers
-        $start = max(1, $page - 2);
-        $end = min($totalPages, $page + 2);
-
-        if ($start > 1) {
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='1'>1</button>";
-            echo "</li>";
-            if ($start > 2) {
-                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
-            }
-        }
-
-        for ($i = $start; $i <= $end; $i++) {
-            $active = ($i == $page) ? 'active' : '';
-            echo "<li class='page-item $active'>";
-            echo "<button class='page-link' data-page='$i'>$i</button>";
-            echo "</li>";
-        }
-
-        if ($end < $totalPages) {
-            if ($end < $totalPages - 1) {
-                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
-            }
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='$totalPages'>$totalPages</button>";
-            echo "</li>";
-        }
-
-        // Next button
-        if ($page < $totalPages) {
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='" . ($page + 1) . "'>&raquo;</button>";
-            echo "</li>";
-        }
-
-        echo '</ul></nav>';
-    }
 }
 ?>
 
