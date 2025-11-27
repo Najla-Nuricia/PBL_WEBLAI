@@ -7,32 +7,20 @@ $limit = 5;
 $offset = ($page - 1) * $limit;
 
 if ($uuid) {
-    // Hitung total publikasi untuk anggota ini
-    $countStmt = $pdo->prepare("
-        SELECT COUNT(DISTINCT p.uuid) 
-        FROM publikasi p
-        JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
-        WHERE ap.anggota_uuid = ?
-    ");
-    $countStmt->execute([$uuid]);
-    $total = $countStmt->fetchColumn();
-    $totalPages = ceil($total / $limit);
 
     // Ambil publikasi dengan semua authors
     $stmt = $pdo->prepare("
-        SELECT p.*,
-               STRING_AGG(DISTINCT a.nama, ', ' ORDER BY a.nama) as all_authors
-        FROM publikasi p
-        JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
-        LEFT JOIN anggota_publikasi ap2 ON p.uuid = ap2.publikasi_uuid
-        LEFT JOIN anggota a ON ap2.anggota_uuid = a.uuid
-        WHERE ap.anggota_uuid = ?
-        GROUP BY p.uuid, p.judul, p.tahun, p.tautan, p.kategori, p.created_at, p.updated_at
-        ORDER BY p.tahun DESC, p.judul ASC
-        LIMIT $limit OFFSET $offset
-    ");
-    $stmt->execute([$uuid]);
-    $publikasis = $stmt->fetchAll();
+    SELECT *
+    FROM view_publikasi_author v
+    JOIN anggota_publikasi ap ON v.uuid = ap.publikasi_uuid
+    WHERE ap.anggota_uuid = ?
+    ORDER BY v.tahun DESC, v.judul ASC
+    LIMIT $limit OFFSET $offset
+");
+
+$stmt->execute([$uuid]);
+$publikasis = $stmt->fetchAll();
+
 
     if ($publikasis && count($publikasis) > 0) {
         echo '<div class="list-group mb-3">';
@@ -83,98 +71,49 @@ if ($uuid) {
         echo '</div>';
     }
 
-    // PAGINATION
-    if ($totalPages > 1) {
-        echo '<nav><ul class="pagination pagination-sm justify-content-center">';
-
-        // Previous button
-        if ($page > 1) {
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='" . ($page - 1) . "'>&laquo;</button>";
-            echo "</li>";
-        }
-
-        // Page numbers
-        $start = max(1, $page - 2);
-        $end = min($totalPages, $page + 2);
-
-        if ($start > 1) {
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='1'>1</button>";
-            echo "</li>";
-            if ($start > 2) {
-                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
-            }
-        }
-
-        for ($i = $start; $i <= $end; $i++) {
-            $active = ($i == $page) ? 'active' : '';
-            echo "<li class='page-item $active'>";
-            echo "<button class='page-link' data-page='$i'>$i</button>";
-            echo "</li>";
-        }
-
-        if ($end < $totalPages) {
-            if ($end < $totalPages - 1) {
-                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
-            }
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='$totalPages'>$totalPages</button>";
-            echo "</li>";
-        }
-
-        // Next button
-        if ($page < $totalPages) {
-            echo "<li class='page-item'>";
-            echo "<button class='page-link' data-page='" . ($page + 1) . "'>&raquo;</button>";
-            echo "</li>";
-        }
-
-        echo '</ul></nav>';
-    }
 }
 ?>
 
 <style>
-    .item-link {
-        color: #313131 !important;
-        transition: color 0.15s ease, text-decoration 0.15s ease;
-    }
+.item-link {
+    color: #313131 !important;
+    transition: color 0.15s ease, text-decoration 0.15s ease;
+}
 
-    .item-link:hover {
-        color: #0d6efd !important;
-        text-decoration: underline !important;
-    }
+.item-link:hover {
+    color: #0d6efd !important;
+    text-decoration: underline !important;
+}
 
-    .list-group-item {
-        transition: background-color 0.15s ease;
-        border-left: 3px solid transparent;
-    }
+.list-group-item {
+    transition: background-color 0.15s ease;
+    border-left: 3px solid transparent;
+}
 
-    .list-group-item:hover {
-        background-color: #f8f9fa;
-        border-left-color: #0d6efd;
-    }
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    border-left-color: #0d6efd;
+}
 
-    .badge {
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
+.badge {
+    font-weight: 500;
+    font-size: 0.75rem;
+}
 
-    .pagination-sm .page-link {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-        cursor: pointer;
-    }
+.pagination-sm .page-link {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
 
-    .pagination-sm .page-link:hover {
-        background-color: #0d6efd;
-        color: white;
-        border-color: #0d6efd;
-    }
+.pagination-sm .page-link:hover {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
 
-    .pagination-sm .page-item.active .page-link {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
+.pagination-sm .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
 </style>
