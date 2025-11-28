@@ -1,0 +1,121 @@
+/* Add CSS for line-clamp and navbar-style filter */
+
+/* Line clamp utilities - FIXED VERSION */
+.line-clamp-2 {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-break: break-word;
+    line-clamp: 2;
+}
+
+.line-clamp-3 {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-break: break-word;
+    line-clamp: 3;
+}
+
+/* Filter Pills - Navbar Style */
+.filter-pills-container {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-pill {
+    position: relative;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: var(--text-dark, #2c3e50);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+}
+
+.filter-pill i {
+    transition: 0.3s ease;
+    font-size: 1rem;
+}
+
+/* Hover icon animation */
+.filter-pill:hover i {
+    transform: translateY(-2px) scale(1.1);
+}
+
+/* Underline effect */
+.filter-pill::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #007bff, #00d4ff);
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.filter-pill:hover::before {
+    width: 80%;
+}
+
+.filter-pill:hover {
+    background: rgba(0, 123, 255, 0.08);
+    color: #007bff !important;
+    transform: translateY(-2px);
+}
+
+.filter-pill.active {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: #fff !important;
+}
+
+.filter-pill.active::before {
+    width: 0;
+}
+
+/* Card hover effect */
+.news-card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Hover effect for images */
+.hover-zoom {
+    transition: transform 0.3s ease;
+}
+
+.hover-zoom:hover {
+    transform: scale(1.05);
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+    .filter-pill {
+        font-size: 0.85rem;
+        padding: 0.4rem 1.2rem;
+    }
+
+    .filter-pills-container {
+        gap: 0.4rem;
+    }
+}

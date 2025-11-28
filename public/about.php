@@ -29,7 +29,7 @@ $fasilitas = $stmt_fasilitas->fetchAll();
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
-
+<link rel="stylesheet" href="../assets/css/about.css">
 <!-- Hero Section with Parallax Effect -->
 <section class="hero-section position-relative py-5" id="heroSection"
     style="color: white; min-height: 500px; overflow: hidden;">
@@ -60,42 +60,7 @@ include '../includes/navbar.php';
 </section>
 
 <!-- Parallax JavaScript -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
-
-        if (parallaxBg && heroSection) {
-            let ticking = false;
-
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
-
-                // Only apply parallax when hero section is visible
-                if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-
-                ticking = false;
-            }
-
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
-        }
-    });
-</script>
-
+<script src="../assets/js/parallax.js"></script>
 <!-- Visi & Misi Section -->
 <?php if ($profile): ?>
     <section class="py-5">
@@ -356,121 +321,6 @@ include '../includes/navbar.php';
         </div>
     </div>
 </div>
-
-<style>
-    /* Team Card Styles */
-    .team-card {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        overflow: hidden;
-    }
-
-    .team-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .team-card:hover .member-img {
-        transform: scale(1.05);
-    }
-
-    .member-avatar {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto;
-    }
-
-    .member-img {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-        border: 4px solid #f8f9fa;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .member-placeholder {
-        width: 120px;
-        height: 120px;
-        border: 4px solid #f8f9fa;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .member-badge {
-        position: absolute;
-        bottom: 5px;
-        right: calc(50% - 60px);
-        background: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .bg-gradient-secondary {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .bg-gradient-success {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .badge-custom {
-        padding: 0.4rem 0.8rem;
-        font-weight: 500;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-    }
-
-    .member-action {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .team-card:hover .member-action {
-        opacity: 1;
-    }
-
-    /* Modal Enhancements */
-    .modal-content {
-        border: none;
-        border-radius: 12px;
-    }
-
-    .modal-header {
-        border-bottom: 2px solid #e9ecef;
-        border-radius: 12px 12px 0 0;
-    }
-
-    .modal-body {
-        max-height: 60vh;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-
-        .member-avatar,
-        .member-img,
-        .member-placeholder {
-            width: 100px;
-            height: 100px;
-        }
-
-        .member-badge {
-            right: calc(50% - 50px);
-            width: 28px;
-            height: 28px;
-        }
-    }
-</style>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.team-card[data-uuid]').forEach(card => {

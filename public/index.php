@@ -31,74 +31,7 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<style>
-    .line-clamp-2 {
-        display: block;
-        display: -webkit-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-
-        /* Standar modern */
-        line-clamp: 2;
-        box-orient: vertical;
-    }
-
-    .line-clamp-3 {
-        display: block;
-        display: -webkit-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-
-        line-clamp: 3;
-        box-orient: vertical;
-    }
-
-    .card-img-top {
-        transition: transform 0.3s ease;
-    }
-
-    .card:hover .card-img-top {
-        transform: scale(1.05);
-    }
-
-    .card {
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    /* Responsive Height untuk TypeIt */
-    #type {
-        min-height: 150px;
-    }
-
-    @media (max-width: 992px) {
-        #type {
-            min-height: 130px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        #type {
-            min-height: 120px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        #type {
-            min-height: 180px;
-        }
-    }
-</style>
-
+<link rel="stylesheet" href="../assets/css/public_index.css">
 <!-- Hero Section with Parallax Effect -->
 <section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
     <!-- Parallax Background Layer -->
@@ -172,40 +105,7 @@ include '../includes/navbar.php';
 </section>
 
 <!-- Parallax JavaScript -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
-
-        if (parallaxBg && heroSection) {
-            let ticking = false;
-
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
-
-                if (scrolled < heroHeight) {
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-
-                ticking = false;
-            }
-
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
-        }
-    });
-</script>
-
+<script src="../assets/js/parallax.js"></script>
 <!-- Latest News Section -->
 <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
