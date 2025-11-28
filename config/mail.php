@@ -6,8 +6,21 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-function sendEmail(string $subject, string $bodyHtml, string $bodyPlain = ''): bool {
+function getActiveEmail(PDO $db) {
+    $stmt = $db->query("SELECT * FROM email_settings ORDER BY updated_at DESC LIMIT 1");
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}function sendEmail(PDO $db, string $subject, string $bodyHtml, string $bodyPlain = ''): bool {
+
+    // Ambil email aktif dari DB
+    $active = getActiveEmail($db);
+
+    if (!$active) {
+        error_log("Tidak ada email aktif di database.");
+        return false;
+    }
+
     $mail = new PHPMailer(true);
+
     try {
         $mail->isSMTP();
         $mail->Host       = $_ENV['SMTP_HOST'];
@@ -16,11 +29,10 @@ function sendEmail(string $subject, string $bodyHtml, string $bodyPlain = ''): b
         $mail->Password   = $_ENV['SMTP_PASS'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = intval($_ENV['SMTP_PORT']);
-        $mail->SMTPDebug = 2; 
-        $mail->Debugoutput = 'error_log';
 
         $mail->setFrom($_ENV['MAIL_FROM'], $_ENV['MAIL_FROM_NAME']);
-        $mail->addAddress($_ENV['MAIL_TO'], $_ENV['MAIL_TO_NAME']);
+
+        $mail->addAddress($active['mail_to'], $active['mail_to_name']);
 
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -28,8 +40,9 @@ function sendEmail(string $subject, string $bodyHtml, string $bodyPlain = ''): b
         $mail->AltBody = $bodyPlain !== '' ? $bodyPlain : strip_tags($bodyHtml);
 
         return $mail->send();
+
     } catch (Exception $e) {
+        error_log("Email error: " . $e->getMessage());
         return false;
     }
 }
-

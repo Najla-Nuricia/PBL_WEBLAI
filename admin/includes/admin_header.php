@@ -55,7 +55,7 @@ require_login();
             <!-- Logo -->
             <a href="../admin/dashboard.php" class="text-decoration-none text-white">
                 <div class="sidebar-brand d-flex align-items-center">
-                    <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2"
+                    <img src="../assets/icons/logo.png" alt="Logo AI Lab" class="me-2"
                         style="width: 50px; height: 50px; object-fit: contain;">
                     <div>
                         <h4>AI Lab Admin</h4>
@@ -218,8 +218,8 @@ require_login();
                 </div>
 
                 <li>
-                    <a href="view_email.php"
-                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'view_email.php' ? 'active' : ''; ?>">
+                    <a href="manage_email.php"
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_email.php' ? 'active' : ''; ?>">
                         <i class="bi bi-envelope"></i>
                         <span>Email</span>
                     </a>
