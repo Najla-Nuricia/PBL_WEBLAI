@@ -1,5 +1,4 @@
 <?php
-echo __DIR__;
 
 require_once __DIR__ . '/../config/db.php'; 
 $page_title = 'Home';
