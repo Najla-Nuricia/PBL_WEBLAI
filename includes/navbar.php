@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../lang/init.php';
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
 ?>
 

@@ -29,7 +29,7 @@ $fasilitas = $stmt_fasilitas->fetchAll();
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
-<link rel="stylesheet" href="../assets/css/about.css">
+<link rel="stylesheet" href="../assets/css/public_about.css">
 <!-- Hero Section with Parallax Effect -->
 <section class="hero-section position-relative py-5" id="heroSection"
     style="color: white; min-height: 500px; overflow: hidden;">
