@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'Home';
 
 // Fetch dashboard background
@@ -155,15 +156,14 @@ include '../includes/navbar.php';
                     });
                 </script>
                 <p class="lead mb-4">
-                    Laboratorium penelitian dan pengembangan teknologi informasi terapan
-                    di Politeknik Negeri Malang
+                    <?= __('hero_desc') ?>
                 </p>
                 <div class="d-flex gap-3">
                     <a href="about.php" class="btn btn-light btn-lg">
-                        <i class="bi bi-info-circle me-2"></i>Learn More
+                        <i class="bi bi-info-circle me-2"></i><?= __('btn_learn_more') ?>
                     </a>
                     <a href="contact.php" class="btn btn-outline-light btn-lg">
-                        <i class="bi bi-envelope me-2"></i>Contact Us
+                        <i class="bi bi-envelope me-2"></i><?= __('btn_contact_us') ?>
                     </a>
                 </div>
             </div>
@@ -211,8 +211,8 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title">Latest News & Events</h2>
-                <p class="section-subtitle">Berita dan kegiatan terbaru dari laboratorium kami</p>
+                <h2 class="section-title"><?= __('latest_news') ?></h2>
+                <p class="section-subtitle"><?= __('news_subtitle') ?></p>
             </div>
         </div>
 
@@ -283,7 +283,7 @@ include '../includes/navbar.php';
                                     <?php echo htmlspecialchars($news['deskripsi']); ?>
                                 </p>
                                 <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                    Read More <i class="bi bi-arrow-right"></i>
+                                    <?= __('read_more') ?> <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -293,7 +293,7 @@ include '../includes/navbar.php';
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        Belum ada berita terbaru
+                        <?= __('no_news') ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -302,7 +302,7 @@ include '../includes/navbar.php';
         <?php if (!empty($latest_news)): ?>
             <div class="text-center mt-4">
                 <a href="news.php" class="btn btn-primary">
-                    View All News <i class="bi bi-arrow-right"></i>
+                    <?= __('view_all') ?> <?= __('nav_news') ?> <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         <?php endif; ?>
@@ -314,8 +314,8 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title">Recent Activities</h2>
-                <p class="section-subtitle">Kegiatan penelitian dan pengabdian masyarakat</p>
+                <h2 class="section-title"><?= __('nav_activities') ?></h2>
+                <p class="section-subtitle"><?= __('activities_hero_desc') ?></p>
             </div>
         </div>
 
@@ -387,7 +387,7 @@ include '../includes/navbar.php';
                                     <?php echo htmlspecialchars($activity['deskripsi_singkat']); ?>
                                 </p>
                                 <a href="activity.php?id=<?php echo $activity['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                    View Details <i class="bi bi-arrow-right"></i>
+                                    <?= __('view_details') ?> <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -397,7 +397,7 @@ include '../includes/navbar.php';
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        Belum ada kegiatan terbaru
+                        <?= __('no_activities') ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -406,7 +406,7 @@ include '../includes/navbar.php';
         <?php if (!empty($latest_activities)): ?>
             <div class="text-center mt-4">
                 <a href="activity.php" class="btn btn-primary">
-                    View All Activities <i class="bi bi-arrow-right"></i>
+                    <?= __('view_all') ?> <?= __('nav_activities') ?> <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         <?php endif; ?>
@@ -419,8 +419,8 @@ include '../includes/navbar.php';
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
-                    <h2 class="section-title">Our Partners</h2>
-                    <p class="section-subtitle">Mitra kerja sama AI Lab Polinema</p>
+                    <h2 class="section-title"><?= __('our_partners') ?></h2>
+                    <p class="section-subtitle"><?= __('partners_desc') ?></p>
                 </div>
             </div>
 
@@ -450,53 +450,4 @@ include '../includes/navbar.php';
         </div>
     </section>
 <?php endif; ?>
-
-<!-- CTA Section -->
-<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);" data-aos="fade-up" data-aos-duration="1000">
-    <!-- Decorative Elements -->
-    <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(40px);"></div>
-    <div style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; filter: blur(60px);"></div>
-
-    <div class="container position-relative" style="z-index: 2;">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-lg-8 text-center">
-                <!-- Icon Badge -->
-                <div class="mb-4">
-                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);">
-                        <i class="bi bi-chat-dots" style="font-size: 2rem; color: white;"></i>
-                    </span>
-                </div>
-
-                <!-- Heading -->
-                <h2 class="mb-3 text-white" style="font-size: 2.5rem; font-weight: 700;">
-                    Ready to Collaborate?
-                </h2>
-
-                <!-- Description -->
-                <p class="lead mb-4" style="color: rgba(255,255,255,0.95); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem;">
-                    Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
-                </p>
-
-                <!-- CTA Button Group -->
-                <div class="d-flex gap-3 justify-content-center flex-wrap">
-                    <a href="contact.php"
-                        class="btn btn-light btn-lg px-4 py-3"
-                        style="border-radius: 50px; font-weight: 600; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s ease;"
-                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(0,0,0,0.3)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.2)';">
-                        <i class="bi bi-envelope me-2"></i>Get in Touch
-                    </a>
-                    <a href="about.php"
-                        class="btn btn-outline-light btn-lg px-4 py-3"
-                        style="border-radius: 50px; font-weight: 600; border-width: 2px; transition: all 0.3s ease;"
-                        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'; this.style.transform='translateY(-3px)';"
-                        onmouseout="this.style.backgroundColor='transparent'; this.style.transform='translateY(0)';">
-                        <i class="bi bi-info-circle me-2"></i>Learn More
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <?php include '../includes/footer.php'; ?>

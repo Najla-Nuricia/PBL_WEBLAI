@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'Gallery';
 
 // Fetch dashboard background
@@ -56,8 +57,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">Gallery</h1>
-                <p class="lead">Dokumentasi kegiatan dan suasana AI Lab Polinema</p>
+                <h1 class="display-4 fw-bold mb-3"><?= __('gallery_hero_title') ?></h1>
+                <p class="lead"><?= __('gallery_hero_desc') ?></p>
             </div>
         </div>
     </div>
@@ -65,45 +66,45 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const parallaxBg = document.querySelector('.parallax-bg');
-    const heroSection = document.getElementById('heroSection');
+    document.addEventListener('DOMContentLoaded', function() {
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const heroSection = document.getElementById('heroSection');
 
-    if (parallaxBg && heroSection) {
-        let ticking = false;
+        if (parallaxBg && heroSection) {
+            let ticking = false;
 
-        function updateParallax() {
-            const scrolled = window.pageYOffset;
-            const heroHeight = heroSection.offsetHeight;
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
 
-            if (scrolled < heroHeight) {
-                const yPos = scrolled * 0.5;
-                parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                if (scrolled < heroHeight) {
+                    const yPos = scrolled * 0.5;
+                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                }
+
+                ticking = false;
             }
 
-            ticking = false;
-        }
-
-        function requestTick() {
-            if (!ticking) {
-                window.requestAnimationFrame(updateParallax);
-                ticking = true;
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
             }
-        }
 
-        window.addEventListener('scroll', requestTick, {
-            passive: true
-        });
-    }
-});
+            window.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+        }
+    });
 </script>
 
 <!-- Gallery Section -->
 <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <?php if (!empty($galleries)): ?>
-        <?php foreach ($galleries as $index => $gallery): ?>
-        <?php
+            <?php foreach ($galleries as $index => $gallery): ?>
+                <?php
                 // Pagination untuk foto di setiap gallery
                 $photos_per_page = 4; // 4 foto per halaman (4 kolom x 3 baris)
                 $photo_page_key = 'photo_page_' . $gallery['uuid'];
@@ -130,164 +131,164 @@ document.addEventListener('DOMContentLoaded', function() {
                 $photos = $stmt->fetchAll();
                 ?>
 
-        <div class="mb-5" id="gallery-<?php echo $gallery['uuid']; ?>">
-            <div class="row mb-3">
-                <div class="col">
-                    <h3 class="fw-bold text-primary mb-2">
-                        <?php echo htmlspecialchars($gallery['judul']); ?>
-                    </h3>
-                    <?php if ($gallery['deskripsi']): ?>
-                    <p class="text-muted">
-                        <?php echo htmlspecialchars($gallery['deskripsi']); ?>
-                    </p>
-                    <?php endif; ?>
-                    <p class="text-muted small">
-                        <i class="bi bi-images me-1"></i>
-                        <?php echo $gallery['foto_count']; ?> foto
-                    </p>
-                </div>
-            </div>
-
-            <?php if (!empty($photos)): ?>
-            <div class="row g-3 gallery-row">
-                <?php foreach ($photos as $photo): ?>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="card border-0 shadow-sm h-100">
-                        <img src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
-                            class="card-img-top gallery-img" alt="Gallery Photo"
-                            style="height: 200px; object-fit: cover; cursor: pointer;" data-bs-toggle="modal"
-                            data-bs-target="#imageModal" data-title="<?php echo htmlspecialchars($gallery['judul']); ?>"
-                            data-src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
-                            onerror="this.src='../assets/img/placeholder.jpg'">
+                <div class="mb-5" id="gallery-<?php echo $gallery['uuid']; ?>">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <h3 class="fw-bold text-primary mb-2">
+                                <?php echo htmlspecialchars($gallery['judul']); ?>
+                            </h3>
+                            <?php if ($gallery['deskripsi']): ?>
+                                <p class="text-muted">
+                                    <?php echo htmlspecialchars($gallery['deskripsi']); ?>
+                                </p>
+                            <?php endif; ?>
+                            <p class="text-muted small">
+                                <i class="bi bi-images me-1"></i>
+                                <?php echo $gallery['foto_count']; ?> <?= __('photos') ?>
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
 
-            <!-- Photo Pagination -->
-            <?php if ($total_photo_pages > 1): ?>
-            <nav aria-label="Photo pagination" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item <?= $photo_page <= 1 ? 'disabled' : '' ?>">
-                        <a class="page-link"
-                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page - 1 ?>#gallery-<?= $gallery['uuid'] ?>">
-                            &laquo; Sebelumnya
-                        </a>
-                    </li>
+                    <?php if (!empty($photos)): ?>
+                        <div class="row g-3 gallery-row">
+                            <?php foreach ($photos as $photo): ?>
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <img src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
+                                            class="card-img-top gallery-img" alt="Gallery Photo"
+                                            style="height: 200px; object-fit: cover; cursor: pointer;" data-bs-toggle="modal"
+                                            data-bs-target="#imageModal" data-title="<?php echo htmlspecialchars($gallery['judul']); ?>"
+                                            data-src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
+                                            onerror="this.src='../assets/img/placeholder.jpg'">
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
 
-                    <?php
+                        <!-- Photo Pagination -->
+                        <?php if ($total_photo_pages > 1): ?>
+                            <nav aria-label="Photo pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?= $photo_page <= 1 ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page - 1 ?>#gallery-<?= $gallery['uuid'] ?>">
+                                            &laquo; <?= __('previous') ?>
+                                        </a>
+                                    </li>
+
+                                    <?php
                                     $start_page = max(1, $photo_page - 2);
                                     $end_page = min($total_photo_pages, $photo_page + 2);
 
                                     if ($start_page > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link"
-                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=1#gallery-<?= $gallery['uuid'] ?>">
-                            1
-                        </a>
-                    </li>
-                    <?php if ($start_page > 2): ?>
-                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=1#gallery-<?= $gallery['uuid'] ?>">
+                                                1
+                                            </a>
+                                        </li>
+                                        <?php if ($start_page > 2): ?>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+
+                                    <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                        <li class="page-item <?= $photo_page == $i ? 'active' : '' ?>">
+                                            <a class="page-link"
+                                                href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $i ?>#gallery-<?= $gallery['uuid'] ?>">
+                                                <?= $i ?>
+                                            </a>
+                                        </li>
+                                    <?php endfor; ?>
+
+                                    <?php if ($end_page < $total_photo_pages): ?>
+                                        <?php if ($end_page < $total_photo_pages - 1): ?>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        <?php endif; ?>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $total_photo_pages ?>#gallery-<?= $gallery['uuid'] ?>">
+                                                <?= $total_photo_pages ?>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+
+                                    <li class="page-item <?= $photo_page >= $total_photo_pages ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page + 1 ?>#gallery-<?= $gallery['uuid'] ?>">
+                                            <?= __('next') ?> &raquo;
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <?= __('no_photos') ?>
+                        </div>
                     <?php endif; ?>
+
+                    <?php if ($index < count($galleries) - 1): ?>
+                        <hr class="my-5">
                     <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
 
-                    <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                    <li class="page-item <?= $photo_page == $i ? 'active' : '' ?>">
-                        <a class="page-link"
-                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $i ?>#gallery-<?= $gallery['uuid'] ?>">
-                            <?= $i ?>
-                        </a>
-                    </li>
-                    <?php endfor; ?>
+            <!-- Gallery Pagination -->
+            <?php if ($total_gallery_pages > 1): ?>
+                <nav aria-label="Gallery pagination" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <?= $gallery_page <= 1 ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?gallery_page=<?= $gallery_page - 1 ?>">
+                                &laquo; <?= __('previous') ?>
+                            </a>
+                        </li>
 
-                    <?php if ($end_page < $total_photo_pages): ?>
-                    <?php if ($end_page < $total_photo_pages - 1): ?>
-                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                    <?php endif; ?>
-                    <li class="page-item">
-                        <a class="page-link"
-                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $total_photo_pages ?>#gallery-<?= $gallery['uuid'] ?>">
-                            <?= $total_photo_pages ?>
-                        </a>
-                    </li>
-                    <?php endif; ?>
-
-                    <li class="page-item <?= $photo_page >= $total_photo_pages ? 'disabled' : '' ?>">
-                        <a class="page-link"
-                            href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page + 1 ?>#gallery-<?= $gallery['uuid'] ?>">
-                            Selanjutnya &raquo;
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <?php endif; ?>
-            <?php else: ?>
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                Belum ada foto untuk galeri ini
-            </div>
-            <?php endif; ?>
-
-            <?php if ($index < count($galleries) - 1): ?>
-            <hr class="my-5">
-            <?php endif; ?>
-        </div>
-        <?php endforeach; ?>
-
-        <!-- Gallery Pagination -->
-        <?php if ($total_gallery_pages > 1): ?>
-        <nav aria-label="Gallery pagination" class="mt-5">
-            <ul class="pagination justify-content-center">
-                <li class="page-item <?= $gallery_page <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?gallery_page=<?= $gallery_page - 1 ?>">
-                        &laquo; Sebelumnya
-                    </a>
-                </li>
-
-                <?php
+                        <?php
                         $start_page = max(1, $gallery_page - 2);
                         $end_page = min($total_gallery_pages, $gallery_page + 2);
 
                         if ($start_page > 1): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?gallery_page=1">1</a>
-                </li>
-                <?php if ($start_page > 2): ?>
-                <li class="page-item disabled"><span class="page-link">...</span></li>
-                <?php endif; ?>
-                <?php endif; ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?gallery_page=1">1</a>
+                            </li>
+                            <?php if ($start_page > 2): ?>
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            <?php endif; ?>
+                        <?php endif; ?>
 
-                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                <li class="page-item <?= $gallery_page == $i ? 'active' : '' ?>">
-                    <a class="page-link" href="?gallery_page=<?= $i ?>"><?= $i ?></a>
-                </li>
-                <?php endfor; ?>
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                            <li class="page-item <?= $gallery_page == $i ? 'active' : '' ?>">
+                                <a class="page-link" href="?gallery_page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
 
-                <?php if ($end_page < $total_gallery_pages): ?>
-                <?php if ($end_page < $total_gallery_pages - 1): ?>
-                <li class="page-item disabled"><span class="page-link">...</span></li>
-                <?php endif; ?>
-                <li class="page-item">
-                    <a class="page-link" href="?gallery_page=<?= $total_gallery_pages ?>">
-                        <?= $total_gallery_pages ?>
-                    </a>
-                </li>
-                <?php endif; ?>
+                        <?php if ($end_page < $total_gallery_pages): ?>
+                            <?php if ($end_page < $total_gallery_pages - 1): ?>
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            <?php endif; ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?gallery_page=<?= $total_gallery_pages ?>">
+                                    <?= $total_gallery_pages ?>
+                                </a>
+                            </li>
+                        <?php endif; ?>
 
-                <li class="page-item <?= $gallery_page >= $total_gallery_pages ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?gallery_page=<?= $gallery_page + 1 ?>">
-                        Selanjutnya &raquo;
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <?php endif; ?>
+                        <li class="page-item <?= $gallery_page >= $total_gallery_pages ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?gallery_page=<?= $gallery_page + 1 ?>">
+                                <?= __('next') ?> &raquo;
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
 
         <?php else: ?>
-        <div class="alert alert-info text-center">
-            <i class="bi bi-info-circle me-2"></i>
-            Belum ada galeri yang tersedia
-        </div>
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i>
+                <?= __('no_galleries') ?>
+            </div>
         <?php endif; ?>
     </div>
 </section>
@@ -309,47 +310,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Script untuk modal universal -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const imageModal = document.getElementById('imageModal');
-    const modalTitle = imageModal.querySelector('.modal-title');
-    const modalImg = imageModal.querySelector('img');
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageModal = document.getElementById('imageModal');
+        const modalTitle = imageModal.querySelector('.modal-title');
+        const modalImg = imageModal.querySelector('img');
 
-    // Event listener untuk semua gambar gallery
-    document.querySelectorAll('.gallery-img').forEach(img => {
-        img.addEventListener('click', function() {
-            modalTitle.textContent = this.dataset.title;
-            modalImg.src = this.dataset.src;
+        // Event listener untuk semua gambar gallery
+        document.querySelectorAll('.gallery-img').forEach(img => {
+            img.addEventListener('click', function() {
+                modalTitle.textContent = this.dataset.title;
+                modalImg.src = this.dataset.src;
+            });
         });
-    });
 
-    // Smooth scroll to gallery anchor after page load
-    if (window.location.hash) {
-        setTimeout(function() {
-            const target = document.querySelector(window.location.hash);
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }, 100);
-    }
-});
+        // Smooth scroll to gallery anchor after page load
+        if (window.location.hash) {
+            setTimeout(function() {
+                const target = document.querySelector(window.location.hash);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }, 100);
+        }
+    });
 </script>
 
 <style>
-.gallery-img {
-    transition: transform 0.3s ease;
-}
+    .gallery-img {
+        transition: transform 0.3s ease;
+    }
 
-.gallery-img:hover {
-    transform: scale(1.05);
-}
+    .gallery-img:hover {
+        transform: scale(1.05);
+    }
 
-/* Smooth scroll behavior */
-html {
-    scroll-behavior: smooth;
-}
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
 </style>
 
 <?php include '../includes/footer.php'; ?>

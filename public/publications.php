@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'Publications';
 
 // Background
@@ -18,10 +19,10 @@ $offset = ($page - 1) * $limit;
 
 // Sidebar data
 $years = $pdo->query("SELECT DISTINCT tahun FROM publikasi ORDER BY tahun DESC")
-             ->fetchAll(PDO::FETCH_COLUMN);
+    ->fetchAll(PDO::FETCH_COLUMN);
 
 $categories = $pdo->query("SELECT DISTINCT kategori FROM publikasi WHERE kategori IS NOT NULL ORDER BY kategori ASC")
-                  ->fetchAll(PDO::FETCH_COLUMN);
+    ->fetchAll(PDO::FETCH_COLUMN);
 
 // Filters
 $where_clauses = [];
@@ -107,44 +108,44 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">Publications</h1>
-                <p class="lead">Publikasi penelitian dan karya ilmiah AI Lab Polinema</p>
+                <h1 class="display-4 fw-bold mb-3"><?= __('publications_hero_title') ?></h1>
+                <p class="lead"><?= __('publications_hero_desc') ?></p>
             </div>
         </div>
     </div>
 </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const parallaxBg = document.querySelector('.parallax-bg');
-    const heroSection = document.getElementById('heroSection');
+    document.addEventListener('DOMContentLoaded', function() {
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const heroSection = document.getElementById('heroSection');
 
-    if (parallaxBg && heroSection) {
-        let ticking = false;
+        if (parallaxBg && heroSection) {
+            let ticking = false;
 
-        function updateParallax() {
-            const scrolled = window.pageYOffset;
-            const heroHeight = heroSection.offsetHeight;
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = heroSection.offsetHeight;
 
-            if (scrolled < heroHeight) {
-                const yPos = scrolled * 0.5;
-                parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                if (scrolled < heroHeight) {
+                    const yPos = scrolled * 0.5;
+                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                }
+                ticking = false;
             }
-            ticking = false;
-        }
 
-        function requestTick() {
-            if (!ticking) {
-                window.requestAnimationFrame(updateParallax);
-                ticking = true;
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
             }
-        }
 
-        window.addEventListener('scroll', requestTick, {
-            passive: true
-        });
-    }
-});
+            window.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+        }
+    });
 </script>
 
 <!-- Publications Section -->
@@ -154,100 +155,99 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- Publications Content -->
             <div class="col-lg-8 order-2 order-lg-1">
                 <?php if (!empty($publications_by_year)): ?>
-                <?php foreach ($publications_by_year as $year => $pubs): ?>
-                <div class="mb-5 publication-year" data-year="<?= $year ?>">
-                    <h3 class="fw-bold mb-4 text-primary">
-                        <i class="bi bi-calendar3 me-2"></i><?= $year ?>
-                    </h3>
+                    <?php foreach ($publications_by_year as $year => $pubs): ?>
+                        <div class="mb-5 publication-year" data-year="<?= $year ?>">
+                            <h3 class="fw-bold mb-4 text-primary">
+                                <i class="bi bi-calendar3 me-2"></i><?= $year ?>
+                            </h3>
 
-                    <div class="row g-4">
-                        <?php
+                            <div class="row g-4">
+                                <?php
                                 // Untuk filtered view, tampilkan semua hasil
                                 // Untuk view all, limit 5 per tahun
                                 $pubs_display = ($filter_year || $filter_category) ? $pubs : array_slice($pubs, 0, 5);
                                 ?>
-                        <?php foreach ($pubs_display as $pub): ?>
-                        <div class="col-12">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-body p-4">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-1 text-center mb-3 mb-md-0">
-                                            <i class="bi bi-file-earmark-text text-primary"
-                                                style="font-size: 3rem;"></i>
-                                        </div>
-                                        <div class="col-md-9">
-                                            <h5 class="fw-bold mb-2"><?= htmlspecialchars($pub['judul']); ?></h5>
-                                            <div class="mb-2">
-                                                <?php if ($pub['penulis_nama']): ?>
-                                                <span class="text-muted me-3">
-                                                    <i class="bi bi-people-fill me-1"></i>
-                                                    <strong><?= htmlspecialchars($pub['penulis_nama']); ?></strong>
-                                                </span>
-                                                <?php endif; ?>
-                                                <?php if ($pub['kategori']): ?>
-                                                <span class="badge bg-info me-2">
-                                                    <?= htmlspecialchars($pub['kategori']); ?>
-                                                </span>
-                                                <?php endif; ?>
+                                <?php foreach ($pubs_display as $pub): ?>
+                                    <div class="col-12">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-body p-4">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-1 text-center mb-3 mb-md-0">
+                                                        <i class="bi bi-file-earmark-text text-primary"
+                                                            style="font-size: 3rem;"></i>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <h5 class="fw-bold mb-2"><?= htmlspecialchars($pub['judul']); ?></h5>
+                                                        <div class="mb-2">
+                                                            <?php if ($pub['penulis_nama']): ?>
+                                                                <span class="text-muted me-3">
+                                                                    <i class="bi bi-people-fill me-1"></i>
+                                                                    <strong><?= htmlspecialchars($pub['penulis_nama']); ?></strong>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                            <?php if ($pub['kategori']): ?>
+                                                                <span class="badge bg-info me-2">
+                                                                    <?= htmlspecialchars($pub['kategori']); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <p class="text-muted small mb-0">
+                                                            <i class="bi bi-calendar3 me-1"></i><?= $pub['tahun']; ?>
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-2 text-md-end">
+                                                        <?php if ($pub['tautan']): ?>
+                                                            <a href="<?= htmlspecialchars($pub['tautan']); ?>" target="_blank"
+                                                                class="btn btn-primary">
+                                                                <i class="bi bi-box-arrow-up-right me-2"></i>View
+                                                            </a>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p class="text-muted small mb-0">
-                                                <i class="bi bi-calendar3 me-1"></i><?= $pub['tahun']; ?>
-                                            </p>
-                                        </div>
-                                        <div class="col-md-2 text-md-end">
-                                            <?php if ($pub['tautan']): ?>
-                                            <a href="<?= htmlspecialchars($pub['tautan']); ?>" target="_blank"
-                                                class="btn btn-primary">
-                                                <i class="bi bi-box-arrow-up-right me-2"></i>View
-                                            </a>
-                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
+
+                            <!-- Tombol "Lihat Selengkapnya" untuk view all -->
+                            <?php if (!$filter_year && !$filter_category && count($pubs) > 5): ?>
+                                <div class="text-center mt-3">
+                                    <a href="?year=<?= $year ?>" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-arrow-right-circle me-2"></i><?= __('view_more_publications', ['count' => count($pubs) - 5]) ?>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <?php endforeach; ?>
-                    </div>
+                    <?php endforeach; ?>
 
-                    <!-- Tombol "Lihat Selengkapnya" untuk view all -->
-                    <?php if (!$filter_year && !$filter_category && count($pubs) > 5): ?>
-                    <div class="text-center mt-3">
-                        <a href="?year=<?= $year ?>" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-arrow-right-circle me-2"></i>Lihat Selengkapnya (<?= count($pubs) - 5 ?>
-                            publikasi lainnya)
-                        </a>
-                    </div>
+                    <!-- Pagination untuk filtered view -->
+                    <?php if (($filter_year || $filter_category) && $total_pages > 1): ?>
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link"
+                                        href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page - 1 ?>">&laquo;
+                                        <?= __('previous') ?></a>
+                                </li>
+                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                    <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                                        <a class="page-link"
+                                            href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $i ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                                    <a class="page-link"
+                                        href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page + 1 ?>"><?= __('next') ?>
+                                        &raquo;</a>
+                                </li>
+                            </ul>
+                        </nav>
                     <?php endif; ?>
-                </div>
-                <?php endforeach; ?>
-
-                <!-- Pagination untuk filtered view -->
-                <?php if (($filter_year || $filter_category) && $total_pages > 1): ?>
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link"
-                                href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page - 1 ?>">&laquo;
-                                Sebelumnya</a>
-                        </li>
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                            <a class="page-link"
-                                href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $i ?>"><?= $i ?></a>
-                        </li>
-                        <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                            <a class="page-link"
-                                href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page + 1 ?>">Selanjutnya
-                                &raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
-                <?php endif; ?>
                 <?php else: ?>
-                <div class="alert alert-info text-center">
-                    <i class="bi bi-info-circle me-2"></i>Belum ada publikasi yang tersedia
-                </div>
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle me-2"></i><?= __('no_publications') ?>
+                    </div>
                 <?php endif; ?>
             </div>
 
@@ -258,18 +258,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-body">
                             <h5 class="fw-bold mb-3 text-primary">
-                                <i class="bi bi-calendar3 me-2"></i>Filter Tahun
+                                <i class="bi bi-calendar3 me-2"></i><?= __('filter_year') ?>
                             </h5>
                             <div class="list-group">
                                 <a href="?year=all&category=<?= $filter_category ?: 'all' ?>"
                                     class="list-group-item list-group-item-action <?= !$filter_year ? 'active' : '' ?>">
-                                    <i class="bi bi-collection me-2"></i>Semua Tahun
+                                    <i class="bi bi-collection me-2"></i><?= __('all_years') ?>
                                 </a>
                                 <?php foreach ($years as $year): ?>
-                                <a href="?year=<?= $year ?>&category=<?= $filter_category ?: 'all' ?>"
-                                    class="list-group-item list-group-item-action <?= ($filter_year == $year) ? 'active' : '' ?>">
-                                    <i class="bi bi-calendar-event me-2"></i><?= $year ?>
-                                </a>
+                                    <a href="?year=<?= $year ?>&category=<?= $filter_category ?: 'all' ?>"
+                                        class="list-group-item list-group-item-action <?= ($filter_year == $year) ? 'active' : '' ?>">
+                                        <i class="bi bi-calendar-event me-2"></i><?= $year ?>
+                                    </a>
                                 <?php endforeach; ?>
                             </div>
                         </div>
@@ -277,25 +277,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     <!-- Filter Kategori -->
                     <?php if (!empty($categories)): ?>
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-3 text-primary">
-                                <i class="bi bi-tags me-2"></i>Filter Kategori
-                            </h5>
-                            <div class="list-group">
-                                <a href="?year=<?= $filter_year ?: 'all' ?>&category=all"
-                                    class="list-group-item list-group-item-action <?= !$filter_category ? 'active' : '' ?>">
-                                    <i class="bi bi-collection me-2"></i>Semua Kategori
-                                </a>
-                                <?php foreach ($categories as $cat): ?>
-                                <a href="?year=<?= $filter_year ?: 'all' ?>&category=<?= urlencode($cat) ?>"
-                                    class="list-group-item list-group-item-action <?= ($filter_category == $cat) ? 'active' : '' ?>">
-                                    <i class="bi bi-tag me-2"></i><?= htmlspecialchars($cat) ?>
-                                </a>
-                                <?php endforeach; ?>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3 text-primary">
+                                    <i class="bi bi-tags me-2"></i><?= __('filter_category') ?>
+                                </h5>
+                                <div class="list-group">
+                                    <a href="?year=<?= $filter_year ?: 'all' ?>&category=all"
+                                        class="list-group-item list-group-item-action <?= !$filter_category ? 'active' : '' ?>">
+                                        <i class="bi bi-collection me-2"></i><?= __('all_categories') ?>
+                                    </a>
+                                    <?php foreach ($categories as $cat): ?>
+                                        <a href="?year=<?= $filter_year ?: 'all' ?>&category=<?= urlencode($cat) ?>"
+                                            class="list-group-item list-group-item-action <?= ($filter_category == $cat) ? 'active' : '' ?>">
+                                            <i class="bi bi-tag me-2"></i><?= htmlspecialchars($cat) ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -305,36 +305,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Stats Section -->
 <?php if (!empty($publications)): ?>
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-4 mb-4 mb-md-0">
-                <div class="card border-0 shadow-sm h-100 p-4">
-                    <h2 class="display-4 fw-bold text-primary mb-2">
-                        <?= $total_rows ?>
-                    </h2>
-                    <p class="text-muted mb-0">Total Publications</p>
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 p-4">
+                        <h2 class="display-4 fw-bold text-primary mb-2">
+                            <?= $total_rows ?>
+                        </h2>
+                        <p class="text-muted mb-0">Total Publications</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4 mb-md-0">
-                <div class="card border-0 shadow-sm h-100 p-4">
-                    <h2 class="display-4 fw-bold text-primary mb-2">
-                        <?= count($publications_by_year) ?>
-                    </h2>
-                    <p class="text-muted mb-0">Years of Research</p>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 p-4">
+                        <h2 class="display-4 fw-bold text-primary mb-2">
+                            <?= count($publications_by_year) ?>
+                        </h2>
+                        <p class="text-muted mb-0">Years of Research</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 p-4">
-                    <h2 class="display-4 fw-bold text-primary mb-2">
-                        <?= $total_authors ?>
-                    </h2>
-                    <p class="text-muted mb-0">Contributing Authors</p>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 p-4">
+                        <h2 class="display-4 fw-bold text-primary mb-2">
+                            <?= $total_authors ?>
+                        </h2>
+                        <p class="text-muted mb-0">Contributing Authors</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 <?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>

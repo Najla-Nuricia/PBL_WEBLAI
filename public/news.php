@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'News & Events';
 
 $stmt_bg = $pdo->query('SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1');
@@ -221,8 +222,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">News & Events</h1>
-                <p class="lead">Berita terkini dan agenda kegiatan AI Lab Polinema</p>
+                <h1 class="display-4 fw-bold mb-3"><?= __('news_hero_title') ?></h1>
+                <p class="lead"><?= __('news_hero_desc') ?></p>
             </div>
         </div>
     </div>
@@ -269,7 +270,7 @@ include '../includes/navbar.php';
             <div class="row">
                 <div class="col-lg-10 mx-auto">
                     <a href="news.php" class="btn btn-outline-primary mb-4">
-                        <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Berita
+                        <i class="bi bi-arrow-left me-2"></i><?= __('back_to_news') ?>
                     </a>
 
                     <div class="card border-0 shadow-sm">
@@ -360,7 +361,7 @@ include '../includes/navbar.php';
 
                             <?php if (!empty($news_fotos) && count($news_fotos) > 1): ?>
                                 <hr class="my-4">
-                                <h5 class="fw-bold mb-3">Galeri Foto</h5>
+                                <h5 class="fw-bold mb-3"><?= __('photo_gallery') ?></h5>
                                 <div class="row g-3">
                                     <?php foreach ($news_fotos as $foto):
                                         $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']); ?>
@@ -433,19 +434,19 @@ include '../includes/navbar.php';
                     <div class="filter-pills-container">
                         <a href="news.php" class="filter-pill <?php echo !$kategori_filter ? 'active' : ''; ?>">
                             <i class="bi bi-grid-3x3-gap"></i>
-                            <span>Semua</span>
+                            <span><?= __('all') ?></span>
                         </a>
                         <a href="news.php?kategori=berita" class="filter-pill <?php echo $kategori_filter == 'berita' ? 'active' : ''; ?>">
                             <i class="bi bi-newspaper"></i>
-                            <span>Berita</span>
+                            <span><?= __('nav_news') ?></span>
                         </a>
                         <a href="news.php?kategori=agenda" class="filter-pill <?php echo $kategori_filter == 'agenda' ? 'active' : ''; ?>">
                             <i class="bi bi-calendar-event"></i>
-                            <span>Agenda</span>
+                            <span><?= __('nav_agenda') ?></span>
                         </a>
                         <a href="news.php?kategori=pengumuman" class="filter-pill <?php echo $kategori_filter == 'pengumuman' ? 'active' : ''; ?>">
                             <i class="bi bi-megaphone"></i>
-                            <span>Pengumuman</span>
+                            <span><?= __('nav_announcement') ?></span>
                         </a>
                     </div>
                 </div>
@@ -530,7 +531,7 @@ include '../includes/navbar.php';
                                         </p>
 
                                         <a href="news.php?id=<?= $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                            Baca Selengkapnya <i class="bi bi-arrow-right"></i>
+                                            <?= __('read_more') ?> <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -543,7 +544,7 @@ include '../includes/navbar.php';
                     <div class="col-12">
                         <div class="alert alert-info text-center">
                             <i class="bi bi-info-circle me-2"></i>
-                            Belum ada berita untuk kategori ini
+                            <?= __('no_news') ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -555,7 +556,7 @@ include '../includes/navbar.php';
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page - 1 ?>">
-                                &laquo; Sebelumnya
+                                &laquo; <?= __('previous') ?>
                             </a>
                         </li>
 
@@ -593,7 +594,7 @@ include '../includes/navbar.php';
 
                         <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page + 1 ?>">
-                                Selanjutnya &raquo;
+                                <?= __('next') ?> &raquo;
                             </a>
                         </li>
                     </ul>
