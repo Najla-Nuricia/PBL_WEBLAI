@@ -128,7 +128,7 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">Contact Us</h1>
+                <h1 class="display-4 fw-bold mb-3"><?= __('contact_hero_title') ?></h1>
                 <p class="lead"><?= __('contact_hero_desc') ?></p>
             </div>
         </div>

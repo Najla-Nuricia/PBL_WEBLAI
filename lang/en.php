@@ -75,6 +75,7 @@ return [
     'community_service' => 'Community Service',
 
     // Contact Page
+    'contact_hero_title' => 'Contact Us',
     'contact_hero_desc' => 'Contact us for more information or cooperation',
     'send_message' => 'Send Us a Message',
     'form_fullname' => 'Full Name',

@@ -75,6 +75,7 @@ return [
     'community_service' => 'Pengabdian',
 
     // Contact Page
+    'contact_hero_title' => 'Kontak Kami',
     'contact_hero_desc' => 'Hubungi kami untuk informasi lebih lanjut atau kerjasama',
     'send_message' => 'Kirim Pesan',
     'form_fullname' => 'Nama Lengkap',
