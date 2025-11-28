@@ -364,7 +364,10 @@ if (isset($_SESSION['flash_error'])) {
             </div>
 
         <?php else: ?>
-            <div class="table-responsive">
+
+            <link rel="stylesheet" href="../assets/css/swipejs.css">
+            <!-- Swipeable Table -->
+            <div class="swipeable-table" id="swipeTable">
                 <form method="POST" id="bulkDeleteForm" action="">
                     <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
@@ -384,7 +387,6 @@ if (isset($_SESSION['flash_error'])) {
                         </thead>
                         <tbody>
                             <?php foreach ($news_list as $index => $news):
-                                // Hitung jumlah foto
                                 $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM berita_foto WHERE berita_id = ?");
                                 $stmt->execute([$news['uuid']]);
                                 $foto_count = $stmt->fetchColumn();
@@ -395,28 +397,23 @@ if (isset($_SESSION['flash_error'])) {
                                     </td>
                                     <td><?php echo $index + 1; ?></td>
                                     <td><?php echo date('d/m/Y', strtotime($news['tanggal'])); ?></td>
-
                                     <td>
                                         <strong><?php echo htmlspecialchars($news['judul']); ?></strong><br>
                                         <small class="text-muted">
                                             <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 80) . '...'; ?>
                                         </small>
                                     </td>
-
                                     <td><?php echo htmlspecialchars($news['penulis'] ?? ''); ?></td>
-
                                     <td>
                                         <span class="badge bg-<?php echo $news['kategori'] == 'agenda' ? 'success' : ($news['kategori'] == 'pengumuman' ? 'warning' : 'primary'); ?>">
                                             <?php echo ucfirst($news['kategori']); ?>
                                         </span>
                                     </td>
-
                                     <td>
                                         <span class="badge bg-info">
                                             <i class="bi bi-images"></i> <?php echo $foto_count; ?>
                                         </span>
                                     </td>
-
                                     <td>
                                         <a href="?edit=<?php echo $news['uuid']; ?>"
                                             class="btn btn-sm btn-warning"
