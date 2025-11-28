@@ -55,7 +55,7 @@ require_login();
             <!-- Logo -->
             <a href="../admin/dashboard.php" class="text-decoration-none text-white">
                 <div class="sidebar-brand d-flex align-items-center">
-                    <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2"
+                    <img src="../assets/icons/logo.png" alt="Logo AI Lab" class="me-2"
                         style="width: 50px; height: 50px; object-fit: contain;">
                     <div>
                         <h4>AI Lab Admin</h4>
@@ -274,30 +274,30 @@ require_login();
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             <script>
-            // Topbar scroll effect
-            document.addEventListener('scroll', function() {
-                const topbar = document.querySelector('.topbar');
-                if (window.scrollY > 10) {
-                    topbar.classList.add('scrolled');
-                } else {
-                    topbar.classList.remove('scrolled');
-                }
-            });
-
-            // Sidebar toggle for mobile
-            document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('active');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function(event) {
-                const sidebar = document.querySelector('.sidebar');
-                const sidebarToggle = document.getElementById('sidebarToggle');
-
-                if (window.innerWidth <= 768) {
-                    if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
-                        sidebar.classList.remove('active');
+                // Topbar scroll effect
+                document.addEventListener('scroll', function() {
+                    const topbar = document.querySelector('.topbar');
+                    if (window.scrollY > 10) {
+                        topbar.classList.add('scrolled');
+                    } else {
+                        topbar.classList.remove('scrolled');
                     }
-                }
-            });
+                });
+
+                // Sidebar toggle for mobile
+                document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('active');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    const sidebar = document.querySelector('.sidebar');
+                    const sidebarToggle = document.getElementById('sidebarToggle');
+
+                    if (window.innerWidth <= 768) {
+                        if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
             </script>
