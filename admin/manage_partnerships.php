@@ -32,6 +32,29 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// Handle Bulk Delete
+// Penambahan pengecekan action
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $uuids = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
+        $query = "DELETE FROM partnership WHERE uuid IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($uuids);
+
+        $_SESSION['flash_success'] = count($uuids) . ' partner berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus beberapa partner: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_partnerships.php");
+        exit;
+    }
+}
+
 // Handle Insert/Update
 // Penambahan pengecekan action
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
@@ -84,30 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_partnerships.php");
-        exit;
-    }
-}
-
-
-// Handle Bulk Delete
-// Penambahan pengecekan action
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
-    $uuids = $_POST['selected'];
-
-    try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
-        $placeholders = implode(',', array_fill(0, count($uuids), '?'));
-        $query = "DELETE FROM partnership WHERE uuid IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
-        $stmt->execute($uuids);
-
-        $_SESSION['flash_success'] = count($uuids) . ' partner berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus beberapa partner: ' . $e->getMessage();
     } finally {
         header("Location: manage_partnerships.php");
         exit;

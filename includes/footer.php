@@ -2,19 +2,24 @@
 // Fetch social media links
 $stmt = $pdo->query("SELECT nama, url FROM sosmed ORDER BY nama");
 $social_media = $stmt->fetchAll();
+
+// Fetch footer information
+$stmt_footer = $pdo->query("SELECT * FROM footer_info LIMIT 1");
+$footer = $stmt_footer->fetch();
 ?>
 
-<footer class="bg-dark text-white py-5 mt-5">
+<footer class="bg-dark text-white py-5 mt-5" data-aos="fade-up"
+    data-aos-anchor-placement="top-bottom">
     <div class="container">
         <div class="row">
             <!-- About Section -->
             <div class="col-lg-4 mb-4">
                 <h5 class="text-uppercase mb-3">
-                    <i class="bi bi-cpu-fill me-2"></i>AI Lab Polinema
+                    <i class="bi bi-cpu-fill me-2"></i>
+                    <?php echo htmlspecialchars($footer['org_name']); ?>
                 </h5>
                 <p class="text-light">
-                    Applied Informatics Laboratory adalah laboratorium yang berfokus pada penelitian dan
-                    pengembangan teknologi informasi terapan di Politeknik Negeri Malang.
+                    <?php echo nl2br(htmlspecialchars($footer['description'])); ?>
                 </p>
             </div>
 
@@ -67,15 +72,11 @@ $social_media = $stmt->fetchAll();
                         <?php foreach ($social_media as $sosmed): ?>
                             <a href="<?php echo htmlspecialchars($sosmed['url']); ?>"
                                 target="_blank"
-                                class="btn btn-outline-light btn-sm me-2 mb-2">
+                                class="btn btn-outline-light btn-sm me-2 mb-2"
+                                title="<?php echo htmlspecialchars($sosmed['nama']); ?>">
                                 <i class="bi bi-<?php echo strtolower($sosmed['nama']); ?>"></i>
                             </a>
                         <?php endforeach; ?>
-                    <?php else: ?>
-                        <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="bi bi-youtube"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="bi bi-linkedin"></i></a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -85,20 +86,34 @@ $social_media = $stmt->fetchAll();
 
         <div class="row">
             <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0">&copy; <?php echo date('Y'); ?> AI Lab Polinema. All Rights Reserved.</p>
+                <p class="mb-0">&copy; 2025
+                    <?php echo nl2br(htmlspecialchars($footer['reserved_text'])); ?>
+                </p>
             </div>
             <div class="col-md-6 text-center text-md-end">
-                <p class="mb-0">Powered by <a href="https://polinema.ac.id" class="text-light">Polinema</a></p>
+                <p class="mb-0">Powered by
+                    <a href="<?php echo htmlspecialchars($footer['link_powered_by']); ?>" class="text-light text-decoration-none">
+                        <?php echo htmlspecialchars($footer['powered_by']); ?>
+                    </a>
+                </p>
             </div>
         </div>
     </div>
 </footer>
 
+<link rel="stylesheet" href="../assets/css/public_footer.css">
+
 <!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- AOS Animation JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
 
 <!-- Custom JS -->
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/public.js"></script>
 
 </body>
 

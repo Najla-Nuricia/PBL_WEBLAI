@@ -11,6 +11,7 @@ $error = '';
 if (isset($_GET['delete'])) {
     $uuid = $_GET['delete'];
     try {
+        // Delete akan cascade ke anggota_publikasi
         $stmt = $pdo->prepare("DELETE FROM publikasi WHERE uuid = ?");
         $stmt->execute([$uuid]);
         $_SESSION['flash_success'] = 'Publikasi berhasil dihapus!';
@@ -22,16 +23,14 @@ if (isset($_GET['delete'])) {
     }
 }
 
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+// Handle Bulk Delete
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
         $placeholders = implode(',', array_fill(0, count($uuids), '?'));
         $query = "DELETE FROM publikasi WHERE uuid IN ($placeholders)";
         $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
         $stmt->execute($uuids);
 
         $_SESSION['flash_success'] = count($uuids) . ' Publikasi berhasil dihapus!';
@@ -44,27 +43,46 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
 }
 
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $judul = clean_input($_POST['judul'] ?? '');
     $tahun = clean_input($_POST['tahun'] ?? '');
-    $penulis_id = !empty($_POST['penulis_id']) ? $_POST['penulis_id'] : null;
+    $penulis_ids = $_POST['penulis_id'] ?? []; // Array of UUIDs
     $tautan = clean_input($_POST['tautan'] ?? '');
     $kategori = clean_input($_POST['kategori'] ?? '');
 
     try {
+        $pdo->beginTransaction();
+
         if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
             // Update
             $uuid = $_POST['uuid'];
-            $stmt = $pdo->prepare("UPDATE publikasi SET judul = ?, tahun = ?, penulis_id = ?, tautan = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-            $stmt->execute([$judul, $tahun, $penulis_id, $tautan, $kategori, $uuid]);
-            $_SESSION['flash_success'] = 'Publikasi berhasil diperbarui!';
+            $stmt = $pdo->prepare("UPDATE publikasi SET judul = ?, tahun = ?, tautan = ?, kategori = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
+            $stmt->execute([$judul, $tahun, $tautan, $kategori, $uuid]);
+
+            // Delete existing penulis relations
+            $stmt = $pdo->prepare("DELETE FROM anggota_publikasi WHERE publikasi_uuid = ?");
+            $stmt->execute([$uuid]);
         } else {
             // Insert
-            $stmt = $pdo->prepare("INSERT INTO publikasi (judul, tahun, penulis_id, tautan, kategori) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$judul, $tahun, $penulis_id, $tautan, $kategori]);
-            $_SESSION['flash_success'] = 'Publikasi berhasil ditambahkan!';
+            $stmt = $pdo->prepare("INSERT INTO publikasi (judul, tahun, tautan, kategori) VALUES (?, ?, ?, ?) RETURNING uuid");
+            $stmt->execute([$judul, $tahun, $tautan, $kategori]);
+            $uuid = $stmt->fetchColumn();
         }
-    } catch (PDOException $e) {
+
+        // Insert penulis relations
+        if (!empty($penulis_ids)) {
+            $stmt = $pdo->prepare("INSERT INTO anggota_publikasi (anggota_uuid, publikasi_uuid) VALUES (?, ?)");
+            foreach ($penulis_ids as $anggota_uuid) {
+                if (!empty($anggota_uuid)) {
+                    $stmt->execute([$anggota_uuid, $uuid]);
+                }
+            }
+        }
+
+        $pdo->commit();
+        $_SESSION['flash_success'] = isset($_POST['uuid']) ? 'Publikasi berhasil diperbarui!' : 'Publikasi berhasil ditambahkan!';
+    } catch (Exception $e) {
+        $pdo->rollBack();
         $_SESSION['flash_error'] = 'Gagal menyimpan publikasi: ' . $e->getMessage();
     } finally {
         header("Location: manage_publications.php");
@@ -72,11 +90,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Get all publications with author info
+// Get all publications with authors
 $stmt = $pdo->query("
-    SELECT p.*, a.nama as penulis_nama 
+    SELECT p.*, 
+           STRING_AGG(DISTINCT a.nama, ', ' ORDER BY a.nama) as penulis_nama,
+           ARRAY_AGG(DISTINCT a.uuid) as penulis_ids
     FROM publikasi p 
-    LEFT JOIN anggota a ON p.penulis_id = a.uuid 
+    LEFT JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
+    LEFT JOIN anggota a ON ap.anggota_uuid = a.uuid 
+    GROUP BY p.uuid
     ORDER BY p.tahun DESC, p.judul ASC
 ");
 $publications = $stmt->fetchAll();
@@ -87,11 +109,17 @@ $members = $stmt_members->fetchAll();
 
 // Get data for edit
 $edit_data = null;
+$edit_penulis_ids = [];
 if (isset($_GET['edit'])) {
     $uuid = $_GET['edit'];
     $stmt = $pdo->prepare("SELECT * FROM publikasi WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+
+    // Get penulis IDs
+    $stmt = $pdo->prepare("SELECT anggota_uuid FROM anggota_publikasi WHERE publikasi_uuid = ?");
+    $stmt->execute([$uuid]);
+    $edit_penulis_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 // Ambil flash message jika ada
@@ -114,61 +142,97 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
-                <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
+            <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
 
             <div class="row">
                 <div class="col-md-8 mb-3">
                     <label class="form-label">Judul Publikasi <span class="text-danger">*</span></label>
-                    <input type="text"
-                        name="judul"
-                        class="form-control"
+                    <input type="text" name="judul" class="form-control"
                         value="<?php echo $edit_data ? htmlspecialchars($edit_data['judul']) : ''; ?>"
-                        placeholder="Judul paper/publikasi"
-                        required>
+                        placeholder="Judul paper/publikasi" required>
                 </div>
 
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Tahun <span class="text-danger">*</span></label>
-                    <input type="number"
-                        name="tahun"
-                        class="form-control"
-                        min="2000"
-                        max="<?php echo date('Y'); ?>"
-                        value="<?php echo $edit_data ? $edit_data['tahun'] : date('Y'); ?>"
-                        required>
+                    <input type="number" name="tahun" class="form-control" min="2000" max="<?php echo date('Y'); ?>"
+                        value="<?php echo $edit_data ? $edit_data['tahun'] : date('Y'); ?>" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Penulis</label>
-                    <select name="penulis_id" class="form-select select-enhanced">
-                        <option value="">Pilih Penulis</option>
+                    <label class="form-label">Penulis/Author (dapat pilih lebih dari 1)</label>
+                    <select name="penulis_id[]" class="form-select select-enhanced" multiple>
                         <?php foreach ($members as $member): ?>
-                            <option value="<?php echo $member['uuid']; ?>"
-                                <?php echo ($edit_data && $edit_data['penulis_id'] == $member['uuid']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($member['nama']); ?>
-                            </option>
+                        <option value="<?php echo $member['uuid']; ?>"
+                            <?php echo in_array($member['uuid'], $edit_penulis_ids) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($member['nama']); ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="text-muted">Opsional - Pilih dari daftar anggota</small>
+                    <small class="text-muted">Tekan Ctrl/Cmd untuk pilih lebih dari satu author</small>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Kategori <span class="text-danger">*</span></label>
-                    <input type="text"
-                        name="kategori"
-                        class="form-control"
-                        value="<?php echo $edit_data ? htmlspecialchars($edit_data['kategori']) : ''; ?>"
-                        placeholder="Journal Paper, Conference Paper, Book Chapter"
-                        required>
+                    <label class="form-label">Kategori Publikasi <span class="text-danger">*</span></label>
+                    <select name="kategori" class="form-select" required>
+                        <option value="">Pilih Kategori</option>
+                        <option value="Scopus"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Scopus') ? 'selected' : ''; ?>>Scopus
+                        </option>
+                        <option value="Sinta 1"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 1') ? 'selected' : ''; ?>>Sinta 1
+                        </option>
+                        <option value="Sinta 2"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 2') ? 'selected' : ''; ?>>Sinta 2
+                        </option>
+                        <option value="Sinta 3"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 3') ? 'selected' : ''; ?>>Sinta 3
+                        </option>
+                        <option value="Sinta 4"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 4') ? 'selected' : ''; ?>>Sinta 4
+                        </option>
+                        <option value="Sinta 5"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 5') ? 'selected' : ''; ?>>Sinta 5
+                        </option>
+                        <option value="Sinta 6"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 6') ? 'selected' : ''; ?>>Sinta 6
+                        </option>
+                        <option value="IEEE"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'IEEE') ? 'selected' : ''; ?>>IEEE
+                        </option>
+                        <option value="Springer"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Springer') ? 'selected' : ''; ?>>
+                            Springer</option>
+                        <option value="Web of Science"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Web of Science') ? 'selected' : ''; ?>>
+                            Web of Science</option>
+                        <option value="Google Scholar"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Google Scholar') ? 'selected' : ''; ?>>
+                            Google Scholar</option>
+                        <option value="Conference"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Conference') ? 'selected' : ''; ?>>
+                            Conference Paper</option>
+                        <option value="Book Chapter"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Book Chapter') ? 'selected' : ''; ?>>
+                            Book Chapter</option>
+                        <option value="Nasional"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Nasional') ? 'selected' : ''; ?>>Jurnal
+                            Nasional</option>
+                        <option value="Internasional"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'internasional') ? 'selected' : ''; ?>>
+                            Jurnal
+                            Internasional</option>
+                        <option value="Lainnya"
+                            <?php echo ($edit_data && $edit_data['kategori'] == 'Lainnya') ? 'selected' : ''; ?>>Lainnya
+                        </option>
+                    </select>
                 </div>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">Link/URL Publikasi</label>
-                    <input type="url"
-                        name="tautan"
-                        class="form-control"
+                    <input type="url" name="tautan" class="form-control"
                         value="<?php echo $edit_data ? htmlspecialchars($edit_data['tautan']) : ''; ?>"
                         placeholder="https://doi.org/... atau https://ieeexplore.ieee.org/...">
                     <small class="text-muted">Link ke paper/journal online (DOI, IEEE, ResearchGate, dll)</small>
@@ -180,9 +244,9 @@ if (isset($_SESSION['flash_error'])) {
                     <i class="bi bi-save me-2"></i>Simpan
                 </button>
                 <?php if ($edit_data): ?>
-                    <a href="manage_publications.php" class="btn btn-secondary">
-                        <i class="bi bi-x-circle me-2"></i>Batal
-                    </a>
+                <a href="manage_publications.php" class="btn btn-secondary">
+                    <i class="bi bi-x-circle me-2"></i>Batal
+                </a>
                 <?php endif; ?>
             </div>
         </form>
@@ -198,94 +262,96 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <?php if (empty($publications)): ?>
-            <div class="card shadow-sm border-0 text-center animate__animated animate__fadeInUp">
-                <div class="card-body py-5">
-                    <i class="bi bi-emoji-frown text-info" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3 text-muted">Belum ada Publikasi</h5>
-                    <p class="text-secondary small">Yuk tambahkan Publikasi baru untuk ditampilkan di sini!</p>
-                </div>
+        <div class="card shadow-sm border-0 text-center animate__animated animate__fadeInUp">
+            <div class="card-body py-5">
+                <i class="bi bi-emoji-frown text-info" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">Belum ada Publikasi</h5>
+                <p class="text-secondary small">Yuk tambahkan Publikasi baru untuk ditampilkan di sini!</p>
             </div>
+        </div>
         <?php else: ?>
-            <div class="table-responsive">
-                <form method="POST" id="bulkDeleteForm" action="">
-                    <table class="table table-hover datatable">
-                        <thead>
-                            <tr>
-                                <th width="30">
-                                    <input type="checkbox" id="selectAll">
-                                </th>
-                                <th width="50">No</th>
-                                <th width="80">Tahun</th>
-                                <th>Judul</th>
-                                <th width="150">Penulis</th>
-                                <th width="150">Kategori</th>
-                                <th width="120">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($publications as $index => $pub): ?>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" name="selected[]" value="<?= $pub['uuid']; ?>" class="rowCheckbox">
-                                    </td>
-                                    <td><?php echo $index + 1; ?></td>
-                                    <td><strong><?php echo $pub['tahun']; ?></strong></td>
-                                    <td>
-                                        <?php echo htmlspecialchars($pub['judul']); ?>
-                                        <?php if ($pub['tautan']): ?>
-                                            <br>
-                                            <a href="<?php echo htmlspecialchars($pub['tautan']); ?>"
-                                                target="_blank"
-                                                class="small text-primary">
-                                                <i class="bi bi-link-45deg"></i>View Paper
-                                            </a>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($pub['penulis_nama']): ?>
-                                            <span class="badge bg-secondary">
-                                                <?php echo htmlspecialchars($pub['penulis_nama']); ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="text-muted small">-</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($pub['kategori']); ?></td>
-                                    <td>
-                                        <a href="?edit=<?php echo $pub['uuid']; ?>"
-                                            class="btn btn-sm btn-warning"
-                                            title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="?delete=<?php echo $pub['uuid']; ?>"
-                                            class="btn btn-sm btn-danger"
-                                            onclick="return confirmDelete();"
-                                            title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <div id="bulkAction" class="mt-3 d-none">
-                        <button type="button" id="bulkDeleteBtn" class="btn btn-danger">
-                            <i class="bi bi-trash3 me-2"></i>Hapus Terpilih
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="table-responsive">
+            <form method="POST" id="bulkDeleteForm" action="">
+                <input type="hidden" name="action" value="bulk_delete">
+                <table class="table table-hover datatable">
+                    <thead>
+                        <tr>
+                            <th width="30">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th width="50">No</th>
+                            <th width="80">Tahun</th>
+                            <th>Judul</th>
+                            <th width="200">Penulis</th>
+                            <th width="150">Kategori</th>
+                            <th width="120">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($publications as $index => $pub): ?>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selected[]" value="<?= $pub['uuid']; ?>"
+                                    class="rowCheckbox">
+                            </td>
+                            <td><?php echo $index + 1; ?></td>
+                            <td><strong><?php echo $pub['tahun']; ?></strong></td>
+                            <td>
+                                <?php echo htmlspecialchars($pub['judul']); ?>
+                                <?php if ($pub['tautan']): ?>
+                                <br>
+                                <a href="<?php echo htmlspecialchars($pub['tautan']); ?>" target="_blank"
+                                    class="small text-primary">
+                                    <i class="bi bi-link-45deg"></i>View Paper
+                                </a>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($pub['penulis_nama']): ?>
+                                <?php
+                                            $penulis = explode(', ', $pub['penulis_nama']);
+                                            foreach ($penulis as $author):
+                                            ?>
+                                <span class="badge bg-secondary mb-1"><?php echo htmlspecialchars($author); ?></span>
+                                <?php endforeach; ?>
+                                <?php else: ?>
+                                <span class="text-muted small">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="badge bg-info"><?php echo htmlspecialchars($pub['kategori']); ?></span>
+                            </td>
+                            <td>
+                                <a href="?edit=<?php echo $pub['uuid']; ?>" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="?delete=<?php echo $pub['uuid']; ?>" class="btn btn-sm btn-danger"
+                                    onclick="return confirmDelete();" title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <div id="bulkAction" class="mt-3 d-none">
+                    <button type="button" id="bulkDeleteBtn" class="btn btn-danger">
+                        <i class="bi bi-trash3 me-2"></i>Hapus Terpilih
+                    </button>
+                </div>
+            </form>
+        </div>
         <?php endif; ?>
     </div>
 </div>
 
 <?php include 'includes/admin_footer.php'; ?>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const successMessage = "<?= addslashes($success ?? '') ?>";
-        const errorMessage = "<?= addslashes($error ?? '') ?>";
+document.addEventListener("DOMContentLoaded", function() {
+    const successMessage = "<?= addslashes($success ?? '') ?>";
+    const errorMessage = "<?= addslashes($error ?? '') ?>";
 
-        if (successMessage) showSuccess(successMessage);
-        if (errorMessage) showError(errorMessage);
-    });
+    if (successMessage) showSuccess(successMessage);
+    if (errorMessage) showError(errorMessage);
+});
 </script>

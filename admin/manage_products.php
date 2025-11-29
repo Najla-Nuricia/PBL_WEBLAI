@@ -20,6 +20,7 @@ if (isset($_GET['delete'])) {
             unlink('../assets/img/' . $product['path_gambar']);
         }
 
+        // Delete akan cascade ke anggota_produk
         $stmt = $pdo->prepare("DELETE FROM produk WHERE uuid = ?");
         $stmt->execute([$uuid]);
         $_SESSION['flash_success'] = 'Produk berhasil dihapus!';
@@ -31,77 +32,14 @@ if (isset($_GET['delete'])) {
     }
 }
 
-
-// Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nama = clean_input($_POST['nama'] ?? '');
-    $tahun = clean_input($_POST['tahun'] ?? '');
-    $pembuat_id = !empty($_POST['pembuat_id'] ?? '') ? $_POST['pembuat_id'] : null;
-    $deskripsi = clean_input($_POST['deskripsi'] ?? '');
-    $link_demo = clean_input($_POST['link_demo'] ?? '');
-
-    try {
-        $path_gambar = null;
-
-        // Handle file upload
-        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == 0) {
-            $upload_result = upload_file($_FILES['gambar']);
-            if ($upload_result['success']) {
-                $path_gambar = $upload_result['filename'];
-            } else {
-                $_SESSION['flash_error'] = $upload_result['error'];
-            }
-        }
-        // Proceed only if no upload error
-        if (!isset($_SESSION['flash_error'])) {
-            if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
-                // Update
-                $uuid = $_POST['uuid'];
-
-                // Delete old image if new one uploaded
-                if ($path_gambar) {
-                    $stmt = $pdo->prepare("SELECT path_gambar FROM produk WHERE uuid = ?");
-                    $stmt->execute([$uuid]);
-                    $old = $stmt->fetch();
-                    if ($old && $old['path_gambar'] && file_exists('../assets/img/' . $old['path_gambar'])) {
-                        unlink('../assets/img/' . $old['path_gambar']);
-                    }
-                }
-
-                if ($path_gambar) {
-                    $stmt = $pdo->prepare("UPDATE produk SET nama = ?, tahun = ?, pembuat_id = ?, deskripsi = ?, link_demo = ?, path_gambar = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-                    $stmt->execute([$nama, $tahun, $pembuat_id, $deskripsi, $link_demo, $path_gambar, $uuid]);
-                } else {
-                    $stmt = $pdo->prepare("UPDATE produk SET nama = ?, tahun = ?, pembuat_id = ?, deskripsi = ?, link_demo = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-                    $stmt->execute([$nama, $tahun, $pembuat_id, $deskripsi, $link_demo, $uuid]);
-                }
-                $_SESSION['flash_success'] = 'Produk berhasil diperbarui!';
-            } else {
-                // Insert
-                $stmt = $pdo->prepare("INSERT INTO produk (nama, tahun, pembuat_id, deskripsi, link_demo, path_gambar) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$nama, $tahun, $pembuat_id, $deskripsi, $link_demo, $path_gambar]);
-                $_SESSION['flash_success'] = 'Produk berhasil ditambahkan!';
-            }
-        }
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_products.php");
-        exit;
-    }
-}
-
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
         $placeholders = implode(',', array_fill(0, count($uuids), '?'));
         $query = "DELETE FROM produk WHERE uuid IN ($placeholders)";
         $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
         $stmt->execute($uuids);
 
         $_SESSION['flash_success'] = count($uuids) . ' produk berhasil dihapus!';
@@ -113,12 +51,91 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
     }
 }
 
+// Handle Insert/Update
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
+    $nama = clean_input($_POST['nama'] ?? '');
+    $tahun = clean_input($_POST['tahun'] ?? '');
+    $pembuat_ids = $_POST['pembuat_id'] ?? []; // Array of UUIDs
+    $deskripsi = clean_input($_POST['deskripsi'] ?? '');
+    $link_demo = clean_input($_POST['link_demo'] ?? '');
 
-// Get all products with author info
+    try {
+        $pdo->beginTransaction();
+
+        $path_gambar = null;
+
+        // Handle file upload
+        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == 0) {
+            $upload_result = upload_file($_FILES['gambar']);
+            if ($upload_result['success']) {
+                $path_gambar = $upload_result['filename'];
+            } else {
+                throw new Exception($upload_result['error']);
+            }
+        }
+
+        if (isset($_POST['uuid']) && !empty($_POST['uuid'])) {
+            // Update
+            $uuid = $_POST['uuid'];
+
+            // Delete old image if new one uploaded
+            if ($path_gambar) {
+                $stmt = $pdo->prepare("SELECT path_gambar FROM produk WHERE uuid = ?");
+                $stmt->execute([$uuid]);
+                $old = $stmt->fetch();
+                if ($old && $old['path_gambar'] && file_exists('../assets/img/' . $old['path_gambar'])) {
+                    unlink('../assets/img/' . $old['path_gambar']);
+                }
+            }
+
+            if ($path_gambar) {
+                $stmt = $pdo->prepare("UPDATE produk SET nama = ?, tahun = ?, deskripsi = ?, link_demo = ?, path_gambar = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
+                $stmt->execute([$nama, $tahun, $deskripsi, $link_demo, $path_gambar, $uuid]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE produk SET nama = ?, tahun = ?, deskripsi = ?, link_demo = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
+                $stmt->execute([$nama, $tahun, $deskripsi, $link_demo, $uuid]);
+            }
+
+            // Delete existing pembuat relations
+            $stmt = $pdo->prepare("DELETE FROM anggota_produk WHERE produk_uuid = ?");
+            $stmt->execute([$uuid]);
+        } else {
+            // Insert
+            $stmt = $pdo->prepare("INSERT INTO produk (nama, tahun, deskripsi, link_demo, path_gambar) VALUES (?, ?, ?, ?, ?) RETURNING uuid");
+            $stmt->execute([$nama, $tahun, $deskripsi, $link_demo, $path_gambar]);
+            $uuid = $stmt->fetchColumn();
+        }
+
+        // Insert pembuat relations
+        if (!empty($pembuat_ids)) {
+            $stmt = $pdo->prepare("INSERT INTO anggota_produk (anggota_uuid, produk_uuid) VALUES (?, ?)");
+            foreach ($pembuat_ids as $anggota_uuid) {
+                if (!empty($anggota_uuid)) {
+                    $stmt->execute([$anggota_uuid, $uuid]);
+                }
+            }
+        }
+
+        $pdo->commit();
+        $_SESSION['flash_success'] = isset($_POST['uuid']) ? 'Produk berhasil diperbarui!' : 'Produk berhasil ditambahkan!';
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_products.php");
+        exit;
+    }
+}
+
+// Get all products with authors
 $stmt = $pdo->query("
-    SELECT p.*, a.nama as pembuat_nama 
+    SELECT p.*, 
+           STRING_AGG(DISTINCT a.nama, ', ' ORDER BY a.nama) as pembuat_nama,
+           ARRAY_AGG(DISTINCT a.uuid) as pembuat_ids
     FROM produk p 
-    LEFT JOIN anggota a ON p.pembuat_id = a.uuid 
+    LEFT JOIN anggota_produk ap ON p.uuid = ap.produk_uuid
+    LEFT JOIN anggota a ON ap.anggota_uuid = a.uuid 
+    GROUP BY p.uuid
     ORDER BY p.tahun DESC, p.nama ASC
 ");
 $products = $stmt->fetchAll();
@@ -129,11 +146,17 @@ $members = $stmt_members->fetchAll();
 
 // Get data for edit
 $edit_data = null;
+$edit_pembuat_ids = [];
 if (isset($_GET['edit'])) {
     $uuid = $_GET['edit'];
     $stmt = $pdo->prepare("SELECT * FROM produk WHERE uuid = ?");
     $stmt->execute([$uuid]);
     $edit_data = $stmt->fetch();
+
+    // Get pembuat IDs
+    $stmt = $pdo->prepare("SELECT anggota_uuid FROM anggota_produk WHERE produk_uuid = ?");
+    $stmt->execute([$uuid]);
+    $edit_pembuat_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 // Ambil flash message jika ada
@@ -157,6 +180,7 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -177,16 +201,16 @@ if (isset($_SESSION['flash_error'])) {
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Pembuat</label>
-                    <select name="pembuat_id" class="form-select select-enhanced">
-                        <option value="">Pilih Pembuat</option>
+                    <label class="form-label">Pembuat (dapat pilih lebih dari 1)</label>
+                    <select name="pembuat_id[]" class="form-select select-enhanced" multiple>
                         <?php foreach ($members as $member): ?>
                             <option value="<?php echo $member['uuid']; ?>"
-                                <?php echo ($edit_data && $edit_data['pembuat_id'] == $member['uuid']) ? 'selected' : ''; ?>>
+                                <?php echo in_array($member['uuid'], $edit_pembuat_ids) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($member['nama']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <small class="text-muted">Tekan Ctrl/Cmd untuk pilih lebih dari satu</small>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -231,7 +255,7 @@ if (isset($_SESSION['flash_error'])) {
     </div>
 </div>
 
-<!-- Daftar Produk (Tetap gunakan card grid atau ubah ke table) -->
+<!-- Daftar Produk -->
 <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
     <div class="card-header bg-white">
         <h5 class="mb-0 fw-bold">
@@ -250,6 +274,7 @@ if (isset($_SESSION['flash_error'])) {
         <?php else: ?>
             <div class="table-responsive">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>
@@ -260,7 +285,7 @@ if (isset($_SESSION['flash_error'])) {
                                 <th width="100">Gambar</th>
                                 <th>Nama Produk</th>
                                 <th width="80">Tahun</th>
-                                <th width="150">Pembuat</th>
+                                <th width="200">Pembuat</th>
                                 <th width="150">Aksi</th>
                             </tr>
                         </thead>
@@ -289,7 +314,12 @@ if (isset($_SESSION['flash_error'])) {
                                     <td><?php echo $product['tahun']; ?></td>
                                     <td>
                                         <?php if ($product['pembuat_nama']): ?>
-                                            <span class="badge bg-secondary"><?php echo htmlspecialchars($product['pembuat_nama']); ?></span>
+                                            <?php
+                                            $pembuats = explode(', ', $product['pembuat_nama']);
+                                            foreach ($pembuats as $pembuat):
+                                            ?>
+                                                <span class="badge bg-secondary mb-1"><?php echo htmlspecialchars($pembuat); ?></span>
+                                            <?php endforeach; ?>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>

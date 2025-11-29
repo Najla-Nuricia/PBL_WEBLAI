@@ -62,7 +62,7 @@ if (isset($_GET['delete_photo'])) {
 }
 
 // Handle Bulk Delete Galleries
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -81,7 +81,6 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
         exit;
     }
 }
-
 
 // Handle Insert/Update Gallery
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
@@ -364,6 +363,7 @@ if (isset($_SESSION['flash_error'])) {
             <?php else: ?>
                 <div class="table-responsive">
                     <form method="POST" id="bulkDeleteForm" action="">
+                        <input type="hidden" name="action" value="bulk_delete">
                         <table class="table table-hover datatable">
                             <thead>
                                 <tr>
@@ -439,6 +439,7 @@ if (isset($_SESSION['flash_error'])) {
                             <button type="button" id="bulkDeleteBtn" class="btn btn-danger">
                                 <i class="bi bi-trash3 me-2"></i>Hapus Terpilih
                             </button>
+                        </div>
                     </form>
                 </div>
             <?php endif; ?>
