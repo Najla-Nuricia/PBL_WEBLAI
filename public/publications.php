@@ -222,7 +222,7 @@ include '../includes/navbar.php';
                     <?php endforeach; ?>
 
                     <!-- Pagination untuk filtered view -->
-                    <?php if ($total_pages > 1): ?>
+                    <?php if (($filter_year || $filter_category) && $total_pages > 1): ?>
                         <?php
                         $limit_page = 5;
                         $start_page = max(1, $page - floor($limit_page / 2));
