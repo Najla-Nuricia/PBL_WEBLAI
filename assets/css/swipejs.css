@@ -1,0 +1,61 @@
+/* Swipeable Table Container */
+.swipeable-table {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    cursor: auto;
+    user-select: none;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.swipeable-table.dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+}
+
+.swipeable-table.dragging * {
+    user-select: none;
+    pointer-events: none;
+}
+
+.swipeable-table table {
+    min-width: 900px;
+    margin-bottom: 0;
+}
+/* Scrollbar */
+.swipeable-table::-webkit-scrollbar {
+    height: 8px;
+}
+
+.swipeable-table::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.swipeable-table::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.swipeable-table::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .swipeable-table table {
+        font-size: 0.85rem;
+    }
+
+    .swipeable-table td,
+    .swipeable-table th {
+        padding: 0.5rem !important;
+    }
+
+    .swipeable-table .btn-sm {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+    }
+}

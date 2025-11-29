@@ -1,8 +1,9 @@
 <?php
-session_start();
+// session_start();
 ob_start();
 
 require_once '../config/db.php';
+require_once '../lang/init.php';
 require_once '../helpers/sanitize.php';
 require '../config/mail.php';
 
@@ -65,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ");
                 $activeEmail = $stmtActive->fetchColumn();
                 $stmt = $pdo->prepare("INSERT INTO email_pesan (nama, email, subjek, pesan , email_setting_uuid) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$nama, $email, $subjek, $pesan , $activeEmail]);
+                $stmt->execute([$nama, $email, $subjek, $pesan, $activeEmail]);
             } catch (PDOException $e) {
                 $_SESSION['flash_error'] = 'data tidak tersimpan';
             }
@@ -127,50 +128,15 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">Contact Us</h1>
-                <p class="lead">Hubungi kami untuk informasi lebih lanjut atau kerjasama</p>
+                <h1 class="display-4 fw-bold mb-3"><?= __('contact_hero_title') ?></h1>
+                <p class="lead"><?= __('contact_hero_desc') ?></p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Parallax JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const parallaxBg = document.querySelector('.parallax-bg');
-    const heroSection = document.getElementById('heroSection');
-
-    if (parallaxBg && heroSection) {
-        let ticking = false;
-
-        function updateParallax() {
-            const scrolled = window.pageYOffset;
-            const heroHeight = heroSection.offsetHeight;
-
-            // Only apply parallax when hero section is visible
-            if (scrolled < heroHeight) {
-                // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
-                const yPos = scrolled * 0.5;
-                parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-            }
-
-            ticking = false;
-        }
-
-        function requestTick() {
-            if (!ticking) {
-                window.requestAnimationFrame(updateParallax);
-                ticking = true;
-            }
-        }
-
-        window.addEventListener('scroll', requestTick, {
-            passive: true
-        });
-    }
-});
-</script>
-
+<script src="../assets/js/parallax.js"></script>
 <!-- Contact Section -->
 <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
@@ -179,51 +145,51 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4">Send Us a Message</h3>
+                        <h3 class="fw-bold mb-4"><?= __('send_message') ?></h3>
 
                         <?php if ($success): ?>
-                        <div class="alert alert-success alert-dismissible fade show">
-                            <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
+                            <div class="alert alert-success alert-dismissible fade show">
+                                <i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                         <?php endif; ?>
 
                         <?php if ($error): ?>
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo $error; ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                         <?php endif; ?>
 
                         <form method="POST" action="">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <label class="form-label"><?= __('form_fullname') ?> <span class="text-danger">*</span></label>
                                     <input type="text" name="nama" class="form-control form-control-lg"
-                                        placeholder="Masukkan nama Anda" required>
+                                        placeholder="<?= __('form_fullname_placeholder') ?>" required>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <label class="form-label"><?= __('form_email') ?> <span class="text-danger">*</span></label>
                                     <input type="email" name="email" class="form-control form-control-lg"
-                                        placeholder="email@example.com" required>
+                                        placeholder="<?= __('form_email_placeholder') ?>" required>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Subjek <span class="text-danger">*</span></label>
+                                    <label class="form-label"><?= __('form_subject') ?> <span class="text-danger">*</span></label>
                                     <input type="text" name="subjek" class="form-control form-control-lg"
-                                        placeholder="Subjek pesan" required>
+                                        placeholder="<?= __('form_subject_placeholder') ?>" required>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Pesan <span class="text-danger">*</span></label>
+                                    <label class="form-label"><?= __('form_message') ?> <span class="text-danger">*</span></label>
                                     <textarea name="pesan" class="form-control form-control-lg" rows="6"
-                                        placeholder="Tulis pesan Anda di sini..." required></textarea>
+                                        placeholder="<?= __('form_message_placeholder') ?>" required></textarea>
                                 </div>
 
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary btn-lg px-5">
-                                        <i class="bi bi-send me-2"></i>Kirim Pesan
+                                        <i class="bi bi-send me-2"></i><?= __('btn_send_message') ?>
                                     </button>
                                 </div>
                             </div>
@@ -236,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-4">
-                        <h4 class="fw-bold mb-4">Contact Information</h4>
+                        <h4 class="fw-bold mb-4"><?= __('contact_information') ?></h4>
 
                         <div class="d-flex mb-4">
                             <div class="flex-shrink-0">
@@ -245,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Address</h6>
+                                <h6 class="fw-bold mb-1"><?= __('address') ?></h6>
                                 <p class="text-muted mb-0">
                                     <?= nl2br(htmlspecialchars($contact['address'] ?? '')) ?>
                                 </p>
@@ -259,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Email</h6>
+                                <h6 class="fw-bold mb-1"><?= __('form_email') ?></h6>
                                 <p class="text-muted mb-0">
                                     <?= htmlspecialchars($contact['email_Email'] ?? '') ?><br>
                                     <?= htmlspecialchars($contact['email_Email2'] ?? '') ?>
@@ -274,56 +240,57 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1">Working Hours</h6>
+                                <h6 class="fw-bold mb-1"><?= __('working_hours') ?></h6>
                                 <p class="text-muted mb-0">
                                     <?php
-                                        $order = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
-                                        usort($working_hours, function($a, $b) use ($order) {
-                                            return array_search($a['day_name'], $order) - array_search($b['day_name'], $order);
-                                        });
+                                    $order = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+                                    usort($working_hours, function ($a, $b) use ($order) {
+                                        return array_search($a['day_name'], $order) - array_search($b['day_name'], $order);
+                                    });
 
-                                        function formatHours($row) {
-                                            if ($row['is_closed']) {
-                                                return "Tutup";
-                                            }
-                                            if (empty($row['open_time']) || empty($row['close_time'])) {
-                                                return "Tutup";
-                                            }
-                                            return substr($row['open_time'], 0, 5) . " - " . substr($row['close_time'], 0, 5);
+                                    function formatHours($row)
+                                    {
+                                        if ($row['is_closed']) {
+                                            return __('closed');
                                         }
-
-                                        $groups = [];
-                                        $currentGroup = [
-                                            "start" => $working_hours[0]['day_name'],
-                                            "end"   => $working_hours[0]['day_name'],
-                                            "time"  => formatHours($working_hours[0])
-                                        ];
-
-                                        for ($i = 1; $i < count($working_hours); $i++) {
-                                            $row = $working_hours[$i];
-                                            $time = formatHours($row);
-
-                                            if ($time === $currentGroup['time']) {
-                                                $currentGroup['end'] = $row['day_name'];
-                                            } else {
-                                                $groups[] = $currentGroup;
-                                                $currentGroup = [
-                                                    "start" => $row['day_name'],
-                                                    "end"   => $row['day_name'],
-                                                    "time"  => $time
-                                                ];
-                                            }
+                                        if (empty($row['open_time']) || empty($row['close_time'])) {
+                                            return __('closed');
                                         }
-                                        $groups[] = $currentGroup;
-                                        foreach ($groups as $g) {
-                                            if ($g['start'] === $g['end']) {
-                                                echo "<p class='text-muted mb-1'>
+                                        return substr($row['open_time'], 0, 5) . " - " . substr($row['close_time'], 0, 5);
+                                    }
+
+                                    $groups = [];
+                                    $currentGroup = [
+                                        "start" => $working_hours[0]['day_name'],
+                                        "end"   => $working_hours[0]['day_name'],
+                                        "time"  => formatHours($working_hours[0])
+                                    ];
+
+                                    for ($i = 1; $i < count($working_hours); $i++) {
+                                        $row = $working_hours[$i];
+                                        $time = formatHours($row);
+
+                                        if ($time === $currentGroup['time']) {
+                                            $currentGroup['end'] = $row['day_name'];
+                                        } else {
+                                            $groups[] = $currentGroup;
+                                            $currentGroup = [
+                                                "start" => $row['day_name'],
+                                                "end"   => $row['day_name'],
+                                                "time"  => $time
+                                            ];
+                                        }
+                                    }
+                                    $groups[] = $currentGroup;
+                                    foreach ($groups as $g) {
+                                        if ($g['start'] === $g['end']) {
+                                            echo "<p class='text-muted mb-1'>
                                                         <strong>{$g['start']}:</strong> {$g['time']}</p>";
-                                            } else {
-                                                echo "<p class='text-muted mb-1'>
+                                        } else {
+                                            echo "<p class='text-muted mb-1'>
                                                         <strong>{$g['start']} - {$g['end']}:</strong> {$g['time']}</p>";
-                                            }
                                         }
+                                    }
                                     ?>
                                 </p>
                             </div>
@@ -333,20 +300,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <!-- Social Media -->
                 <?php if (!empty($social_media)): ?>
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h4 class="fw-bold mb-3">Follow Us</h4>
-                        <div class="d-flex flex-wrap gap-2">
-                            <?php foreach ($social_media as $sosmed): ?>
-                            <a href="<?php echo htmlspecialchars($sosmed['url']); ?>" target="_blank"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-<?php echo strtolower($sosmed['nama']); ?> me-2"></i>
-                                <?php echo ucfirst($sosmed['nama']); ?>
-                            </a>
-                            <?php endforeach; ?>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="fw-bold mb-3"><?= __('follow_us') ?></h4>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php foreach ($social_media as $sosmed): ?>
+                                    <a href="<?php echo htmlspecialchars($sosmed['url']); ?>" target="_blank"
+                                        class="btn btn-outline-primary">
+                                        <i class="bi bi-<?php echo strtolower($sosmed['nama']); ?> me-2"></i>
+                                        <?php echo ucfirst($sosmed['nama']); ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -376,12 +343,12 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
-const form = document.querySelector('form[method="POST"]');
-form.addEventListener('submit', function() {
-    const overlay = document.getElementById('pageLoadingOverlay');
-    overlay.classList.remove('d-none');
-    document.body.style.overflow = 'hidden';
-});
+    const form = document.querySelector('form[method="POST"]');
+    form.addEventListener('submit', function() {
+        const overlay = document.getElementById('pageLoadingOverlay');
+        overlay.classList.remove('d-none');
+        document.body.style.overflow = 'hidden';
+    });
 </script>
 
 <?php include '../includes/footer.php';

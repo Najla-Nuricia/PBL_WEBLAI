@@ -234,7 +234,8 @@ if (isset($_GET['edit'])) {
                 </div>
             </div>
         <?php else: ?>
-            <div class="table-responsive">
+            <link rel="stylesheet" href="../assets/css/swipejs.css">
+            <div class="swipeable-table" id="swipeTable">
                 <form method="POST" id="bulkDeleteForm" action="">
                     <!-- Penambahan action form -->
                     <input type="hidden" name="action" value="bulk_delete">

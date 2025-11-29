@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 include '../includes/header.php';
 include '../includes/navbar.php';
 
@@ -67,128 +68,7 @@ if (isset($_GET['id'])) {
     $kegiatan_list = $stmt->fetchAll();
 }
 ?>
-
-<!-- Add CSS for line-clamp and navbar-style filter -->
-<style>
-    /* Line clamp utilities - FIXED VERSION */
-    .line-clamp-2 {
-        display: -webkit-box !important;
-        -webkit-box-orient: vertical !important;
-        -webkit-line-clamp: 2 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        word-break: break-word;
-        line-clamp: 2;
-    }
-
-    .line-clamp-3 {
-        display: -webkit-box !important;
-        -webkit-box-orient: vertical !important;
-        -webkit-line-clamp: 3 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        word-break: break-word;
-        line-clamp: 3;
-    }
-
-    /* Filter Pills - Navbar Style */
-    .filter-pills-container {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .filter-pill {
-        position: relative;
-        padding: 8px 16px;
-        border-radius: 8px;
-        color: var(--text-dark, #2c3e50);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-        font-weight: 500;
-        background: transparent;
-        border: none;
-    }
-
-    .filter-pill i {
-        transition: 0.3s ease;
-        font-size: 1rem;
-    }
-
-    /* Hover icon animation */
-    .filter-pill:hover i {
-        transform: translateY(-2px) scale(1.1);
-    }
-
-    /* Underline effect */
-    .filter-pill::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #007bff, #00d4ff);
-        transform: translateX(-50%);
-        transition: width 0.3s ease;
-    }
-
-    .filter-pill:hover::before {
-        width: 80%;
-    }
-
-    .filter-pill:hover {
-        background: rgba(0, 123, 255, 0.08);
-        color: #007bff !important;
-        transform: translateY(-2px);
-    }
-
-    .filter-pill.active {
-        background: linear-gradient(135deg, #007bff, #0056b3);
-        color: #fff !important;
-    }
-
-    .filter-pill.active::before {
-        width: 0;
-    }
-
-    /* Card hover effect */
-    .news-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    }
-
-    /* Hover effect for images */
-    .hover-zoom {
-        transition: transform 0.3s ease;
-    }
-
-    .hover-zoom:hover {
-        transform: scale(1.05);
-    }
-
-    /* Mobile responsive */
-    @media (max-width: 767px) {
-        .filter-pill {
-            font-size: 0.85rem;
-            padding: 0.4rem 1.2rem;
-        }
-
-        .filter-pills-container {
-            gap: 0.4rem;
-        }
-    }
-</style>
-
+<link rel="stylesheet" href="../assets/css/public_activity.css">
 <!-- Page Header -->
 <section class="hero-section position-relative py-5" id="heroSection"
     style="color: white; min-height: 500px; overflow: hidden;">
@@ -206,46 +86,15 @@ if (isset($_GET['id'])) {
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">Research & Activities</h1>
-                <p class="lead">Kegiatan seminar, workshop, dan pengabdian masyarakat AI Lab Polinema</p>
+                <h1 class="display-4 fw-bold mb-3"><?= __('activities') ?></h1>
+                <p class="lead"><?= __('activities_hero_desc') ?></p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Parallax JavaScript -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
-
-        if (parallaxBg && heroSection) {
-            let ticking = false;
-
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
-
-                if (scrolled < heroHeight) {
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-                ticking = false;
-            }
-
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
-        }
-    });
-</script>
+<script src="../assets/js/parallax.js"></script>
 
 <?php if ($single_kegiatan): ?>
     <!-- Single Activity Detail -->
@@ -410,19 +259,19 @@ if (isset($_GET['id'])) {
                     <div class="filter-pills-container">
                         <a href="activity.php" class="filter-pill <?php echo !$kategori_filter ? 'active' : ''; ?>">
                             <i class="bi bi-grid-3x3-gap"></i>
-                            <span>Semua</span>
+                            <span><?= __('all') ?></span>
                         </a>
                         <a href="activity.php?kategori=workshop" class="filter-pill <?php echo $kategori_filter == 'workshop' ? 'active' : ''; ?>">
                             <i class="bi bi-tools"></i>
-                            <span>Workshop</span>
+                            <span><?= __('workshop') ?></span>
                         </a>
                         <a href="activity.php?kategori=seminar" class="filter-pill <?php echo $kategori_filter == 'seminar' ? 'active' : ''; ?>">
                             <i class="bi bi-mic"></i>
-                            <span>Seminar</span>
+                            <span><?= __('seminar') ?></span>
                         </a>
                         <a href="activity.php?kategori=pengabdian" class="filter-pill <?php echo $kategori_filter == 'pengabdian' ? 'active' : ''; ?>">
                             <i class="bi bi-people"></i>
-                            <span>Pengabdian</span>
+                            <span><?= __('community_service') ?></span>
                         </a>
                     </div>
                 </div>

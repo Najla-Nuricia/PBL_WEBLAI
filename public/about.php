@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'About Us';
 
 // Fetch dashboard background
@@ -28,7 +29,7 @@ $fasilitas = $stmt_fasilitas->fetchAll();
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
-
+<link rel="stylesheet" href="../assets/css/public_about.css">
 <!-- Hero Section with Parallax Effect -->
 <section class="hero-section position-relative py-5" id="heroSection"
     style="color: white; min-height: 500px; overflow: hidden;">
@@ -51,51 +52,15 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center py-5" style="min-height: 400px;">
             <div class="col-lg-8 text-center">
-                <h1 class="display-4 fw-bold mb-3" data-aos="fade-up" data-aos-duration="1000">About AI Lab</h1>
-                <p class="lead" data-aos="fade-up" data-aos-duration="1000">Mengenal lebih dekat Applied Informatics
-                    Laboratory</p>
+                <h1 class="display-4 fw-bold mb-3" data-aos="fade-up" data-aos-duration="1000"><?= __('about_hero_title') ?></h1>
+                <p class="lead" data-aos="fade-up" data-aos-duration="1000"><?= __('about_hero_desc') ?></p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Parallax JavaScript -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
-
-        if (parallaxBg && heroSection) {
-            let ticking = false;
-
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
-
-                // Only apply parallax when hero section is visible
-                if (scrolled < heroHeight) {
-                    // Adjust the 0.5 value to control parallax speed (lower = slower, higher = faster)
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-
-                ticking = false;
-            }
-
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
-        }
-    });
-</script>
-
+<script src="../assets/js/parallax.js"></script>
 <!-- Visi & Misi Section -->
 <?php if ($profile): ?>
     <section class="py-5">
@@ -107,7 +72,7 @@ include '../includes/navbar.php';
                         <div class="card-body p-4 text-center">
                             <div class="d-flex justify-content-center align-items-center mb-3">
                                 <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Visi</h3>
+                                <h3 class="fw-bold mb-0"><?= __('vision') ?></h3>
                             </div>
                             <p class="text-muted mb-0 text-center">
                                 <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
@@ -120,13 +85,13 @@ include '../includes/navbar.php';
                         <div class="card-body p-4 text-baseline" style="text-align: justify;">
                             <div class="d-flex align-items-center justify-content-center mb-3">
                                 <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0">Misi</h3>
+                                <h3 class="fw-bold mb-0"><?= __('mission') ?></h3>
                             </div>
 
                             <?php
                             // Mengubah setiap baris menjadi poin list
                             $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
-                            if (!empty($misi_items)) {
+                            if (!empty($misi_items) && trim($profile['misi']) !== '') {
                                 echo '<ul class="list-unstyled mb-0 text-muted">';
                                 foreach ($misi_items as $item) {
                                     if (trim($item) !== '') {
@@ -139,7 +104,7 @@ include '../includes/navbar.php';
                                 }
                                 echo '</ul>';
                             } else {
-                                echo '<p class="text-muted">Belum ada misi yang terdaftar.</p>';
+                                echo '<p class="text-muted">' . __('no_mission') . '</p>';
                             }
                             ?>
                         </div>
@@ -155,7 +120,7 @@ include '../includes/navbar.php';
             <div class="container">
                 <div class="row" data-aos="fade-up" data-aos-duration="1000">
                     <div class="col-lg-10 mx-auto">
-                        <h2 class="section-title text-center mb-4">Sejarah Laboratorium</h2>
+                        <h2 class="section-title text-center mb-4"><?= __('lab_history') ?></h2>
                         <div class="card border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <p class="text-muted" style="text-align: justify;">
@@ -173,7 +138,7 @@ include '../includes/navbar.php';
         <div class="container">
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
-                Informasi profil laboratorium belum tersedia
+                <?= __('no_lab_profile') ?>
             </div>
         </div>
     </section>
@@ -184,15 +149,15 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-5">
             <div class="col text-center">
-                <h2 class="section-title">Our Team</h2>
-                <p class="section-subtitle">Tim peneliti dan pengembang AI Lab Polinema</p>
+                <h2 class="section-title"><?= __('our_team') ?></h2>
+                <p class="section-subtitle"><?= __('team_desc') ?></p>
             </div>
         </div>
 
         <!-- Ketua -->
         <?php if (!empty($ketua)): ?>
             <div class="mb-5">
-                <h4 class="text-center mb-4 fw-bold text-primary">Kepala Laboratorium</h4>
+                <h4 class="text-center mb-4 fw-bold text-primary"><?= __('lab_head') ?></h4>
                 <div class="row justify-content-center g-4">
                     <?php foreach ($ketua as $k): ?>
                         <div class="col-md-4 col-lg-3">
@@ -222,7 +187,7 @@ include '../includes/navbar.php';
                                     <span class="badge badge-custom bg-primary"><?php echo ucfirst($k['status']); ?></span>
                                     <div class="member-action mt-3">
                                         <small class="text-primary fw-semibold">
-                                            <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                            <i class="bi bi-eye me-1"></i><?= __('view_publications') ?>
                                         </small>
                                     </div>
                                 </div>
@@ -242,7 +207,7 @@ include '../includes/navbar.php';
 
             <?php if (!empty($dosen)): ?>
                 <div class="mb-5">
-                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Dosen</h4>
+                    <h4 class="text-center mb-4 fw-bold text-primary"><?= __('lecturer_members') ?></h4>
                     <div class="row g-4">
                         <?php foreach ($dosen as $a): ?>
                             <div class="col-md-4 col-lg-3">
@@ -271,7 +236,7 @@ include '../includes/navbar.php';
                                         <span class="badge badge-custom bg-info"><?php echo ucfirst($a['status']); ?></span>
                                         <div class="member-action mt-3">
                                             <small class="text-info fw-semibold">
-                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                                <i class="bi bi-eye me-1"></i><?= __('view_publications') ?>
                                             </small>
                                         </div>
                                     </div>
@@ -285,7 +250,7 @@ include '../includes/navbar.php';
             <!-- Anggota Mahasiswa -->
             <?php if (!empty($mahasiswa)): ?>
                 <div>
-                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Mahasiswa</h4>
+                    <h4 class="text-center mb-4 fw-bold text-primary"><?= __('student_members') ?></h4>
                     <div class="row g-4">
                         <?php foreach ($mahasiswa as $a): ?>
                             <div class="col-md-4 col-lg-3">
@@ -314,7 +279,7 @@ include '../includes/navbar.php';
                                         <span class="badge badge-custom bg-success"><?php echo ucfirst($a['status']); ?></span>
                                         <div class="member-action mt-3">
                                             <small class="text-success fw-semibold">
-                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
+                                                <i class="bi bi-eye me-1"></i><?= __('view_publications') ?>
                                             </small>
                                         </div>
                                     </div>
@@ -329,7 +294,7 @@ include '../includes/navbar.php';
         <?php if (empty($ketua) && empty($anggota)): ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
-                Data anggota tim belum tersedia
+                <?= __('no_team_data') ?>
             </div>
         <?php endif; ?>
     </div>
@@ -341,136 +306,21 @@ include '../includes/navbar.php';
         <div class="modal-content">
             <div class="modal-header bg-light">
                 <h5 class="modal-title" id="modalTitle">
-                    <i class="bi bi-journal-text me-2"></i>Publikasi
+                    <i class="bi bi-journal-text me-2"></i><?= __('publications') ?>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalBody">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden"><?= __('loading') ?></span>
                     </div>
-                    <p class="mt-3 text-muted">Memuat publikasi...</p>
+                    <p class="mt-3 text-muted"><?= __('loading_publications') ?></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Team Card Styles */
-    .team-card {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        overflow: hidden;
-    }
-
-    .team-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .team-card:hover .member-img {
-        transform: scale(1.05);
-    }
-
-    .member-avatar {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto;
-    }
-
-    .member-img {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-        border: 4px solid #f8f9fa;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .member-placeholder {
-        width: 120px;
-        height: 120px;
-        border: 4px solid #f8f9fa;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .member-badge {
-        position: absolute;
-        bottom: 5px;
-        right: calc(50% - 60px);
-        background: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .bg-gradient-secondary {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .bg-gradient-success {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .badge-custom {
-        padding: 0.4rem 0.8rem;
-        font-weight: 500;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-    }
-
-    .member-action {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .team-card:hover .member-action {
-        opacity: 1;
-    }
-
-    /* Modal Enhancements */
-    .modal-content {
-        border: none;
-        border-radius: 12px;
-    }
-
-    .modal-header {
-        border-bottom: 2px solid #e9ecef;
-        border-radius: 12px 12px 0 0;
-    }
-
-    .modal-body {
-        max-height: 60vh;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-
-        .member-avatar,
-        .member-img,
-        .member-placeholder {
-            width: 100px;
-            height: 100px;
-        }
-
-        .member-badge {
-            right: calc(50% - 50px);
-            width: 28px;
-            height: 28px;
-        }
-    }
-</style>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
@@ -494,13 +344,13 @@ include '../includes/navbar.php';
 
                 // title modal
                 modalTitle.innerHTML = `
-                <i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}
+                <i class="bi bi-journal-text me-2"></i>${"<?= __('publications') ?>"} - ${nama}
             `;
 
                 // base layout (keahlian + research page + publikasi)
                 modalBody.innerHTML = `
                 <div id="keahlianSection" class="px-3 pt-2">
-                    <h6 class="text-muted mb-1">Bidang Keahlian</h6>
+                    <h6 class="text-muted mb-1"><?= __('expertise') ?></h6>
                     <div id="keahlianBox" class="d-flex flex-wrap gap-1">${badges}</div>
                 </div>
 
@@ -508,14 +358,14 @@ include '../includes/navbar.php';
                     <h6 class="text-muted mb-1">Research Page</h6>
                     <div id="researchPageBox" class="mb-4 small text-muted">
                         <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                        <span class="ms-2">Memuat...</span>
+                        <span class="ms-2"><?= __('loading') ?></span>
                     </div>
                 </div>
 
                 <div id="publicationContainer">
                     <div class="text-center py-4">
                         <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                        <p class="mt-3 text-muted mb-0"><?= __('loading_publications') ?></p>
                     </div>
                 </div>
             `;
@@ -597,7 +447,7 @@ include '../includes/navbar.php';
                             document.getElementById("publicationContainer").innerHTML = `
                             <div class="alert alert-danger m-3">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
-                                Terjadi kesalahan saat memuat data publikasi.
+                                <?= __('error_loading_publications') ?>
                             </div>
                         `;
                         });
@@ -615,7 +465,7 @@ include '../includes/navbar.php';
 <?php if (empty($ketua) && empty($anggota)): ?>
     <div class="alert alert-info text-center">
         <i class="bi bi-info-circle me-2"></i>
-        Data anggota tim belum tersedia
+        <?= __('no_team_data') ?>
     </div>
 <?php endif; ?>
 </div>
@@ -639,8 +489,8 @@ include '../includes/navbar.php';
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
-                    <h2 class="section-title">Laboratory Facilities</h2>
-                    <p class="section-subtitle">Fasilitas penunjang penelitian dan pengembangan</p>
+                    <h2 class="section-title"><?= __('lab_facilities') ?></h2>
+                    <p class="section-subtitle"><?= __('facilities_desc') ?></p>
                 </div>
             </div>
 
@@ -657,7 +507,7 @@ include '../includes/navbar.php';
                                 <?php if ($fas['kuantitas']): ?>
                                     <p class="text-muted small">
                                         <i class="bi bi-box me-1"></i>
-                                        Jumlah: <?php echo $fas['kuantitas']; ?> unit
+                                        <?= __('quantity') ?>: <?php echo $fas['kuantitas']; ?> <?= __('units') ?>
                                     </p>
                                 <?php endif; ?>
                                 <p class="card-text text-muted">
@@ -674,7 +524,7 @@ include '../includes/navbar.php';
                 <nav aria-label="Facilities pagination" class="mt-4">
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= ($page_facility <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?facility_page=<?= $page_facility - 1 ?>#facilities">&laquo; Sebelumnya</a>
+                            <a class="page-link" href="?facility_page=<?= $page_facility - 1 ?>#facilities">&laquo; <?= __('previous') ?></a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_facility; $i++): ?>
                             <li class="page-item <?= ($page_facility == $i) ? 'active' : '' ?>">
@@ -682,7 +532,7 @@ include '../includes/navbar.php';
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_facility >= $pages_facility) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?facility_page=<?= $page_facility + 1 ?>#facilities">Selanjutnya &raquo;</a>
+                            <a class="page-link" href="?facility_page=<?= $page_facility + 1 ?>#facilities"><?= __('next') ?> &raquo;</a>
                         </li>
                     </ul>
                 </nav>

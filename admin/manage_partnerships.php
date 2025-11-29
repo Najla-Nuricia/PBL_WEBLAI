@@ -229,7 +229,8 @@ if (isset($_SESSION['flash_error'])) {
                 </div>
             <?php else: ?>
             </div>
-            <div class="table-responsive mb-3">
+            <link rel="stylesheet" href="../assets/css/swipejs.css">
+            <div class="swipeable-table" id="swipeTable">
                 <form method="POST" id="bulkDeleteForm" action="">
                     <!-- Penambahan action form -->
                     <input type="hidden" name="action" value="bulk_delete">

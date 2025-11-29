@@ -14,7 +14,7 @@ $footer = $stmt_footer->fetch();
         <div class="row">
             <!-- About Section -->
             <div class="col-lg-4 mb-4">
-                <h5 class="text-uppercase mb-3">
+                <h5 class="text-uppercase mb-3 text-light">
                     <i class="bi bi-cpu-fill me-2"></i>
                     <?php echo htmlspecialchars($footer['org_name']); ?>
                 </h5>
@@ -25,7 +25,7 @@ $footer = $stmt_footer->fetch();
 
             <!-- Quick Links -->
             <div class="col-lg-4 mb-4">
-                <h5 class="text-uppercase mb-3">Quick Links</h5>
+                <h5 class="text-uppercase mb-3 text-light">Quick Links</h5>
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <a href="index.php" class="text-light text-decoration-none">
@@ -57,7 +57,7 @@ $footer = $stmt_footer->fetch();
 
             <!-- Contact & Social Media -->
             <div class="col-lg-4 mb-4">
-                <h5 class="text-uppercase mb-3">Connect With Us</h5>
+                <h5 class="text-uppercase mb-3 text-light">Connect With Us</h5>
                 <p class="text-light">
                     <i class="bi bi-geo-alt-fill me-2"></i>
                     Politeknik Negeri Malang<br>

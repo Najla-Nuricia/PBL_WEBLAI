@@ -212,7 +212,8 @@ if (isset($_SESSION['flash_error'])) {
                 </h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
+                <link rel="stylesheet" href="../assets/css/swipejs.css">
+                <div class="swipeable-table" id="swipeTable">
                     <table class="table table-hover">
                         <thead>
                             <tr>

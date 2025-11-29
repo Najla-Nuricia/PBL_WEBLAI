@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'News & Events';
 
 $stmt_bg = $pdo->query('SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1');
@@ -66,144 +67,7 @@ if (isset($_GET['id'])) {
 include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
-
-<!-- Add CSS for line-clamp and minimalist filter -->
-<style>
-    /* Line clamp fix - Remove conflicting properties */
-    .line-clamp-2 {
-        display: -webkit-box !important;
-        -webkit-box-orient: vertical !important;
-        -webkit-line-clamp: 2 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        word-break: break-word;
-        line-height: 1.5 !important;
-        max-height: 3em !important;
-        line-clamp: 2;
-        /* 2 lines * 1.5 line-height */
-    }
-
-    .line-clamp-3 {
-        display: -webkit-box !important;
-        -webkit-box-orient: vertical !important;
-        -webkit-line-clamp: 3 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        word-break: break-word;
-        line-height: 1.5 !important;
-        max-height: 4.5em !important;
-        line-clamp: 3;
-        /* 3 lines * 1.5 line-height */
-    }
-
-    /* Force card body spacing */
-    .card-body-fixed {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    .card-body-fixed>* {
-        flex-shrink: 0;
-    }
-
-    /* Filter Pills - Navbar Style */
-    .filter-pills-container {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .filter-pill {
-        position: relative;
-        padding: 8px 16px;
-        border-radius: 8px;
-        color: var(--text-dark, #2c3e50);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-        font-weight: 500;
-        background: transparent;
-        border: none;
-    }
-
-    .filter-pill i {
-        transition: 0.3s ease;
-        font-size: 1rem;
-    }
-
-    /* Hover icon animation */
-    .filter-pill:hover i {
-        transform: translateY(-2px) scale(1.1);
-    }
-
-    /* Underline effect */
-    .filter-pill::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #007bff, #00d4ff);
-        transform: translateX(-50%);
-        transition: width 0.3s ease;
-    }
-
-    .filter-pill:hover::before {
-        width: 80%;
-    }
-
-    .filter-pill:hover {
-        background: rgba(0, 123, 255, 0.08);
-        color: #007bff !important;
-        transform: translateY(-2px);
-    }
-
-    .filter-pill.active {
-        background: linear-gradient(135deg, #007bff, #0056b3);
-        color: #fff !important;
-    }
-
-    .filter-pill.active::before {
-        width: 0;
-    }
-
-    /* Card hover effect */
-    .news-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    }
-
-    /* Hover effect for images */
-    .hover-zoom {
-        transition: transform 0.3s ease;
-    }
-
-    .hover-zoom:hover {
-        transform: scale(1.05);
-    }
-
-    /* Mobile responsive */
-    @media (max-width: 767px) {
-        .filter-pill {
-            font-size: 0.85rem;
-            padding: 0.4rem 1.2rem;
-        }
-
-        .filter-pills-container {
-            gap: 0.4rem;
-        }
-    }
-</style>
-
+<link rel="stylesheet" href="../assets/css/public_news.css">
 <!-- Page Header -->
 <section class="hero-section position-relative py-5" id="heroSection"
     style="color: white; min-height: 500px; overflow: hidden;">
@@ -221,46 +85,15 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3">News & Events</h1>
-                <p class="lead">Berita terkini dan agenda kegiatan AI Lab Polinema</p>
+                <h1 class="display-4 fw-bold mb-3"><?= __('news_hero_title') ?></h1>
+                <p class="lead"><?= __('news_hero_desc') ?></p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Parallax JavaScript -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const parallaxBg = document.querySelector('.parallax-bg');
-        const heroSection = document.getElementById('heroSection');
-
-        if (parallaxBg && heroSection) {
-            let ticking = false;
-
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const heroHeight = heroSection.offsetHeight;
-
-                if (scrolled < heroHeight) {
-                    const yPos = scrolled * 0.5;
-                    parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                }
-                ticking = false;
-            }
-
-            function requestTick() {
-                if (!ticking) {
-                    window.requestAnimationFrame(updateParallax);
-                    ticking = true;
-                }
-            }
-
-            window.addEventListener('scroll', requestTick, {
-                passive: true
-            });
-        }
-    });
-</script>
+<script src="../assets/js/parallax.js"></script>
 
 <?php if ($single_news): ?>
     <!-- Single News Detail -->
@@ -269,7 +102,7 @@ include '../includes/navbar.php';
             <div class="row">
                 <div class="col-lg-10 mx-auto">
                     <a href="news.php" class="btn btn-outline-primary mb-4">
-                        <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Berita
+                        <i class="bi bi-arrow-left me-2"></i><?= __('back_to_news') ?>
                     </a>
 
                     <div class="card border-0 shadow-sm">
@@ -360,7 +193,7 @@ include '../includes/navbar.php';
 
                             <?php if (!empty($news_fotos) && count($news_fotos) > 1): ?>
                                 <hr class="my-4">
-                                <h5 class="fw-bold mb-3">Galeri Foto</h5>
+                                <h5 class="fw-bold mb-3"><?= __('photo_gallery') ?></h5>
                                 <div class="row g-3">
                                     <?php foreach ($news_fotos as $foto):
                                         $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']); ?>
@@ -433,19 +266,19 @@ include '../includes/navbar.php';
                     <div class="filter-pills-container">
                         <a href="news.php" class="filter-pill <?php echo !$kategori_filter ? 'active' : ''; ?>">
                             <i class="bi bi-grid-3x3-gap"></i>
-                            <span>Semua</span>
+                            <span><?= __('all') ?></span>
                         </a>
                         <a href="news.php?kategori=berita" class="filter-pill <?php echo $kategori_filter == 'berita' ? 'active' : ''; ?>">
                             <i class="bi bi-newspaper"></i>
-                            <span>Berita</span>
+                            <span><?= __('nav_news') ?></span>
                         </a>
                         <a href="news.php?kategori=agenda" class="filter-pill <?php echo $kategori_filter == 'agenda' ? 'active' : ''; ?>">
                             <i class="bi bi-calendar-event"></i>
-                            <span>Agenda</span>
+                            <span><?= __('nav_agenda') ?></span>
                         </a>
                         <a href="news.php?kategori=pengumuman" class="filter-pill <?php echo $kategori_filter == 'pengumuman' ? 'active' : ''; ?>">
                             <i class="bi bi-megaphone"></i>
-                            <span>Pengumuman</span>
+                            <span><?= __('nav_announcement') ?></span>
                         </a>
                     </div>
                 </div>
@@ -530,7 +363,7 @@ include '../includes/navbar.php';
                                         </p>
 
                                         <a href="news.php?id=<?= $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                            Baca Selengkapnya <i class="bi bi-arrow-right"></i>
+                                            <?= __('read_more') ?> <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -543,7 +376,7 @@ include '../includes/navbar.php';
                     <div class="col-12">
                         <div class="alert alert-info text-center">
                             <i class="bi bi-info-circle me-2"></i>
-                            Belum ada berita untuk kategori ini
+                            <?= __('no_news') ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -555,7 +388,7 @@ include '../includes/navbar.php';
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page - 1 ?>">
-                                &laquo; Sebelumnya
+                                &laquo; <?= __('previous') ?>
                             </a>
                         </li>
 
@@ -593,7 +426,7 @@ include '../includes/navbar.php';
 
                         <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page + 1 ?>">
-                                Selanjutnya &raquo;
+                                <?= __('next') ?> &raquo;
                             </a>
                         </li>
                     </ul>
