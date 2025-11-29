@@ -61,9 +61,28 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script src="../assets/js/parallax.js"></script>
+<!-- Sejarah Section -->
+<?php if ($profile['sejarah']): ?>
+    <section class="py-5">
+        <div class="container">
+            <div class="row" data-aos="fade-up" data-aos-duration="1000">
+                <div class="col-lg-10 mx-auto">
+                    <h2 class="section-title text-center mb-4"><?= __('lab_history') ?></h2>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <p class="text-muted" style="text-align: justify;">
+                                <?php echo nl2br(htmlspecialchars($profile['sejarah'])); ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
 <!-- Visi & Misi Section -->
 <?php if ($profile): ?>
-    <section class="py-5">
+    <section class="py-5 bg-light">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-10">
@@ -113,26 +132,6 @@ include '../includes/navbar.php';
             </div>
         </div>
     </section>
-
-    <!-- Sejarah Section -->
-    <?php if ($profile['sejarah']): ?>
-        <section class="py-5 bg-light">
-            <div class="container">
-                <div class="row" data-aos="fade-up" data-aos-duration="1000">
-                    <div class="col-lg-10 mx-auto">
-                        <h2 class="section-title text-center mb-4"><?= __('lab_history') ?></h2>
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body p-4">
-                                <p class="text-muted" style="text-align: justify;">
-                                    <?php echo nl2br(htmlspecialchars($profile['sejarah'])); ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    <?php endif; ?>
 <?php else: ?>
     <section class="py-5">
         <div class="container">
