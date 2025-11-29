@@ -49,13 +49,13 @@ if ($filter_year || $filter_category) {
         ORDER BY tahun DESC, judul ASC
         LIMIT :limit OFFSET :offset
     ");
-    
+
     foreach ($params as $k => $v) $stmt->bindValue($k, $v);
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     $publications = $stmt->fetchAll();
-    
+
     // Group by year untuk filtered view
     $publications_by_year = [];
     foreach ($publications as $pub) {
@@ -63,7 +63,6 @@ if ($filter_year || $filter_category) {
         $publications_by_year[$year][] = $pub;
     }
     krsort($publications_by_year);
-    
 } else {
     $stmt = $pdo->prepare("
         SELECT *
@@ -72,7 +71,7 @@ if ($filter_year || $filter_category) {
     ");
     $stmt->execute();
     $all_publications = $stmt->fetchAll();
-    
+
     $publications_by_year = [];
     foreach ($all_publications as $pub) {
         $year = $pub['tahun'] ?: 'Tidak Diketahui';
@@ -206,10 +205,10 @@ include '../includes/navbar.php';
 
                             <!-- Tombol "Lihat Selengkapnya" untuk view all -->
                             <?php if (!$filter_year && !$filter_category): ?>
-                                <?php 
-                                    $count_stmt = $pdo->prepare("SELECT COUNT(*) FROM view_publikasi_penulis WHERE tahun = ?");
-                                    $count_stmt->execute([$year]);
-                                    $total_for_year = $count_stmt->fetchColumn();
+                                <?php
+                                $count_stmt = $pdo->prepare("SELECT COUNT(*) FROM view_publikasi_penulis WHERE tahun = ?");
+                                $count_stmt->execute([$year]);
+                                $total_for_year = $count_stmt->fetchColumn();
                                 ?>
                                 <?php if ($total_for_year > 5): ?>
                                     <div class="text-center mt-3">
@@ -223,7 +222,19 @@ include '../includes/navbar.php';
                     <?php endforeach; ?>
 
                     <!-- Pagination untuk filtered view -->
-                    <?php if (($filter_year || $filter_category) && $total_pages > 1): ?>
+                    <?php if ($total_pages > 1): ?>
+                        <?php
+                        $limit_page = 5;
+                        $start_page = max(1, $page - floor($limit_page / 2));
+                        $end_page = min($total_pages, $page + floor($limit_page / 2));
+                        if ($end_page - $start_page + 1 < $limit_page) {
+                            if ($start_page > 1) {
+                                $start_page = max(1, $total_pages - $limit_page + 1);
+                            } elseif ($end_page < $total_pages) {
+                                $end_page = min($total_pages, $limit_page);
+                            }
+                        }
+                        ?>
                         <nav aria-label="Page navigation" class="mt-4">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
@@ -231,12 +242,34 @@ include '../includes/navbar.php';
                                         href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page - 1 ?>">&laquo;
                                         <?= __('previous') ?></a>
                                 </li>
-                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                <?php if ($start_page > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=1">1</a>
+                                    </li>
+                                    <?php if ($start_page > 2): ?>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
                                     <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                         <a class="page-link"
                                             href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $i ?>"><?= $i ?></a>
                                     </li>
                                 <?php endfor; ?>
+                                <?php if ($end_page < $total_pages): ?>
+                                    <?php if ($end_page < $total_pages - 1): ?>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    <?php endif; ?>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $total_pages ?>"><?= $total_pages ?></a>
+                                    </li>
+                                <?php endif; ?>
                                 <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                                     <a class="page-link"
                                         href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page + 1 ?>"><?= __('next') ?>
@@ -279,8 +312,8 @@ include '../includes/navbar.php';
                             <!-- Clear Filter Button -->
                             <?php if ($filter_year !== null): ?>
                                 <div class="mt-3 pt-3 border-top">
-                                    <a href="?year=all&category=<?= $filter_category ?: 'all' ?>" 
-                                    class="btn btn-sm btn-outline-primary w-100">
+                                    <a href="?year=all&category=<?= $filter_category ?: 'all' ?>"
+                                        class="btn btn-sm btn-outline-primary w-100">
                                         <i class="bi bi-x-circle me-2"></i>Clear Year Filter
                                     </a>
                                 </div>
@@ -351,11 +384,11 @@ include '../includes/navbar.php';
 <?php endif; ?>
 
 <script>
-document.getElementById('year-select').addEventListener('change', function() {
-    let year = this.value;
-    let category = "<?= $filter_category ?: 'all' ?>";
-    window.location.href = "?year=" + year + "&category=" + category;
-});
+    document.getElementById('year-select').addEventListener('change', function() {
+        let year = this.value;
+        let category = "<?= $filter_category ?: 'all' ?>";
+        window.location.href = "?year=" + year + "&category=" + category;
+    });
 </script>
 
 <?php include '../includes/footer.php'; ?>
