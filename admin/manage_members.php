@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
 }
 
 // Get all members
-$stmt = $pdo->query("SELECT * FROM anggota ORDER BY jabatan, nama");
+$stmt = $pdo->query("SELECT * FROM anggota where jabatan is not null ORDER BY jabatan, nama  ");
 $members = $stmt->fetchAll();
 
 // Get data for edit
@@ -287,18 +287,18 @@ if (isset($_SESSION['flash_error'])) {
                                 <?php endif; ?>
                             </td>
                             <td><strong><?php echo htmlspecialchars($member['nama']); ?></strong></td>
-                            <td><?php echo htmlspecialchars($member['nidn']); ?></td>
+                            <td><?php echo htmlspecialchars($member['nidn'] ?? ''); ?></td>
                             <td>
                                 <span
                                     class="badge bg-<?php echo $member['jabatan'] == 'ketua' ? 'primary' : 'secondary'; ?>">
-                                    <?php echo ucfirst($member['jabatan']); ?>
+                                    <?php echo ucfirst($member['jabatan']?? ''); ?>
                                 </span>
                             </td>
                             <td><?php echo htmlspecialchars($member['keahlian'] ?? ''); ?></td>
 
                             <td>
                                 <span class="badge bg-<?php echo $member['status'] == 'dosen' ? 'success' : 'info'; ?>">
-                                    <?php echo ucfirst($member['status']); ?>
+                                    <?php echo ucfirst($member['status'] ?? ''); ?>
                                 </span>
                             </td>
                             <td>
