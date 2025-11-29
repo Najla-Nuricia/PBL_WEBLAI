@@ -11,16 +11,49 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 
-// Fetch latest news with thumbnails
-$stmt_berita = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC LIMIT 3");
+// Fetch stats for AI Lab achievements
+// Total Publications
+$total_publications = $pdo->query("SELECT COUNT(*) FROM publikasi")->fetchColumn();
+
+// Total Research Years (unique years)
+$total_years = $pdo->query("SELECT COUNT(DISTINCT tahun) FROM publikasi WHERE tahun IS NOT NULL")->fetchColumn();
+
+// Total Contributing Authors
+$total_authors = $pdo->query("
+    SELECT COUNT(DISTINCT ap.anggota_uuid)
+    FROM publikasi p
+    JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
+")->fetchColumn();
+
+// Total Research Products
+$total_products = $pdo->query("SELECT COUNT(*) FROM view_produk_pembuat")->fetchColumn();
+
+// Fetch latest products - berdasarkan tahun terbaru
+$stmt_produk = $pdo->query("
+    SELECT * FROM view_produk_pembuat 
+    ORDER BY tahun DESC, created_at DESC 
+    LIMIT 3
+");
+$latest_products = $stmt_produk->fetchAll();
+
+// Fetch latest news - berdasarkan tanggal berita terbaru
+$stmt_berita = $pdo->query("
+    SELECT * FROM berita 
+    ORDER BY tanggal DESC, created_at DESC 
+    LIMIT 3
+");
 $latest_news = $stmt_berita->fetchAll();
 
-// Fetch latest activities with thumbnails
-$stmt_kegiatan = $pdo->query("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT 4");
+// Fetch latest activities - berdasarkan tanggal kegiatan terbaru
+$stmt_kegiatan = $pdo->query("
+    SELECT * FROM kegiatan 
+    ORDER BY tanggal DESC, created_at DESC 
+    LIMIT 4
+");
 $latest_activities = $stmt_kegiatan->fetchAll();
 
 // Fetch partnerships
-$stmt_partnership = $pdo->query("SELECT * FROM partnership");
+$stmt_partnership = $pdo->query("SELECT * FROM partnership ORDER BY created_at DESC");
 $partnerships = $stmt_partnership->fetchAll();
 
 // Fetch profile
@@ -106,8 +139,219 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script src="../assets/js/parallax.js"></script>
-<!-- Latest News Section -->
+
+<!-- Stats Section - AI Lab Achievements -->
+<section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h2 class="section-title"><?= __('our_achievements') ?></h2>
+                <p class="section-subtitle"><?= __('achievements_desc') ?></p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
+                    <div class="mb-3">
+                        <i class="bi bi-file-earmark-text text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_publications ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('total_publications') ?></p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
+                    <div class="mb-3">
+                        <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_authors ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('contributing_authors') ?></p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar3 text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_years ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('years_of_research') ?></p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
+                    <div class="mb-3">
+                        <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_products ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('research_products') ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+
+<!-- CountUp.js Animation Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const counters = document.querySelectorAll('.counter');
+        let animated = false;
+
+        // Intersection Observer untuk trigger animasi saat section terlihat
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !animated) {
+                    animated = true;
+                    counters.forEach(counter => {
+                        animateCounter(counter);
+                    });
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+
+        // Observe stats section
+        const statsSection = document.querySelector('.py-5.bg-light');
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
+
+        function animateCounter(counter) {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000; // 2 detik
+            const increment = target / (duration / 16); // 60 FPS
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+
+            updateCounter();
+        }
+    });
+</script>
+
+<!-- Research Products Section -->
 <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="section-title"><?= __('newest_products') ?></h2>
+                <p class="section-subtitle"><?= __('products_desc') ?></p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <?php if (!empty($latest_products)): ?>
+                <?php
+                // Cek apakah ada produk yang punya gambar
+                $hasAnyProductImage = false;
+                foreach ($latest_products as $p) {
+                    if (!empty($p['path_gambar']) && $p['path_gambar'] !== null) {
+                        $hasAnyProductImage = true;
+                        break;
+                    }
+                }
+                ?>
+                <?php foreach ($latest_products as $product): ?>
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <?php if ($product['path_gambar'] && $product['path_gambar'] !== null): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
+                                    class="card-img-top"
+                                    style="height: 200px; object-fit: contain; padding: 20px;"
+                                    alt="<?php echo htmlspecialchars($product['nama']); ?>"
+                                    onerror="this.src='../assets/img/placeholder.jpg';">
+                            <?php elseif ($hasAnyProductImage): ?>
+                                <!-- Placeholder jika row ini punya gambar tapi item ini tidak -->
+                                <div style="height: 200px; background: #f0f0f0;"></div>
+                            <?php endif; ?>
+
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-primary mb-2 align-self-start">
+                                    <?php echo $product['tahun'] ?: 'N/A'; ?>
+                                </span>
+                                <h5 class="card-title fw-bold line-clamp-2" style="min-height: 3em;">
+                                    <?php echo htmlspecialchars($product['nama']); ?>
+                                </h5>
+
+                                <?php if ($product['pembuat_nama']): ?>
+                                    <p class="text-muted small mb-3">
+                                        <i class="bi bi-people-fill me-2"></i>
+                                        <?php
+                                        $pembuats = explode(', ', $product['pembuat_nama']);
+                                        echo htmlspecialchars(implode(', ', array_slice($pembuats, 0, 2)));
+                                        if (count($pembuats) > 2) echo ', ...';
+                                        ?>
+                                    </p>
+                                <?php endif; ?>
+
+                                <p class="card-text text-muted line-clamp-3 mb-3" style="min-height: 4.5em;">
+                                    <?php echo htmlspecialchars($product['deskripsi']); ?>
+                                </p>
+
+                                <?php if ($product['link_demo']): ?>
+                                    <a href="<?php echo htmlspecialchars($product['link_demo']); ?>"
+                                        target="_blank"
+                                        class="btn btn-sm btn-outline-primary mt-auto">
+                                        <i class="bi bi-eye me-2"></i><?= __('view_demo') ?>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <?= __('no_products_available') ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!empty($latest_products)): ?>
+            <div class="text-center mt-4">
+                <a href="research.php#products" class="btn btn-primary">
+                    <?= __('view_all_products') ?> <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+<!-- Latest News Section -->
+<section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row mb-4">
             <div class="col">
@@ -210,11 +454,11 @@ include '../includes/navbar.php';
 </section>
 
 <!-- Research Activities Section -->
-<section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title"><?= __('nav_activities') ?></h2>
+                <h2 class="section-title"><?= __('recent_activities') ?></h2>
                 <p class="section-subtitle"><?= __('activities_hero_desc') ?></p>
             </div>
         </div>
@@ -315,7 +559,7 @@ include '../includes/navbar.php';
 
 <!-- Partnerships Section -->
 <?php if (!empty($partnerships)): ?>
-    <section class="py-5" data-aos="fade-up" data-aos-duration="1000">
+    <section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">

@@ -60,6 +60,16 @@ return [
     //home Page
     'our_partners' => 'Our Partners',
     'partners_desc' => 'AI Lab Polinema collaboration partners',
+    'recent_activities' => 'Recent Activities',
+    'our_achievements' => 'Our Achievements',
+    'achievements_desc' => 'Excellence in Applied Informatics Research',
+    'total_publications' => 'Total Publications',
+    'contributing_authors' => 'Contributing Authors',
+    'years_of_research' => 'Years of Research',
+    'research_products_title' => 'Research Products',
+    'no_products_available' => 'No products available at the moment.',
+    'view_all_products' => 'View All Products',
+    'newest_products' => 'Newest Products',
 
     // Activities Page
     'activities' => 'Activities',

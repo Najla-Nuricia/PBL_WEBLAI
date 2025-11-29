@@ -20,6 +20,16 @@ return [
     //Home Page
     'our_partners' => 'Mitra Kami',
     'partners_desc' => 'Mitra kerja sama AI Lab Polinema',
+    'recent_activities' => 'Kegiatan Terbaru',
+    'our_achievements' => 'Pencapaian Kami',
+    'achievements_desc' => 'Keunggulan dalam Riset Informatika Terapan',
+    'total_publications' => 'Total Publikasi',
+    'contributing_authors' => 'Penulis Berkontribusi',
+    'years_of_research' => 'Tahun Penelitian',
+    'research_products_title' => 'Produk Penelitian',
+    'no_products_available' => 'Saat ini belum ada produk yang tersedia.',
+    'view_all_products' => 'Lihat Semua Produk',
+    'newest_products' => 'Produk Terbaru',
 
 
     // Hero Section
