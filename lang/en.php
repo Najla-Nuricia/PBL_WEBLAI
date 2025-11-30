@@ -127,6 +127,10 @@ return [
     'all_years' => 'All Years',
     'filter_category' => 'Filter by Category',
     'all_categories' => 'All Categories',
+    'total_publications' => 'Total Publications',
+    'year_of_search' => 'Year of Research',
+    'contributing_authors' => 'Contributing Authors',
+    'view' => 'View',
 
     // Research Page
     'research_hero_title' => 'Research & Products',

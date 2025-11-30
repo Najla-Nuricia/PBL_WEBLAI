@@ -127,6 +127,10 @@ return [
     'all_years' => 'Semua Tahun',
     'filter_category' => 'Filter per Kategori',
     'all_categories' => 'Semua Kategori',
+    'total_publications' => 'Total Publikasi',
+    'year_of_search' => 'Tahun Penelitian',
+    'contributing_authors' => 'Penulis Berkontribusi',
+    'view' => 'Lihat',
 
     // Research Page
     'research_hero_title' => 'Penelitian & Produk',

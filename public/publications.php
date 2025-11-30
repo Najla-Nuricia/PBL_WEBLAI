@@ -192,7 +192,7 @@ include '../includes/navbar.php';
                                                         <?php if ($pub['tautan']): ?>
                                                             <a href="<?= htmlspecialchars($pub['tautan']); ?>" target="_blank"
                                                                 class="btn btn-primary">
-                                                                <i class="bi bi-box-arrow-up-right me-2"></i>View
+                                                                <i class="bi bi-box-arrow-up-right me-2"></i><?= __('view') ?>
                                                             </a>
                                                         <?php endif; ?>
                                                     </div>
@@ -203,7 +203,7 @@ include '../includes/navbar.php';
                                 <?php endforeach; ?>
                             </div>
 
-                            <!-- Tombol "Lihat Selengkapnya" untuk view all -->
+                            <!-- Tombol "Lihat Selengkapnya" untuk  all -->
                             <?php if (!$filter_year && !$filter_category): ?>
                                 <?php
                                 $count_stmt = $pdo->prepare("SELECT COUNT(*) FROM view_publikasi_penulis WHERE tahun = ?");
@@ -359,7 +359,7 @@ include '../includes/navbar.php';
                         <h2 class="display-4 fw-bold text-primary mb-2">
                             <?= $total_rows ?>
                         </h2>
-                        <p class="text-muted mb-0">Total Publications</p>
+                        <p class="text-muted mb-0"><?= __('total_publications') ?></p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4 mb-md-0">
@@ -367,7 +367,7 @@ include '../includes/navbar.php';
                         <h2 class="display-4 fw-bold text-primary mb-2">
                             <?= count($publications_by_year) ?>
                         </h2>
-                        <p class="text-muted mb-0">Years of Research</p>
+                        <p class="text-muted mb-0"><?= __('year_of_search') ?></p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -375,7 +375,7 @@ include '../includes/navbar.php';
                         <h2 class="display-4 fw-bold text-primary mb-2">
                             <?= $total_authors ?>
                         </h2>
-                        <p class="text-muted mb-0">Contributing Authors</p>
+                        <p class="text-muted mb-0"><?= __('contributing_authors') ?></p>
                     </div>
                 </div>
             </div>
