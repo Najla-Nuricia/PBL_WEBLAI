@@ -292,7 +292,8 @@ if (isset($_SESSION['flash_error'])) {
                                     <td>
                                         <span
                                             class="badge bg-<?php echo $member['jabatan'] == 'ketua' ? 'primary' : 'secondary'; ?>">
-                                            <?php echo ucfirst($member['jabatan']); ?>
+                                            <<<<<<< HEAD
+                                                <?php echo ucfirst($member['jabatan'] ?? ''); ?>=======<?php echo ucfirst($member['jabatan']); ?>>>>>>>> 1b2da564a9e51fd066a29855364615d6273fdd69
                                         </span>
                                     </td>
                                     <td><?php echo htmlspecialchars($member['keahlian'] ?? ''); ?></td>
