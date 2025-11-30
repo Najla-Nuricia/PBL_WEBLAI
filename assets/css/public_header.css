@@ -31,12 +31,6 @@ body {
     object-fit: contain;
 }
 
-.navbar-logo-text {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
 /* NAV LINK BASIC ONLY */
 .nav-link {
     color: var(--text-dark) !important;
@@ -50,10 +44,6 @@ body {
 @media (max-width: 1300px) and (min-width: 992px) {
     .navbar-logo {
         height: 38px !important;
-    }
-
-    .navbar-logo-text {
-        font-size: 1.05rem !important;
     }
 
     .nav-link {

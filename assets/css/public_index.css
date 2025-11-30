@@ -1,0 +1,65 @@
+.line-clamp-2 {
+    display: block;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    /* Standar modern */
+    line-clamp: 2;
+    box-orient: vertical;
+}
+
+.line-clamp-3 {
+    display: block;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
+    line-clamp: 3;
+    box-orient: vertical;
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Responsive Height untuk TypeIt */
+#type {
+    min-height: 150px;
+}
+
+@media (max-width: 992px) {
+    #type {
+        min-height: 130px;
+    }
+}
+
+@media (max-width: 768px) {
+    #type {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    #type {
+        min-height: 180px;
+    }
+}

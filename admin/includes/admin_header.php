@@ -273,31 +273,3 @@ require_login();
 
         <!-- Content Wrapper -->
         <div class="content-wrapper">
-            <script>
-                // Topbar scroll effect
-                document.addEventListener('scroll', function() {
-                    const topbar = document.querySelector('.topbar');
-                    if (window.scrollY > 10) {
-                        topbar.classList.add('scrolled');
-                    } else {
-                        topbar.classList.remove('scrolled');
-                    }
-                });
-
-                // Sidebar toggle for mobile
-                document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('active');
-                });
-
-                // Close sidebar when clicking outside on mobile
-                document.addEventListener('click', function(event) {
-                    const sidebar = document.querySelector('.sidebar');
-                    const sidebarToggle = document.getElementById('sidebarToggle');
-
-                    if (window.innerWidth <= 768) {
-                        if (!sidebar.contains(event.target) && !sidebarToggle?.contains(event.target)) {
-                            sidebar.classList.remove('active');
-                        }
-                    }
-                });
-            </script>

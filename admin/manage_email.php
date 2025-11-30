@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ]);
             $_SESSION['flash_success'] = 'Email baru berhasil ditambahkan.';
         }
-
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
     } finally {
@@ -78,7 +77,6 @@ if (isset($_GET['set_active'])) {
         $stmt->execute([':uuid' => $uuid_active]);
 
         $_SESSION['flash_success'] = 'Email berhasil diatur sebagai aktif.';
-
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Gagal mengatur email aktif: ' . $e->getMessage();
     } finally {
@@ -122,7 +120,6 @@ try {
     $total_stmt = $pdo->query("SELECT COUNT(*) FROM email_pesan");
     $total_rows = $total_stmt->fetchColumn();
     $total_pages = ceil($total_rows / $limit);
-
 } catch (PDOException $e) {
     $_SESSION['flash_error'] = 'Gagal mengambil inbox: ' . $e->getMessage();
     $emails = [];
@@ -135,11 +132,13 @@ try {
 
     <!-- Flash Message -->
     <?php if (isset($_SESSION['flash_success'])): ?>
-    <div class="alert alert-success"><?= $_SESSION['flash_success']; unset($_SESSION['flash_success']); ?></div>
+        <div class="alert alert-success"><?= $_SESSION['flash_success'];
+                                            unset($_SESSION['flash_success']); ?></div>
     <?php endif; ?>
 
     <?php if (isset($_SESSION['flash_error'])): ?>
-    <div class="alert alert-danger"><?= $_SESSION['flash_error']; unset($_SESSION['flash_error']); ?></div>
+        <div class="alert alert-danger"><?= $_SESSION['flash_error'];
+                                        unset($_SESSION['flash_error']); ?></div>
     <?php endif; ?>
 
     <!-- FORM TAMBAH EMAIL -->
@@ -190,107 +189,107 @@ try {
             <div class="card-body">
 
                 <?php if (count($email_settings) > 0): ?>
-                <div class="table-responsive mt-2">
-                    <table class="table table-striped table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th width="50">No</th>
-                                <th>Email</th>
-                                <th width="200">Nama Pengirim</th>
-                                <th width="110">Status</th>
-                                <th width="220">Aksi</th>
-                            </tr>
-                        </thead>
+                    <div class="table-responsive mt-2">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50">No</th>
+                                    <th>Email</th>
+                                    <th width="200">Nama Pengirim</th>
+                                    <th width="110">Status</th>
+                                    <th width="220">Aksi</th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            <?php foreach ($email_settings as $index => $email): ?>
-                            <tr>
-                                <td><?= $index + 1 ?></td>
+                            <tbody>
+                                <?php foreach ($email_settings as $index => $email): ?>
+                                    <tr>
+                                        <td><?= $index + 1 ?></td>
 
-                                <td class="text-truncate" style="max-width: 260px;">
-                                    <?= htmlspecialchars($email['mail_to']) ?>
-                                </td>
+                                        <td class="text-truncate" style="max-width: 260px;">
+                                            <?= htmlspecialchars($email['mail_to']) ?>
+                                        </td>
 
-                                <td class="text-truncate">
-                                    <?= htmlspecialchars($email['mail_to_name']) ?>
-                                </td>
+                                        <td class="text-truncate">
+                                            <?= htmlspecialchars($email['mail_to_name']) ?>
+                                        </td>
 
-                                <td>
-                                    <?php if ($index === 0): ?>
-                                    <span class="badge bg-success">Active</span>
-                                    <?php else: ?>
-                                    <span class="badge bg-secondary">Inactive</span>
-                                    <?php endif; ?>
-                                </td>
+                                        <td>
+                                            <?php if ($index === 0): ?>
+                                                <span class="badge bg-success">Active</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            <?php endif; ?>
+                                        </td>
 
-                                <td>
-                                    <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal"
-                                        data-bs-target="#editModal<?= $email['uuid'] ?>">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal"
+                                                data-bs-target="#editModal<?= $email['uuid'] ?>">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
 
-                                    <a href="?delete=<?= $email['uuid'] ?>" class="btn btn-sm btn-danger me-1"
-                                        onclick="return confirm('Hapus email ini?');">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                            <a href="?delete=<?= $email['uuid'] ?>" class="btn btn-sm btn-danger me-1"
+                                                onclick="return confirm('Hapus email ini?');">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
 
-                                    <?php if ($index !== 0): ?>
-                                    <a href="?set_active=<?= $email['uuid'] ?>" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-check2-circle"></i> Set Active
-                                    </a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
+                                            <?php if ($index !== 0): ?>
+                                                <a href="?set_active=<?= $email['uuid'] ?>" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-check2-circle"></i> Set Active
+                                                </a>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
 
-                            <!-- MODAL EDIT -->
-                            <div class="modal fade" id="editModal<?= $email['uuid'] ?>" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <form method="POST" class="modal-content">
+                                    <!-- MODAL EDIT -->
+                                    <div class="modal fade" id="editModal<?= $email['uuid'] ?>" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <form method="POST" class="modal-content">
 
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Edit Email</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Email</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+
+                                                    <input type="hidden" name="uuid" value="<?= $email['uuid'] ?>">
+                                                    <input type="hidden" name="action" value="save">
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Email</label>
+                                                        <input type="email" name="mail_to" class="form-control"
+                                                            value="<?= htmlspecialchars($email['mail_to']) ?>" required>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Nama Pengirim</label>
+                                                        <input type="text" name="mail_to_name" class="form-control"
+                                                            value="<?= htmlspecialchars($email['mail_to_name']) ?>">
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-success">Simpan</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Batal</button>
+                                                </div>
+
+                                            </form>
                                         </div>
+                                    </div>
+                                    <!-- END MODAL -->
 
-                                        <div class="modal-body">
-
-                                            <input type="hidden" name="uuid" value="<?= $email['uuid'] ?>">
-                                            <input type="hidden" name="action" value="save">
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Email</label>
-                                                <input type="email" name="mail_to" class="form-control"
-                                                    value="<?= htmlspecialchars($email['mail_to']) ?>" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Nama Pengirim</label>
-                                                <input type="text" name="mail_to_name" class="form-control"
-                                                    value="<?= htmlspecialchars($email['mail_to_name']) ?>">
-                                            </div>
-
-                                        </div>
-
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-success">Simpan</button>
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Batal</button>
-                                        </div>
-
-                                    </form>
-                                </div>
-                            </div>
-                            <!-- END MODAL -->
-
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
                 <?php else: ?>
-                <p class="mt-3 text-muted">
-                    <i class="bi bi-inbox me-1"></i>Belum ada email yang disimpan.
-                </p>
+                    <p class="mt-3 text-muted">
+                        <i class="bi bi-inbox me-1"></i>Belum ada email yang disimpan.
+                    </p>
                 <?php endif; ?>
 
             </div>
@@ -341,53 +340,53 @@ try {
                         </thead>
                         <tbody>
                             <?php if ($emails): ?>
-                            <?php foreach ($emails as $index => $email): ?>
-                            <tr>
-                                <td><?= $index + 1 ?></td>
+                                <?php foreach ($emails as $index => $email): ?>
+                                    <tr>
+                                        <td><?= $index + 1 ?></td>
 
-                                <!-- Nama (dipersempit + truncate) -->
-                                <td class="fw-semibold text-truncate" style="max-width: 130px;">
-                                    <?= htmlspecialchars($email['nama']) ?>
-                                </td>
+                                        <!-- Nama (dipersempit + truncate) -->
+                                        <td class="fw-semibold text-truncate" style="max-width: 130px;">
+                                            <?= htmlspecialchars($email['nama']) ?>
+                                        </td>
 
-                                <!-- Email pengirim (dipersempit + truncate) -->
-                                <td class="text-truncate" style="max-width: 130px;">
-                                    <a href="mailto:<?= htmlspecialchars($email['email']) ?>" class="text-primary">
-                                        <?= htmlspecialchars($email['email']) ?>
-                                    </a>
-                                </td>
+                                        <!-- Email pengirim (dipersempit + truncate) -->
+                                        <td class="text-truncate" style="max-width: 130px;">
+                                            <a href="mailto:<?= htmlspecialchars($email['email']) ?>" class="text-primary">
+                                                <?= htmlspecialchars($email['email']) ?>
+                                            </a>
+                                        </td>
 
 
 
-                                <!-- Email lab (dipersempit + truncate) -->
-                                <td class="text-truncate" style="max-width: 130px;">
-                                    <a href="mailto:<?= htmlspecialchars($email['mail_to']) ?>" class="text-primary">
-                                        <?= htmlspecialchars($email['mail_to'] ?? '') ?>
-                                    </a>
-                                </td>
+                                        <!-- Email lab (dipersempit + truncate) -->
+                                        <td class="text-truncate" style="max-width: 130px;">
+                                            <a href="mailto:<?= htmlspecialchars($email['mail_to']) ?>" class="text-primary">
+                                                <?= htmlspecialchars($email['mail_to'] ?? '') ?>
+                                            </a>
+                                        </td>
 
-                                <td><?= htmlspecialchars($email['subjek']) ?></td>
+                                        <td><?= htmlspecialchars($email['subjek']) ?></td>
 
-                                <!-- Pesan diperlebar -->
-                                <td style="max-width: 450px;">
-                                    <span class="text-muted" style="white-space: normal; display: block;">
-                                        <?= nl2br(htmlspecialchars($email['pesan'])) ?>
-                                    </span>
-                                </td>
+                                        <!-- Pesan diperlebar -->
+                                        <td style="max-width: 450px;">
+                                            <span class="text-muted" style="white-space: normal; display: block;">
+                                                <?= nl2br(htmlspecialchars($email['pesan'])) ?>
+                                            </span>
+                                        </td>
 
-                                <td>
-                                    <small class="text-muted">
-                                        <?= date('d M Y H:i', strtotime($email['tanggal_dikirim'])) ?>
-                                    </small>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                                        <td>
+                                            <small class="text-muted">
+                                                <?= date('d M Y H:i', strtotime($email['tanggal_dikirim'])) ?>
+                                            </small>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox me-1"></i>Belum ada pesan masuk
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox me-1"></i>Belum ada pesan masuk
+                                    </td>
+                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -420,5 +419,5 @@ try {
     </div>
 
     <?php
-include 'includes/admin_footer.php';
-?>
+    include 'includes/admin_footer.php';
+    ?>

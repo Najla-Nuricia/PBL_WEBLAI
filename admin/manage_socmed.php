@@ -177,7 +177,8 @@ if (isset($_SESSION['flash_error'])) {
                     <i class="bi bi-list-ul me-2"></i>Daftar Social Media
                 </h5>
             </div>
-            <div class="card-body">
+            <link rel="stylesheet" href="../assets/css/swipejs.css">
+            <div class="swipeable-table" id="swipeTable">
                 <?php if (!empty($social_media)): ?>
                     <div class="list-group">
                         <?php foreach ($social_media as $sosmed): ?>

@@ -244,3 +244,249 @@ Object.assign(window.AILab, {
     showSuccess,
     showError,
 });
+
+/* ===== FILE 1: swipeable-table.js ===== */
+
+(function () {
+    'use strict';
+
+    /**
+     * Inisialisasi swipeable table
+     */
+    function initSwipeableTable() {
+        const swipeTable = document.getElementById('swipeTable');
+        const hint = document.querySelector('.swipe-hint');
+
+        if (!swipeTable) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let hasSwiped = false;
+
+        /**
+         * Update shadow indicators berdasarkan posisi scroll
+         */
+        function updateShadows() {
+            const scrollLeft = swipeTable.scrollLeft;
+            const maxScroll = swipeTable.scrollWidth - swipeTable.clientWidth;
+
+            if (scrollLeft > 10) {
+                swipeTable.classList.add('scrolled-left');
+            } else {
+                swipeTable.classList.remove('scrolled-left');
+            }
+
+            if (scrollLeft < maxScroll - 10) {
+                swipeTable.classList.remove('scrolled-right');
+            } else {
+                swipeTable.classList.add('scrolled-right');
+            }
+        }
+
+        /**
+         * Hide hint banner dengan animasi
+         */
+        function hideHint() {
+            if (hint) {
+                hint.style.transition = 'opacity 0.5s, transform 0.5s';
+                hint.style.opacity = '0';
+                hint.style.transform = 'translateY(-10px)';
+                setTimeout(() => hint.remove(), 500);
+            }
+        }
+
+        /**
+         * Check apakah element yang diklik adalah interactive element
+         */
+        function isInteractiveElement(target) {
+            return target.closest('a, button, input, select, textarea');
+        }
+
+        // ===== MOUSE EVENTS (Desktop) =====
+        swipeTable.addEventListener('mousedown', (e) => {
+            if (isInteractiveElement(e.target)) return;
+
+            isDown = true;
+            swipeTable.classList.add('dragging');
+            startX = e.pageX - swipeTable.offsetLeft;
+            scrollLeft = swipeTable.scrollLeft;
+        });
+
+        swipeTable.addEventListener('mouseleave', () => {
+            isDown = false;
+            swipeTable.classList.remove('dragging');
+        });
+
+        swipeTable.addEventListener('mouseup', () => {
+            isDown = false;
+            swipeTable.classList.remove('dragging');
+        });
+
+        swipeTable.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+
+            const x = e.pageX - swipeTable.offsetLeft;
+            const walk = (x - startX) * 2;
+            swipeTable.scrollLeft = scrollLeft - walk;
+
+            if (!hasSwiped) {
+                hasSwiped = true;
+                hideHint();
+            }
+        });
+
+        // ===== TOUCH EVENTS (Mobile/Tablet) =====
+        let touchStartX = 0;
+        let touchScrollLeft = 0;
+
+        swipeTable.addEventListener(
+            'touchstart',
+            (e) => {
+                if (isInteractiveElement(e.target)) return;
+
+                touchStartX = e.touches[0].pageX;
+                touchScrollLeft = swipeTable.scrollLeft;
+                swipeTable.classList.add('dragging');
+            },
+            { passive: true }
+        );
+
+        swipeTable.addEventListener(
+            'touchmove',
+            (e) => {
+                if (!touchStartX) return;
+
+                const touchX = e.touches[0].pageX;
+                const walk = (touchStartX - touchX) * 1.5;
+                swipeTable.scrollLeft = touchScrollLeft + walk;
+
+                if (!hasSwiped) {
+                    hasSwiped = true;
+                    hideHint();
+                }
+            },
+            { passive: true }
+        );
+
+        swipeTable.addEventListener(
+            'touchend',
+            () => {
+                touchStartX = 0;
+                swipeTable.classList.remove('dragging');
+            },
+            { passive: true }
+        );
+
+        // ===== EVENT LISTENERS =====
+        swipeTable.addEventListener('scroll', updateShadows);
+
+        // Initial shadow check
+        updateShadows();
+
+        // Auto hide hint after 8 seconds
+        setTimeout(() => {
+            if (!hasSwiped) hideHint();
+        }, 8000);
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSwipeableTable);
+    } else {
+        initSwipeableTable();
+    }
+})();
+
+// Function Side bar Mobile
+(function () {
+    'use strict';
+
+    function initSidebar() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const body = document.body;
+
+        if (!sidebarToggle || !sidebar) {
+            return;
+        }
+
+        // Toggle sidebar
+        sidebarToggle.addEventListener(
+            'click',
+            function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                if (sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    body.classList.remove('sidebar-open');
+                } else {
+                    sidebar.classList.add('active');
+                    body.classList.add('sidebar-open');
+                }
+            },
+            true
+        );
+
+        // Close when clicking outside
+        body.addEventListener('click', function (event) {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                const clickedInsideSidebar = sidebar.contains(event.target);
+                const clickedToggle = sidebarToggle.contains(event.target);
+
+                if (!clickedInsideSidebar && !clickedToggle) {
+                    sidebar.classList.remove('active');
+                    body.classList.remove('sidebar-open');
+                }
+            }
+        });
+
+        // Close when clicking menu item
+        sidebar.querySelectorAll('.sidebar-menu a').forEach((link) => {
+            link.addEventListener('click', function () {
+                if (window.innerWidth <= 768) {
+                    setTimeout(function () {
+                        sidebar.classList.remove('active');
+                        body.classList.remove('sidebar-open');
+                    }, 200);
+                }
+            });
+        });
+
+        // Close on resize to desktop
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    body.classList.remove('sidebar-open');
+                }
+            }, 250);
+        });
+    }
+
+    // Topbar scroll effect
+    function initTopbar() {
+        const topbar = document.querySelector('.topbar');
+        if (topbar) {
+            window.addEventListener('scroll', function () {
+                topbar.classList.toggle('scrolled', window.scrollY > 10);
+            });
+        }
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            initSidebar();
+            initTopbar();
+        });
+    } else {
+        initSidebar();
+        initTopbar();
+    }
+})();
