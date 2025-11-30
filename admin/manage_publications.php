@@ -176,58 +176,10 @@ if (isset($_SESSION['flash_error'])) {
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Kategori Publikasi <span class="text-danger">*</span></label>
-                    <select name="kategori" class="form-select" required>
-                        <option value="">Pilih Kategori</option>
-                        <option value="Scopus"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Scopus') ? 'selected' : ''; ?>>Scopus
-                        </option>
-                        <option value="Sinta 1"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 1') ? 'selected' : ''; ?>>Sinta 1
-                        </option>
-                        <option value="Sinta 2"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 2') ? 'selected' : ''; ?>>Sinta 2
-                        </option>
-                        <option value="Sinta 3"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 3') ? 'selected' : ''; ?>>Sinta 3
-                        </option>
-                        <option value="Sinta 4"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 4') ? 'selected' : ''; ?>>Sinta 4
-                        </option>
-                        <option value="Sinta 5"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 5') ? 'selected' : ''; ?>>Sinta 5
-                        </option>
-                        <option value="Sinta 6"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Sinta 6') ? 'selected' : ''; ?>>Sinta 6
-                        </option>
-                        <option value="IEEE"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'IEEE') ? 'selected' : ''; ?>>IEEE
-                        </option>
-                        <option value="Springer"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Springer') ? 'selected' : ''; ?>>
-                            Springer</option>
-                        <option value="Web of Science"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Web of Science') ? 'selected' : ''; ?>>
-                            Web of Science</option>
-                        <option value="Google Scholar"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Google Scholar') ? 'selected' : ''; ?>>
-                            Google Scholar</option>
-                        <option value="Conference"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Conference') ? 'selected' : ''; ?>>
-                            Conference Paper</option>
-                        <option value="Book Chapter"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Book Chapter') ? 'selected' : ''; ?>>
-                            Book Chapter</option>
-                        <option value="Nasional"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Nasional') ? 'selected' : ''; ?>>Jurnal
-                            Nasional</option>
-                        <option value="Internasional"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'internasional') ? 'selected' : ''; ?>>
-                            Jurnal
-                            Internasional</option>
-                        <option value="Lainnya"
-                            <?php echo ($edit_data && $edit_data['kategori'] == 'Lainnya') ? 'selected' : ''; ?>>Lainnya
-                        </option>
-                    </select>
+                    <input type="text" name="kategori" class="form-control"
+                        value="<?php echo $edit_data ? htmlspecialchars($edit_data['kategori']) : ''; ?>"
+                        placeholder="Contoh: Scopus, Sinta 1, IEEE, Conference, dll" required>
+                    <small class="text-muted">Ketik kategori publikasi, misalnya: Scopus, Sinta 1-6, IEEE, Springer, Web of Science, Conference, dll</small>
                 </div>
 
                 <div class="col-12 mb-3">
