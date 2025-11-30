@@ -18,7 +18,7 @@ $stmt = $pdo->query("SELECT COUNT(*) as total FROM publikasi");
 $stats['publikasi'] = $stmt->fetch()['total'];
 
 // Count anggota
-$stmt = $pdo->query("SELECT COUNT(*) as total FROM anggota");
+$stmt = $pdo->query("SELECT COUNT(*) as total FROM anggota where jabatan is not null");
 $stats['anggota'] = $stmt->fetch()['total'];
 
 // Count produk
@@ -64,7 +64,8 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_activities.php'" style="--card-color: #198754;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_activities.php'"
+            style="--card-color: #198754;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Total Kegiatan</p>
@@ -78,7 +79,8 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_publications.php'" style="--card-color: #0dcaf0;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_publications.php'"
+            style="--card-color: #0dcaf0;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Total Publikasi</p>
@@ -92,7 +94,8 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_members.php'" style="--card-color: #ffc107;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_members.php'"
+            style="--card-color: #ffc107;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Total Anggota</p>
@@ -108,7 +111,8 @@ $recent_activities = $stmt->fetchAll();
 
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_products.php'" style="--card-color: #dc3545;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_products.php'"
+            style="--card-color: #dc3545;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Total Produk</p>
@@ -122,7 +126,8 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_gallery.php'" style="--card-color: #6c757d;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_gallery.php'"
+            style="--card-color: #6c757d;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Total Galeri</p>
@@ -136,7 +141,8 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_blueprint.php'" style="--card-color: #6f42c1;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_blueprint.php'"
+            style="--card-color: #6f42c1;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Total Blueprint</p>
@@ -150,7 +156,8 @@ $recent_activities = $stmt->fetchAll();
     </div>
 
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card-modern" onclick="window.location.href='manage_topik_riset.php'" style="--card-color: #fd7e14;">
+        <div class="stats-card-modern" onclick="window.location.href='manage_topik_riset.php'"
+            style="--card-color: #fd7e14;">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                     <p class="stats-label">Topik Riset</p>
@@ -179,34 +186,34 @@ $recent_activities = $stmt->fetchAll();
             </div>
             <div class="card-body">
                 <?php if (!empty($recent_news)): ?>
-                    <?php foreach ($recent_news as $news): ?>
-                        <div class="list-item-modern">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-2 fw-bold">
-                                        <?php echo htmlspecialchars($news['judul']); ?>
-                                    </h6>
-                                    <p class="mb-2 text-muted small" style="line-height: 1.5;">
-                                        <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 80) . '...'; ?>
-                                    </p>
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <small class="text-muted">
-                                            <i class="bi bi-calendar3 me-1"></i>
-                                            <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
-                                        </small>
-                                        <span class="badge badge-modern bg-primary">
-                                            <?php echo ucfirst($news['kategori']); ?>
-                                        </span>
-                                    </div>
-                                </div>
+                <?php foreach ($recent_news as $news): ?>
+                <div class="list-item-modern">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2 fw-bold">
+                                <?php echo htmlspecialchars($news['judul']); ?>
+                            </h6>
+                            <p class="mb-2 text-muted small" style="line-height: 1.5;">
+                                <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 80) . '...'; ?>
+                            </p>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
+                                </small>
+                                <span class="badge badge-modern bg-primary">
+                                    <?php echo ucfirst($news['kategori']); ?>
+                                </span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="alert alert-info mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Belum ada berita
                     </div>
+                </div>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Belum ada berita
+                </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -225,37 +232,37 @@ $recent_activities = $stmt->fetchAll();
             </div>
             <div class="card-body">
                 <?php if (!empty($recent_activities)): ?>
-                    <?php foreach ($recent_activities as $activity): ?>
-                        <div class="list-item-modern">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-2 fw-bold">
-                                        <?php echo htmlspecialchars($activity['nama']); ?>
-                                    </h6>
-                                    <?php if ($activity['pemateri']): ?>
-                                        <p class="mb-2 text-muted small">
-                                            <i class="bi bi-person-circle me-1"></i>
-                                            <?php echo htmlspecialchars($activity['pemateri']); ?>
-                                        </p>
-                                    <?php endif; ?>
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <small class="text-muted">
-                                            <i class="bi bi-calendar3 me-1"></i>
-                                            <?php echo date('d M Y', strtotime($activity['tanggal'])); ?>
-                                        </small>
-                                        <span class="badge badge-modern bg-success">
-                                            <?php echo ucfirst($activity['kategori_kegiatan']); ?>
-                                        </span>
-                                    </div>
-                                </div>
+                <?php foreach ($recent_activities as $activity): ?>
+                <div class="list-item-modern">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2 fw-bold">
+                                <?php echo htmlspecialchars($activity['nama']); ?>
+                            </h6>
+                            <?php if ($activity['pemateri']): ?>
+                            <p class="mb-2 text-muted small">
+                                <i class="bi bi-person-circle me-1"></i>
+                                <?php echo htmlspecialchars($activity['pemateri']); ?>
+                            </p>
+                            <?php endif; ?>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    <?php echo date('d M Y', strtotime($activity['tanggal'])); ?>
+                                </small>
+                                <span class="badge badge-modern bg-success">
+                                    <?php echo ucfirst($activity['kategori_kegiatan']); ?>
+                                </span>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="alert alert-info mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Belum ada kegiatan
                     </div>
+                </div>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Belum ada kegiatan
+                </div>
                 <?php endif; ?>
             </div>
         </div>

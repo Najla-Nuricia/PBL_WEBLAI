@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
 }
 
 // Get all members
-$stmt = $pdo->query("SELECT * FROM anggota ORDER BY jabatan, nama");
+$stmt = $pdo->query("SELECT * FROM anggota where jabatan is not null ORDER BY jabatan, nama  ");
 $members = $stmt->fetchAll();
 
 // Get data for edit
