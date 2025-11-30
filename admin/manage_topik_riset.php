@@ -22,6 +22,28 @@ if (isset($_GET['delete'])) {
     }
 }
 
+// Handle Bulk Delete
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
+    $id = $_POST['selected'];
+
+    try {
+        // Buat placeholder dinamis sebanyak jumlah UUID
+        $placeholders = implode(',', array_fill(0, count($id), '?'));
+        $query = "DELETE FROM topik_riset WHERE id IN ($placeholders)";
+        $stmt = $pdo->prepare($query);
+
+        // Eksekusi semua UUID
+        $stmt->execute($id);
+        $_SESSION['flash_success'] = count($id) . ' topic riset berhasil dihapus!';
+    } catch (PDOException $e) {
+        $_SESSION['flash_error'] = 'Gagal menghapus topik riset: ' . $e->getMessage();
+    } finally {
+        header("Location: manage_topik_riset.php");
+        exit;
+    }
+}
+
+
 // Handle Insert/Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $topik = clean_input($_POST['topik'] ?? '');
@@ -41,26 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save')
         }
     } catch (PDOException $e) {
         $_SESSION['flash_error'] = 'Terjadi kesalahan: ' . $e->getMessage();
-    } finally {
-        header("Location: manage_topik_riset.php");
-        exit;
-    }
-}
-
-if (isset($_POST['bulk_delete']) && ($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
-    $id = $_POST['selected'];
-
-    try {
-        // Buat placeholder dinamis sebanyak jumlah UUID
-        $placeholders = implode(',', array_fill(0, count($id), '?'));
-        $query = "DELETE FROM topik_riset WHERE id IN ($placeholders)";
-        $stmt = $pdo->prepare($query);
-
-        // Eksekusi semua UUID
-        $stmt->execute($id);
-        $_SESSION['flash_success'] = count($id) . ' topic riset berhasil dihapus!';
-    } catch (PDOException $e) {
-        $_SESSION['flash_error'] = 'Gagal menghapus topik riset: ' . $e->getMessage();
     } finally {
         header("Location: manage_topik_riset.php");
         exit;
@@ -148,7 +150,8 @@ if (isset($_SESSION['flash_error'])) {
                 </div>
             </div>
         <?php else: ?>
-            <div class="table-responsive">
+            <link rel="stylesheet" href="../assets/css/swipejs.css">
+            <div class="swipeable-table" id="swipeTable">
                 <form method="POST" id="bulkDeleteForm" action="">
                     <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">

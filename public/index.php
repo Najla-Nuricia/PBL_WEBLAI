@@ -1,5 +1,6 @@
 <?php
 require_once '../config/db.php';
+require_once '../lang/init.php';
 $page_title = 'Home';
 
 // Fetch dashboard background
@@ -10,26 +11,49 @@ if ($dashboard_bg && $dashboard_bg['path_gambar']) {
     $bg_image = '../assets/img/dashboard/' . htmlspecialchars($dashboard_bg['path_gambar']);
 }
 
-// Fetch latest news
-$stmt_berita = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC LIMIT 3");
+// Fetch stats for AI Lab achievements
+// Total Publications
+$total_publications = $pdo->query("SELECT COUNT(*) FROM publikasi")->fetchColumn();
+
+// Total Research Years (unique years)
+$total_years = $pdo->query("SELECT COUNT(DISTINCT tahun) FROM publikasi WHERE tahun IS NOT NULL")->fetchColumn();
+
+// Total Contributing Authors
+$total_authors = $pdo->query("
+    SELECT COUNT(DISTINCT ap.anggota_uuid)
+    FROM publikasi p
+    JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
+")->fetchColumn();
+
+// Total Research Products
+$total_products = $pdo->query("SELECT COUNT(*) FROM view_produk_pembuat")->fetchColumn();
+
+// Fetch latest products - berdasarkan tahun terbaru
+$stmt_produk = $pdo->query("
+    SELECT * FROM view_produk_pembuat 
+    ORDER BY tahun DESC, created_at DESC 
+    LIMIT 3
+");
+$latest_products = $stmt_produk->fetchAll();
+
+// Fetch latest news - berdasarkan tanggal berita terbaru
+$stmt_berita = $pdo->query("
+    SELECT * FROM berita 
+    ORDER BY tanggal DESC, created_at DESC 
+    LIMIT 3
+");
 $latest_news = $stmt_berita->fetchAll();
 
-// Fetch latest activities
-$limit = 4;
-$page_la = isset($_GET['latest_activities_page']) ? (int)$_GET['latest_activities_page'] : 1;
-$offset_la = ($page_la - 1) * $limit;
-$stmt_kegiatan = $pdo->prepare("SELECT * FROM kegiatan ORDER BY tanggal DESC LIMIT :limit OFFSET :offset");
-$stmt_kegiatan->bindValue(':limit', $limit, PDO::PARAM_INT);
-$stmt_kegiatan->bindValue(':offset', $offset_la, PDO::PARAM_INT);
-$stmt_kegiatan->execute();
+// Fetch latest activities - berdasarkan tanggal kegiatan terbaru
+$stmt_kegiatan = $pdo->query("
+    SELECT * FROM kegiatan 
+    ORDER BY tanggal DESC, created_at DESC 
+    LIMIT 4
+");
 $latest_activities = $stmt_kegiatan->fetchAll();
-$count_stmt_la = $pdo->prepare("SELECT COUNT(*) FROM kegiatan");
-$count_stmt_la->execute();
-$rows_activities = $count_stmt_la->fetchColumn();
-$pages_activities = ceil($rows_activities / $limit);
 
 // Fetch partnerships
-$stmt_partnership = $pdo->query("SELECT * FROM partnership");
+$stmt_partnership = $pdo->query("SELECT * FROM partnership ORDER BY created_at DESC");
 $partnerships = $stmt_partnership->fetchAll();
 
 // Fetch profile
@@ -40,8 +64,19 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<!-- Hero Section -->
-<section class="hero-section position-relative py-5" style="<?php echo $bg_image ? "background: url('$bg_image') center/cover no-repeat;" : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);'; ?> color: white; min-height: 500px; overflow: hidden;">
+<link rel="stylesheet" href="../assets/css/public_index.css">
+<!-- Hero Section with Parallax Effect -->
+<section class="hero-section position-relative py-5" id="heroSection" style="color: white; min-height: 500px; overflow: hidden;">
+    <!-- Parallax Background Layer -->
+    <?php
+    $bg_style = $bg_image
+        ? "background: url('$bg_image') center/cover no-repeat;"
+        : 'background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);';
+    ?>
+    <div class="parallax-bg position-absolute top-0 start-0 w-100 h-100"
+        style="<?php echo $bg_style; ?> transform: translate3d(0, 0, 0); will-change: transform;">
+    </div>
+
     <!-- Gradient Overlay -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(30, 75, 163, 0.25) 0%, rgba(74, 144, 226, 0.25) 100%); z-index: 1;"></div>
 
@@ -49,6 +84,7 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center min-vh-75 py-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
+                <!-- Fixed Height untuk TypeIt -->
                 <h1 class="display-4 fw-bold mb-4" id="type">
                 </h1>
                 <script>
@@ -58,141 +94,340 @@ include '../includes/navbar.php';
                                 startDelay: 500,
                                 cursorChar: "|",
                                 lifeLike: true,
+                                loop: true,
                             })
-                            .type("Appliedddd ", {
+                            .type("Applied ", {
                                 delay: 300
                             })
-                            .pause(150)
-                            .delete(4, {
-                                delay: 300
-                            })
-                            .type(" ", {
-                                delay: 300
-                            })
-                            .pause(700)
+                            .pause(200)
                             .type("Informatics ", {
                                 delay: 250
                             })
                             .pause(150)
-                            .type("Lab.", {
+                            .type("Lab", {
                                 delay: 300
                             })
-                            .pause(700)
-                            .delete(4, {
+                            .pause(500)
+                            .delete(3, {
                                 delay: 300
                             })
                             .type("Laboratory", {
                                 delay: 300
                             })
+                            .pause(7000)
+                            .delete(null, {
+                                delay: 500
+                            })
                             .go();
                     });
                 </script>
                 <p class="lead mb-4">
-                    Laboratorium penelitian dan pengembangan teknologi informasi terapan
-                    di Politeknik Negeri Malang
+                    <?= __('hero_desc') ?>
                 </p>
                 <div class="d-flex gap-3">
                     <a href="about.php" class="btn btn-light btn-lg">
-                        <i class="bi bi-info-circle me-2"></i>Learn More
+                        <i class="bi bi-info-circle me-2"></i><?= __('btn_learn_more') ?>
                     </a>
                     <a href="contact.php" class="btn btn-outline-light btn-lg">
-                        <i class="bi bi-envelope me-2"></i>Contact Us
+                        <i class="bi bi-envelope me-2"></i><?= __('btn_contact_us') ?>
                     </a>
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <img src="assets/img/hero-illustration.svg" alt="AI Lab" class="img-fluid"
-                    onerror="this.src='https://via.placeholder.com/600x400/1E4BA3/ffffff?text=AI+Lab+Polinema'">
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5 bg-light">
+<!-- Parallax JavaScript -->
+<script src="../assets/js/parallax.js"></script>
+
+<!-- Stats Section - AI Lab Achievements -->
+<section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col">
-                <h2 class="section-title">Why Choose AI Lab?</h2>
-                <p class="section-subtitle">Keunggulan laboratorium kami</p>
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h2 class="section-title"><?= __('our_achievements') ?></h2>
+                <p class="section-subtitle"><?= __('achievements_desc') ?></p>
             </div>
         </div>
 
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
                     <div class="mb-3">
-                        <i class="bi bi-lightbulb-fill text-primary" style="font-size: 3rem;"></i>
+                        <i class="bi bi-file-earmark-text text-primary" style="font-size: 3rem;"></i>
                     </div>
-                    <h5 class="fw-bold">Innovation</h5>
-                    <p class="text-muted">
-                        Fokus pada inovasi teknologi terkini dengan pendekatan riset yang komprehensif
-                    </p>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_publications ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('total_publications') ?></p>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
                     <div class="mb-3">
-                        <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
+                        <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
                     </div>
-                    <h5 class="fw-bold">Collaboration</h5>
-                    <p class="text-muted">
-                        Kerjasama dengan industri dan institusi untuk hasil riset yang aplikatif
-                    </p>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_authors ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('contributing_authors') ?></p>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
                     <div class="mb-3">
-                        <i class="bi bi-trophy-fill text-primary" style="font-size: 3rem;"></i>
+                        <i class="bi bi-calendar3 text-primary" style="font-size: 3rem;"></i>
                     </div>
-                    <h5 class="fw-bold">Excellence</h5>
-                    <p class="text-muted">
-                        Komitmen terhadap kualitas dan standar penelitian internasional
-                    </p>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_years ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('years_of_research') ?></p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 p-4 text-center hover-lift">
+                    <div class="mb-3">
+                        <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold text-primary mb-2">
+                        <span class="counter" data-target="<?= $total_products ?>">0</span>
+                    </h2>
+                    <p class="text-muted mb-0"><?= __('research_products') ?></p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Latest News Section -->
-<section class="py-5">
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+
+<!-- CountUp.js Animation Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const counters = document.querySelectorAll('.counter');
+        let animated = false;
+
+        // Intersection Observer untuk trigger animasi saat section terlihat
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !animated) {
+                    animated = true;
+                    counters.forEach(counter => {
+                        animateCounter(counter);
+                    });
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+
+        // Observe stats section
+        const statsSection = document.querySelector('.py-5.bg-light');
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
+
+        function animateCounter(counter) {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000; // 2 detik
+            const increment = target / (duration / 16); // 60 FPS
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+
+            updateCounter();
+        }
+    });
+</script>
+
+<!-- Research Products Section -->
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title">Latest News & Events</h2>
-                <p class="section-subtitle">Berita dan kegiatan terbaru dari laboratorium kami</p>
+                <h2 class="section-title"><?= __('newest_products') ?></h2>
+                <p class="section-subtitle"><?= __('products_desc') ?></p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <?php if (!empty($latest_products)): ?>
+                <?php
+                // Cek apakah ada produk yang punya gambar
+                $hasAnyProductImage = false;
+                foreach ($latest_products as $p) {
+                    if (!empty($p['path_gambar']) && $p['path_gambar'] !== null) {
+                        $hasAnyProductImage = true;
+                        break;
+                    }
+                }
+                ?>
+                <?php foreach ($latest_products as $product): ?>
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <?php if ($product['path_gambar'] && $product['path_gambar'] !== null): ?>
+                                <img src="../assets/img/<?php echo htmlspecialchars($product['path_gambar']); ?>"
+                                    class="card-img-top"
+                                    style="height: 200px; object-fit: contain; padding: 20px;"
+                                    alt="<?php echo htmlspecialchars($product['nama']); ?>"
+                                    onerror="this.src='../assets/img/placeholder.jpg';">
+                            <?php elseif ($hasAnyProductImage): ?>
+                                <!-- Placeholder jika row ini punya gambar tapi item ini tidak -->
+                                <div style="height: 200px; background: #f0f0f0;"></div>
+                            <?php endif; ?>
+
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-primary mb-2 align-self-start">
+                                    <?php echo $product['tahun'] ?: 'N/A'; ?>
+                                </span>
+                                <h5 class="card-title fw-bold line-clamp-2" style="min-height: 3em;">
+                                    <?php echo htmlspecialchars($product['nama']); ?>
+                                </h5>
+
+                                <?php if ($product['pembuat_nama']): ?>
+                                    <p class="text-muted small mb-3">
+                                        <i class="bi bi-people-fill me-2"></i>
+                                        <?php
+                                        $pembuats = explode(', ', $product['pembuat_nama']);
+                                        echo htmlspecialchars(implode(', ', array_slice($pembuats, 0, 2)));
+                                        if (count($pembuats) > 2) echo ', ...';
+                                        ?>
+                                    </p>
+                                <?php endif; ?>
+
+                                <p class="card-text text-muted line-clamp-3 mb-3" style="min-height: 4.5em;">
+                                    <?php echo htmlspecialchars($product['deskripsi']); ?>
+                                </p>
+
+                                <?php if ($product['link_demo']): ?>
+                                    <a href="<?php echo htmlspecialchars($product['link_demo']); ?>"
+                                        target="_blank"
+                                        class="btn btn-sm btn-outline-primary mt-auto">
+                                        <i class="bi bi-eye me-2"></i><?= __('view_demo') ?>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <?= __('no_products_available') ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!empty($latest_products)): ?>
+            <div class="text-center mt-4">
+                <a href="research.php#products" class="btn btn-primary">
+                    <?= __('view_all_products') ?> <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+<!-- Latest News Section -->
+<section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="section-title"><?= __('latest_news') ?></h2>
+                <p class="section-subtitle"><?= __('news_subtitle') ?></p>
             </div>
         </div>
 
         <div class="row g-4">
             <?php if (!empty($latest_news)): ?>
+                <?php
+                // Cek apakah ada berita yang punya thumbnail
+                $hasAnyNewsThumbnail = false;
+                foreach ($latest_news as $n) {
+                    $stmt_check = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ? LIMIT 1");
+                    $stmt_check->execute([$n['uuid']]);
+                    if ($stmt_check->fetch()) {
+                        $hasAnyNewsThumbnail = true;
+                        break;
+                    }
+                }
+                ?>
                 <?php foreach ($latest_news as $news): ?>
+                    <?php
+                    // Ambil thumbnail berita
+                    $stmt_thumb = $pdo->prepare("SELECT file_path FROM berita_foto WHERE berita_id = ? ORDER BY uploaded_at ASC LIMIT 1");
+                    $stmt_thumb->execute([$news['uuid']]);
+                    $thumbnail = $stmt_thumb->fetch();
+
+                    $thumb_path = "";
+                    if ($thumbnail && !empty($thumbnail['file_path'])) {
+                        // Tambahkan path prefix jika diperlukan
+                        $file_path = $thumbnail['file_path'];
+                        // Jika path tidak dimulai dengan ../ atau /, tambahkan prefix
+                        if (strpos($file_path, '../') !== 0 && strpos($file_path, '/') !== 0) {
+                            $thumb_path = '../assets/img/berita/' . $file_path;
+                        } else {
+                            $thumb_path = $file_path;
+                        }
+                    }
+                    ?>
                     <div class="col-md-4">
                         <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <span class="badge bg-primary mb-2">
+                            <?php if ($thumbnail): ?>
+                                <img src="<?php echo htmlspecialchars($thumb_path); ?>"
+                                    class="card-img-top"
+                                    style="height: 200px; object-fit: cover;"
+                                    alt="<?php echo htmlspecialchars($news['judul']); ?>"
+                                    onerror="this.src='../assets/img/placeholder.jpg'">
+                            <?php elseif ($hasAnyNewsThumbnail): ?>
+                                <!-- Placeholder jika row ini punya thumbnail tapi item ini tidak -->
+                                <div style="height: 200px; background: #f0f0f0;"></div>
+                            <?php endif; ?>
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-<?php
+                                                        echo $news['kategori'] == 'berita' ? 'primary' : ($news['kategori'] == 'agenda' ? 'success' : 'info');
+                                                        ?> mb-2 align-self-start">
                                     <?php echo ucfirst($news['kategori']); ?>
                                 </span>
-                                <h5 class="card-title fw-bold">
+                                <h5 class="card-title fw-bold line-clamp-2" style="min-height: 3em;">
                                     <?php echo htmlspecialchars($news['judul']); ?>
                                 </h5>
                                 <p class="text-muted small mb-3">
                                     <i class="bi bi-calendar me-2"></i>
                                     <?php echo date('d M Y', strtotime($news['tanggal'])); ?>
                                     <?php if ($news['tempat']): ?>
-                                        <i class="bi bi-geo-alt ms-2 me-1"></i>
+                                        <br>
+                                        <i class="bi bi-geo-alt me-2"></i>
                                         <?php echo htmlspecialchars($news['tempat']); ?>
                                     <?php endif; ?>
                                 </p>
-                                <p class="card-text text-muted">
-                                    <?php echo substr(htmlspecialchars($news['deskripsi']), 0, 120) . '...'; ?>
+                                <p class="card-text text-muted line-clamp-3 mb-3" style="min-height: 4.5em;">
+                                    <?php echo htmlspecialchars($news['deskripsi']); ?>
                                 </p>
-                                <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary">
-                                    Read More <i class="bi bi-arrow-right"></i>
+                                <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
+                                    <?= __('read_more') ?> <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -202,7 +437,7 @@ include '../includes/navbar.php';
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        Belum ada berita terbaru
+                        <?= __('no_news') ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -211,7 +446,7 @@ include '../includes/navbar.php';
         <?php if (!empty($latest_news)): ?>
             <div class="text-center mt-4">
                 <a href="news.php" class="btn btn-primary">
-                    View All News <i class="bi bi-arrow-right"></i>
+                    <?= __('view_all') ?> <?= __('nav_news') ?> <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         <?php endif; ?>
@@ -219,25 +454,67 @@ include '../includes/navbar.php';
 </section>
 
 <!-- Research Activities Section -->
-<section class="py-5 bg-light">
+<section class="py-5" data-aos="fade-up" data-aos-duration="1000">
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title">Recent Activities</h2>
-                <p class="section-subtitle">Kegiatan penelitian dan pengabdian masyarakat</p>
+                <h2 class="section-title"><?= __('recent_activities') ?></h2>
+                <p class="section-subtitle"><?= __('activities_hero_desc') ?></p>
             </div>
         </div>
 
         <div class="row g-4">
             <?php if (!empty($latest_activities)): ?>
+                <?php
+                // Cek apakah ada kegiatan yang punya thumbnail
+                $hasAnyThumbnail = false;
+                foreach ($latest_activities as $act) {
+                    $stmt_check = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE kegiatan_uuid = ? LIMIT 1");
+                    $stmt_check->execute([$act['uuid']]);
+                    if ($stmt_check->fetch()) {
+                        $hasAnyThumbnail = true;
+                        break;
+                    }
+                }
+                ?>
                 <?php foreach ($latest_activities as $activity): ?>
+                    <?php
+                    // Ambil thumbnail kegiatan
+                    $stmt_thumb = $pdo->prepare("SELECT path_gambar FROM kegiatan_foto WHERE kegiatan_uuid = ? ORDER BY created_at ASC LIMIT 1");
+                    $stmt_thumb->execute([$activity['uuid']]);
+                    $thumbnail = $stmt_thumb->fetch();
+
+                    $thumb_path = "";
+                    if ($thumbnail && !empty($thumbnail['path_gambar'])) {
+                        // Tambahkan path prefix jika diperlukan
+                        $file_path = $thumbnail['path_gambar'];
+                        // Jika path tidak dimulai dengan ../ atau /, tambahkan prefix
+                        if (strpos($file_path, '../') !== 0 && strpos($file_path, '/') !== 0) {
+                            $thumb_path = '../assets/img/kegiatan/' . $file_path;
+                        } else {
+                            $thumb_path = $file_path;
+                        }
+                    }
+                    ?>
                     <div class="col-md-6 col-lg-3">
                         <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <span class="badge bg-success mb-2">
+                            <?php if ($thumbnail): ?>
+                                <img src="<?php echo htmlspecialchars($thumb_path); ?>"
+                                    class="card-img-top"
+                                    style="height: 180px; object-fit: cover;"
+                                    alt="<?php echo htmlspecialchars($activity['nama']); ?>"
+                                    onerror="this.src='../assets/img/placeholder.jpg'">
+                            <?php elseif ($hasAnyThumbnail): ?>
+                                <!-- Placeholder jika row ini punya thumbnail tapi item ini tidak -->
+                                <div style="height: 180px; background: #f0f0f0;"></div>
+                            <?php endif; ?>
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-<?php
+                                                        echo $activity['kategori_kegiatan'] == 'workshop' ? 'primary' : ($activity['kategori_kegiatan'] == 'seminar' ? 'success' : 'info');
+                                                        ?> mb-2 align-self-start">
                                     <?php echo ucfirst($activity['kategori_kegiatan']); ?>
                                 </span>
-                                <h6 class="card-title fw-bold">
+                                <h6 class="card-title fw-bold line-clamp-2" style="min-height: 2.5em;">
                                     <?php echo htmlspecialchars($activity['nama']); ?>
                                 </h6>
                                 <p class="text-muted small mb-2">
@@ -250,55 +527,48 @@ include '../includes/navbar.php';
                                         <?php echo htmlspecialchars($activity['pemateri']); ?>
                                     </p>
                                 <?php endif; ?>
-                                <p class="card-text text-muted small">
-                                    <?php echo substr(htmlspecialchars($activity['deskripsi_singkat']), 0, 80) . '...'; ?>
+                                <p class="card-text text-muted small line-clamp-2 mb-3" style="min-height: 3em;">
+                                    <?php echo htmlspecialchars($activity['deskripsi_singkat']); ?>
                                 </p>
+                                <a href="activity.php?id=<?php echo $activity['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
+                                    <?= __('view_details') ?> <i class="bi bi-arrow-right"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
-                <!-- Pagination features -->
-                <?php if ($pages_activities > 1): ?>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center mt-4">
-                            <li class="page-item <?= ($page_la <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $page_la - 1 ?>">&laquo; Sebelumnya</a>
-                            </li>
-                            <?php for ($i = 1; $i <= $pages_activities; $i++): ?>
-                                <li class="page-item <?= ($page_la == $i) ? 'active' : '' ?>">
-                                    <a class="page-link" href="?latest_activities_page=<?= $i ?>"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-                            <li class="page-item <?= ($page_la >= $pages_activities) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?latest_activities_page=<?= $page_la + 1 ?>">Selanjutnya &raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                <?php endif; ?>
             <?php else: ?>
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        Belum ada kegiatan terbaru
+                        <?= __('no_activities') ?>
                     </div>
                 </div>
             <?php endif; ?>
         </div>
+
+        <?php if (!empty($latest_activities)): ?>
+            <div class="text-center mt-4">
+                <a href="activity.php" class="btn btn-primary">
+                    <?= __('view_all') ?> <?= __('nav_activities') ?> <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
 </section>
 
 <!-- Partnerships Section -->
 <?php if (!empty($partnerships)): ?>
-    <section class="py-5">
+    <section class="py-5 bg-light" data-aos="fade-up" data-aos-duration="1000">
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
-                    <h2 class="section-title">Our Partners</h2>
-                    <p class="section-subtitle">Mitra kerja sama AI Lab Polinema</p>
+                    <h2 class="section-title"><?= __('our_partners') ?></h2>
+                    <p class="section-subtitle"><?= __('partners_desc') ?></p>
                 </div>
             </div>
 
-            <div class="row g-4  justify-content-center align-items-center text-center">
+            <div class="row g-4 justify-content-center align-items-center text-center">
                 <?php foreach ($partnerships as $partner): ?>
                     <div class="col-6 col-md-4 col-lg-2 text-center">
                         <a href="<?php echo htmlspecialchars($partner['website']); ?>"
@@ -324,18 +594,4 @@ include '../includes/navbar.php';
         </div>
     </section>
 <?php endif; ?>
-
-<!-- CTA Section -->
-<section class="py-5" style="background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%); color: white;">
-    <div class="container text-center">
-        <h2 class="mb-3 text-white">Ready to Collaborate?</h2>
-        <p class="lead mb-4">
-            Mari berkolaborasi dengan kami untuk mengembangkan teknologi informasi terapan
-        </p>
-        <a href="contact.php" class="btn btn-light btn-lg">
-            <i class="bi bi-envelope me-2"></i>Get in Touch
-        </a>
-    </div>
-</section>
-
 <?php include '../includes/footer.php'; ?>

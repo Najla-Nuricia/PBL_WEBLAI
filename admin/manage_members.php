@@ -31,7 +31,7 @@ if (isset($_GET['delete'])) {
     }
 }
 // Handle Bulk Delete
-if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
+if (($_POST['action'] ?? '') === 'bulk_delete' && !empty($_POST['selected'])) {
     $uuids = $_POST['selected'];
 
     try {
@@ -52,11 +52,13 @@ if (isset($_POST['bulk_delete']) && !empty($_POST['selected'])) {
     }
 }
 // Handle Insert/Update
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($_POST['action'] ?? '') === 'save') {
     $nama = clean_input($_POST['nama'] ?? '');
     $nidn = clean_input($_POST['nidn'] ?? '');
     $jabatan = clean_input($_POST['jabatan'] ?? '');
     $status = clean_input($_POST['status'] ?? '');
+    $keahlian = clean_input($_POST['keahlian'] ?? '');
+
 
     try {
         $path_gambar = null;
@@ -91,14 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt = $pdo->prepare("UPDATE anggota SET nama = ?, nidn = ?, jabatan = ?, status = ?, path_gambar = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
                     $stmt->execute([$nama, $nidn, $jabatan, $status, $path_gambar, $uuid]);
                 } else {
-                    $stmt = $pdo->prepare("UPDATE anggota SET nama = ?, nidn = ?, jabatan = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
-                    $stmt->execute([$nama, $nidn, $jabatan, $status, $uuid]);
+                    $stmt = $pdo->prepare("UPDATE anggota SET nama = ?, nidn = ?, jabatan = ?, keahlian= ? , status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?");
+                    $stmt->execute([$nama, $nidn, $jabatan, $keahlian, $status, $uuid]);
                 }
                 $_SESSION['flash_success'] = "Anggota berhasil diperbarui!";
             } else {
                 // Insert
-                $stmt = $pdo->prepare("INSERT INTO anggota (nama, nidn, jabatan, status, path_gambar) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$nama, $nidn, $jabatan, $status, $path_gambar]);
+                $stmt = $pdo->prepare("INSERT INTO anggota (nama, nidn, jabatan, keahlian, status, path_gambar) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$nama, $nidn, $jabatan, $keahlian, $status, $path_gambar]);
                 $_SESSION['flash_success'] = "Anggota baru berhasil ditambahkan!";
             }
         }
@@ -111,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Get all members
-$stmt = $pdo->query("SELECT * FROM anggota ORDER BY jabatan, nama");
+$stmt = $pdo->query("SELECT * FROM anggota where jabatan is not null ORDER BY jabatan, nama  ");
 $members = $stmt->fetchAll();
 
 // Get data for edit
@@ -142,6 +144,7 @@ if (isset($_SESSION['flash_error'])) {
     </div>
     <div class="card-body">
         <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="save">
             <?php if ($edit_data): ?>
                 <input type="hidden" name="uuid" value="<?php echo $edit_data['uuid']; ?>">
             <?php endif; ?>
@@ -149,19 +152,14 @@ if (isset($_SESSION['flash_error'])) {
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                    <input type="text"
-                        name="nama"
-                        class="form-control"
+                    <input type="text" name="nama" class="form-control"
                         value="<?php echo $edit_data ? htmlspecialchars($edit_data['nama']) : ''; ?>"
-                        placeholder="Nama lengkap dengan gelar"
-                        required>
+                        placeholder="Nama lengkap dengan gelar" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">NIDN</label>
-                    <input type="text"
-                        name="nidn"
-                        class="form-control"
+                    <input type="text" name="nidn" class="form-control"
                         value="<?php echo $edit_data ? htmlspecialchars($edit_data['nidn']) : ''; ?>"
                         placeholder="Nomor Induk Dosen Nasional">
                 </div>
@@ -170,38 +168,51 @@ if (isset($_SESSION['flash_error'])) {
                     <label class="form-label">Jabatan <span class="text-danger">*</span></label>
                     <select name="jabatan" class="form-select select-enhanced" required>
                         <option value="">Pilih Jabatan</option>
-                        <option value="ketua" <?php echo ($edit_data && $edit_data['jabatan'] == 'ketua') ? 'selected' : ''; ?>>Ketua</option>
-                        <option value="anggota" <?php echo ($edit_data && $edit_data['jabatan'] == 'anggota') ? 'selected' : ''; ?>>Anggota</option>
+                        <option value="ketua"
+                            <?php echo ($edit_data && $edit_data['jabatan'] == 'ketua') ? 'selected' : ''; ?>>Ketua
+                        </option>
+                        <option value="anggota"
+                            <?php echo ($edit_data && $edit_data['jabatan'] == 'anggota') ? 'selected' : ''; ?>>Anggota
+                        </option>
                     </select>
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Keahlian (pisahkan dengan koma)</label>
+                    <input type="text" name="keahlian" class="form-control"
+                        value="<?php echo $edit_data ? htmlspecialchars($edit_data['keahlian'] ?? '') : ''; ?>"
+                        placeholder="Contoh: AI, Machine Learning, Data Mining">
+                </div>
+
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Status <span class="text-danger">*</span></label>
                     <select name="status" class="form-select select-enhanced" required>
                         <option value="">Pilih Status</option>
-                        <option value="dosen" <?php echo ($edit_data && $edit_data['status'] == 'dosen') ? 'selected' : ''; ?>>Dosen</option>
-                        <option value="mahasiswa" <?php echo ($edit_data && $edit_data['status'] == 'mahasiswa') ? 'selected' : ''; ?>>Mahasiswa</option>
+                        <option value="dosen"
+                            <?php echo ($edit_data && $edit_data['status'] == 'dosen') ? 'selected' : ''; ?>>Dosen
+                        </option>
+                        <option value="mahasiswa"
+                            <?php echo ($edit_data && $edit_data['status'] == 'mahasiswa') ? 'selected' : ''; ?>>
+                            Mahasiswa</option>
                     </select>
                 </div>
 
                 <div class="col-12 mb-3">
                     <label class="form-label">Foto</label>
-                    <input type="file"
-                        name="gambar"
-                        class="form-control"
-                        accept="image/*"
+                    <input type="file" name="gambar" class="form-control" accept="image/*"
                         onchange="previewImage(this, 'preview')">
                     <small class="text-muted">Max 2MB. Rekomendasi: Foto formal rasio 1:1 (500x500px)</small>
 
                     <?php if ($edit_data && $edit_data['path_gambar']): ?>
                         <div class="mt-2">
-                            <img src="../assets/img/<?php echo htmlspecialchars($edit_data['path_gambar']); ?>"
-                                id="preview"
+                            <img src="../assets/img/<?php echo htmlspecialchars($edit_data['path_gambar']); ?>" id="preview"
                                 class="img-thumbnail rounded-circle"
                                 style="width: 120px; height: 120px; object-fit: cover;">
                         </div>
                     <?php else: ?>
-                        <img id="preview" class="img-thumbnail rounded-circle mt-2" style="width: 120px; height: 120px; object-fit: cover; display: none;">
+                        <img id="preview" class="img-thumbnail rounded-circle mt-2"
+                            style="width: 120px; height: 120px; object-fit: cover; display: none;">
                     <?php endif; ?>
                 </div>
             </div>
@@ -237,8 +248,10 @@ if (isset($_SESSION['flash_error'])) {
                 </div>
             </div>
         <?php else: ?>
-            <div class="table-responsive">
+            <link rel="stylesheet" href="../assets/css/swipejs.css">
+            <div class="swipeable-table" id="swipeTable">
                 <form method="POST" id="bulkDeleteForm" action="">
+                    <input type="hidden" name="action" value="bulk_delete">
                     <table class="table table-hover datatable">
                         <thead>
                             <tr>
@@ -250,6 +263,7 @@ if (isset($_SESSION['flash_error'])) {
                                 <th>Nama</th>
                                 <th width="120">NIDN</th>
                                 <th width="100">Jabatan</th>
+                                <th>Keahlian</th>
                                 <th width="100">Status</th>
                                 <th width="120">Aksi</th>
                             </tr>
@@ -258,16 +272,14 @@ if (isset($_SESSION['flash_error'])) {
                             <?php foreach ($members as $index => $member): ?>
                                 <tr>
                                     <td>
-                                        <input type="checkbox" name="selected[]" value="<?= $member['uuid']; ?>" class="rowCheckbox">
+                                        <input type="checkbox" name="selected[]" value="<?= $member['uuid']; ?>"
+                                            class="rowCheckbox">
                                     </td>
                                     <td><?php echo $index + 1; ?></td>
                                     <td>
                                         <?php if ($member['path_gambar']): ?>
                                             <img src="../assets/img/<?php echo htmlspecialchars($member['path_gambar']); ?>"
-                                                class="rounded-circle"
-                                                width="50"
-                                                height="50"
-                                                style="object-fit: cover;">
+                                                class="rounded-circle" width="50" height="50" style="object-fit: cover;">
                                         <?php else: ?>
                                             <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
                                                 style="width: 50px; height: 50px;">
@@ -278,25 +290,26 @@ if (isset($_SESSION['flash_error'])) {
                                     <td><strong><?php echo htmlspecialchars($member['nama']); ?></strong></td>
                                     <td><?php echo htmlspecialchars($member['nidn']); ?></td>
                                     <td>
-                                        <span class="badge bg-<?php echo $member['jabatan'] == 'ketua' ? 'primary' : 'secondary'; ?>">
-                                            <?php echo ucfirst($member['jabatan']); ?>
+                                        <span
+                                            class="badge bg-<?php echo $member['jabatan'] == 'ketua' ? 'primary' : 'secondary'; ?>">
+
+                                            <?php echo ucfirst($member['jabatan'] ?? ''); ?>
                                         </span>
                                     </td>
+                                    <td><?php echo htmlspecialchars($member['keahlian'] ?? ''); ?></td>
+
                                     <td>
                                         <span class="badge bg-<?php echo $member['status'] == 'dosen' ? 'success' : 'info'; ?>">
                                             <?php echo ucfirst($member['status']); ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="?edit=<?php echo $member['uuid']; ?>"
-                                            class="btn btn-sm btn-warning"
+                                        <a href="?edit=<?php echo $member['uuid']; ?>" class="btn btn-sm btn-warning"
                                             title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="?delete=<?php echo $member['uuid']; ?>"
-                                            class="btn btn-sm btn-danger"
-                                            onclick="return confirmDelete();"
-                                            title="Hapus">
+                                        <a href="?delete=<?php echo $member['uuid']; ?>" class="btn btn-sm btn-danger"
+                                            onclick="return confirmDelete();" title="Hapus">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>

@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Admin Login - AI Lab Polinema</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -55,60 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --primary-color: #1E4BA3;
-            --secondary-color: #2C5AA0;
-        }
+    <link rel="stylesheet" href="../assets/css/login.css">
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    <link rel="icon" type="image/x-icon" href="../assets/icons/logo.ico">
 
-        .login-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            max-width: 900px;
-            width: 100%;
-        }
-
-        .login-left {
-            background: linear-gradient(135deg, #1E4BA3 0%, #4A90E2 100%);
-            color: white;
-            padding: 3rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .login-right {
-            padding: 3rem;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(30, 75, 163, 0.25);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-    </style>
 </head>
 
 <body>
@@ -120,17 +70,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <!-- Left Side -->
                         <div class="col-lg-5 login-left">
                             <div>
-                                <img src="../assets/img/logo.png" alt="Logo AI Lab" class="me-2" style="width: 100px; height: 100px; object-fit: contain;">
+                                <img src="../assets/icons/logo.png" alt="Logo AI Lab" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
                                 <h2 class="fw-bold mb-3">AI Lab Polinema</h2>
-                                <p class="lead">Applied Informatics Laboratory</p>
-                                <p>Dashboard Admin untuk mengelola konten website laboratorium</p>
+                                <p class="lead mb-2">Applied Informatics Laboratory</p>
+                                <p class="mb-0">Dashboard Admin untuk mengelola konten website laboratorium</p>
                             </div>
                         </div>
 
                         <!-- Right Side - Login Form -->
                         <div class="col-lg-7 login-right">
                             <div class="mb-4">
-                                <h3 class="fw-bold" style="color: var(--primary-color);">Login Admin</h3>
+                                <h3 class="fw-bold" style="color: var(--primary-color);">
+                                    <i class="bi bi-shield-lock me-2"></i>Login Admin
+                                </h3>
                                 <p class="text-muted">Masuk untuk mengakses dashboard admin</p>
                             </div>
 
@@ -168,17 +120,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <label for="password" class="form-label">
                                         <i class="bi bi-lock-fill me-1"></i>Password
                                     </label>
-                                    <input type="password"
-                                        class="form-control form-control-lg"
-                                        id="password"
-                                        name="password"
-                                        placeholder="Masukkan password"
-                                        required>
+                                    <div class="password-toggle">
+                                        <input type="password"
+                                            class="form-control form-control-lg"
+                                            id="password"
+                                            name="password"
+                                            placeholder="Masukkan password"
+                                            required>
+                                        <i class="bi bi-eye-slash password-toggle-icon" id="togglePassword"></i>
+                                    </div>
                                 </div>
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                                        <span>
+                                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                                        </span>
                                     </button>
                                 </div>
                             </form>
@@ -186,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <hr class="my-4">
 
                             <div class="text-center">
-                                <a href="../public/index.php" class="text-muted text-decoration-none">
+                                <a href="../public/index.php" class="back-link">
                                     <i class="bi bi-arrow-left me-1"></i>Kembali ke Homepage
                                 </a>
                             </div>
@@ -198,7 +155,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Password Toggle Script -->
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                this.classList.toggle('bi-eye');
+                this.classList.toggle('bi-eye-slash');
+            });
+        }
+    </script>
 </body>
 
 </html>

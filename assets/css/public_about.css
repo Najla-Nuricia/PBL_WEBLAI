@@ -1,0 +1,110 @@
+/* Team Card Styles */
+.team-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.team-card:hover .member-img {
+    transform: scale(1.05);
+}
+
+.member-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.member-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border: 4px solid #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.member-placeholder {
+    width: 120px;
+    height: 120px;
+    border: 4px solid #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.member-badge {
+    position: absolute;
+    bottom: 5px;
+    right: calc(50% - 60px);
+    background: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.badge-custom {
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.member-action {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.team-card:hover .member-action {
+    opacity: 1;
+}
+
+/* Modal Enhancements */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom: 2px solid #e9ecef;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+    max-height: 60vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .member-avatar,
+    .member-img,
+    .member-placeholder {
+        width: 100px;
+        height: 100px;
+    }
+
+    .member-badge {
+        right: calc(50% - 50px);
+        width: 28px;
+        height: 28px;
+    }
+}
