@@ -328,18 +328,30 @@ include '../includes/navbar.php';
                                 <h5 class="fw-bold mb-3 text-primary">
                                     <i class="bi bi-tags me-2"></i><?= __('filter_category') ?>
                                 </h5>
-                                <div class="list-group">
-                                    <a href="?year=<?= $filter_year ?: 'all' ?>&category=all"
-                                        class="list-group-item list-group-item-action <?= !$filter_category ? 'active' : '' ?>">
-                                        <i class="bi bi-collection me-2"></i><?= __('all_categories') ?>
-                                    </a>
-                                    <?php foreach ($categories as $cat): ?>
-                                        <a href="?year=<?= $filter_year ?: 'all' ?>&category=<?= urlencode($cat) ?>"
-                                            class="list-group-item list-group-item-action <?= ($filter_category == $cat) ? 'active' : '' ?>">
-                                            <i class="bi bi-tag me-2"></i><?= htmlspecialchars($cat) ?>
-                                        </a>
-                                    <?php endforeach; ?>
+                                <!-- Dropdown Select -->
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted">
+                                        <i class="bi bi-funnel me-1"></i>Select Category
+                                    </label>
+                                    <select id="category-select" name="category" class="form-select">
+                                        <option value="all"><?= __('all_categories') ?></option>
+                                        <?php foreach ($categories as $cat): ?>
+                                            <option value="<?= htmlspecialchars($cat) ?>" <?= ($filter_category == $cat) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($cat) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
+
+                                <!-- Clear Filter Button -->
+                                <?php if ($filter_category !== null): ?>
+                                    <div class="mt-3 pt-3 border-top">
+                                        <a href="?year=<?= $filter_year ?: 'all' ?>&category=all"
+                                            class="btn btn-sm btn-outline-primary w-100">
+                                            <i class="bi bi-x-circle me-2"></i>Clear Category Filter
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -387,6 +399,12 @@ include '../includes/navbar.php';
     document.getElementById('year-select').addEventListener('change', function() {
         let year = this.value;
         let category = "<?= $filter_category ?: 'all' ?>";
+        window.location.href = "?year=" + year + "&category=" + category;
+    });
+
+    document.getElementById('category-select').addEventListener('change', function() {
+        let category = this.value;
+        let year = "<?= $filter_year ?: 'all' ?>";
         window.location.href = "?year=" + year + "&category=" + category;
     });
 </script>
