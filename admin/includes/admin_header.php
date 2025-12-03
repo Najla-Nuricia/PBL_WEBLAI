@@ -30,13 +30,13 @@ require_login();
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
 
     <!-- Select2 CSS -->
     <link href="../node_modules/select2/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Optional: Tema Bootstrap 5 untuk Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+    <link href="../node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
 
     <!-- Animated css -->
