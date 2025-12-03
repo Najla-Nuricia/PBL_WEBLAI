@@ -1,10 +1,9 @@
 <?php
 require_once '../config/db.php';
-require_once '../lang/init.php';
 include '../includes/header.php';
 include '../includes/navbar.php';
 
-$page_title = 'Research & Activities';
+$page_title = 'Kegiatan';
 
 // Get background image
 $stmt_bg = $pdo->query('SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1');
@@ -86,8 +85,8 @@ if (isset($_GET['id'])) {
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3"><?= __('activities') ?></h1>
-                <p class="lead"><?= __('activities_hero_desc') ?></p>
+                <h1 class="display-4 fw-bold mb-3">Kegiatan</h1>
+                <p class="lead">Kegiatan seminar, workshop, dan pengabdian masyarakat AI Lab Polinema</p>
             </div>
         </div>
     </div>
@@ -145,12 +144,12 @@ if (isset($_GET['id'])) {
                                     <button class="carousel-control-prev" type="button" data-bs-target="#activityCarousel"
                                         data-bs-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
+                                        <span class="visually-hidden">Sebelumnya</span>
                                     </button>
                                     <button class="carousel-control-next" type="button" data-bs-target="#activityCarousel"
                                         data-bs-slide="next">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
+                                        <span class="visually-hidden">Selanjutnya</span>
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -259,19 +258,19 @@ if (isset($_GET['id'])) {
                     <div class="filter-pills-container">
                         <a href="activity.php" class="filter-pill <?php echo !$kategori_filter ? 'active' : ''; ?>">
                             <i class="bi bi-grid-3x3-gap"></i>
-                            <span><?= __('all') ?></span>
+                            <span>Semua</span>
                         </a>
                         <a href="activity.php?kategori=workshop" class="filter-pill <?php echo $kategori_filter == 'workshop' ? 'active' : ''; ?>">
                             <i class="bi bi-tools"></i>
-                            <span><?= __('workshop') ?></span>
+                            <span>Workshop</span>
                         </a>
                         <a href="activity.php?kategori=seminar" class="filter-pill <?php echo $kategori_filter == 'seminar' ? 'active' : ''; ?>">
                             <i class="bi bi-mic"></i>
-                            <span><?= __('seminar') ?></span>
+                            <span>Seminar</span>
                         </a>
                         <a href="activity.php?kategori=pengabdian" class="filter-pill <?php echo $kategori_filter == 'pengabdian' ? 'active' : ''; ?>">
                             <i class="bi bi-people"></i>
-                            <span><?= __('community_service') ?></span>
+                            <span>Pengabdian</span>
                         </a>
                     </div>
                 </div>

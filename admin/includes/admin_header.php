@@ -20,7 +20,7 @@ require_login();
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.css">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -30,20 +30,25 @@ require_login();
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
 
     <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="../node_modules/select2/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Optional: Tema Bootstrap 5 untuk Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+    <link href="../node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
 
     <!-- Animated css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="../node_modules/animate.css/animate.min.css" />
+
+    <!-- QuillJS CSS -->
+    <link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet">
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="../node_modules/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="../assets/css/admin_header.css">
-
     <link rel="icon" type="image/x-icon" href="../assets/icons/logo.ico">
 </head>
 

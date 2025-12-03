@@ -136,7 +136,7 @@ $stmt = $pdo->query("
     LEFT JOIN anggota_produk ap ON p.uuid = ap.produk_uuid
     LEFT JOIN anggota a ON ap.anggota_uuid = a.uuid 
     GROUP BY p.uuid
-    ORDER BY p.tahun DESC, p.nama ASC
+    ORDER BY p.created_at DESC
 ");
 $products = $stmt->fetchAll();
 

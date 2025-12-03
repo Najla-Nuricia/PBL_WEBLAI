@@ -1,119 +1,165 @@
 <?php
 require_once '../config/db.php';
 
+// Get parameters
 $uuid = $_GET['uuid'] ?? '';
-$page = max(1, intval($_GET['page'] ?? 1));
-$limit = 5;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$limit = 10; // Jumlah publikasi per halaman
 $offset = ($page - 1) * $limit;
 
-if ($uuid) {
+if (empty($uuid)) {
+    echo '<div class="alert alert-warning m-3">UUID anggota tidak valid.</div>';
+    exit;
+}
 
-    // Ambil publikasi dengan semua authors
+try {
+    // Get total count
+    $stmt_count = $pdo->prepare("
+        SELECT COUNT(DISTINCT p.uuid) as total
+        FROM publikasi p
+        JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
+        WHERE ap.anggota_uuid = ?
+    ");
+    $stmt_count->execute([$uuid]);
+    $total_result = $stmt_count->fetch();
+    $total_publications = $total_result['total'];
+    $total_pages = ceil($total_publications / $limit);
+
+    // Get publications with pagination
     $stmt = $pdo->prepare("
-    SELECT *
-    FROM view_publikasi_author v
-    JOIN anggota_publikasi ap ON v.uuid = ap.publikasi_uuid
-    WHERE ap.anggota_uuid = ?
-    ORDER BY v.tahun DESC, v.judul ASC
-    LIMIT $limit OFFSET $offset
-");
+        SELECT DISTINCT
+            p.uuid,
+            p.judul,
+            p.tahun,
+            p.tautan,
+            p.kategori,
+            p.created_at
+        FROM publikasi p
+        JOIN anggota_publikasi ap ON p.uuid = ap.publikasi_uuid
+        WHERE ap.anggota_uuid = ?
+        ORDER BY p.tahun DESC, p.created_at DESC
+        LIMIT ? OFFSET ?
+    ");
+    $stmt->execute([$uuid, $limit, $offset]);
+    $publications = $stmt->fetchAll();
 
-$stmt->execute([$uuid]);
-$publikasis = $stmt->fetchAll();
+    if (empty($publications)) {
+        echo '<div class="alert alert-info m-3">
+                <i class="bi bi-info-circle me-2"></i>
+                Belum ada publikasi untuk anggota ini.
+              </div>';
+        exit;
+    }
 
+    // Display publications
+    echo '<div class="px-3">';
+    echo '<h6 class="text-muted mb-3">Daftar Publikasi (' . $total_publications . ' total)</h6>';
+    echo '<div class="list-group list-group-flush">';
 
-    if ($publikasis && count($publikasis) > 0) {
-        echo '<div class="list-group mb-3">';
-        foreach ($publikasis as $p) {
-            echo '<div class="list-group-item">';
+    foreach ($publications as $pub) {
+        // Get authors for this publication
+        $stmt_authors = $pdo->prepare("
+            SELECT a.nama
+            FROM anggota a
+            JOIN anggota_publikasi ap ON a.uuid = ap.anggota_uuid
+            WHERE ap.publikasi_uuid = ?
+        ");
+        $stmt_authors->execute([$pub['uuid']]);
+        $authors = $stmt_authors->fetchAll(PDO::FETCH_COLUMN);
+        $authors_text = implode(', ', $authors);
 
-            // Judul dengan link
-            echo '<h6 class="fw-bold mb-2">';
-            if (!empty($p['tautan'])) {
-                echo '<a href="' . htmlspecialchars($p['tautan']) . '" target="_blank" class="text-decoration-none item-link">';
-                echo htmlspecialchars($p['judul']);
-                echo ' <i class="bi bi-box-arrow-up-right ms-1 small"></i>';
-                echo '</a>';
-            } else {
-                echo htmlspecialchars($p['judul']);
-            }
-            echo '</h6>';
+        // Badge color based on publication category
+        $badge_colors = [
+            'Internasional' => 'primary',
+            'Scopus' => 'success',
+            'Google Scholar' => 'info',
+            'Springer' => 'warning',
+            'Nasional' => 'secondary',
+            'lainnya' => 'secondary'
+        ];
+        $badge_color = $badge_colors[$pub['kategori']] ?? 'primary';
 
-            // Authors (jika ada)
-            if (!empty($p['all_authors'])) {
-                echo '<p class="small text-muted mb-1">';
-                echo '<i class="bi bi-people-fill me-1"></i>';
-                echo '<strong>' . htmlspecialchars($p['all_authors']) . '</strong>';
-                echo '</p>';
-            }
-
-            // Kategori dan Tahun
-            echo '<div class="d-flex gap-2 align-items-center">';
-            if (!empty($p['kategori'])) {
-                echo '<span class="badge bg-info">';
-                echo htmlspecialchars($p['kategori']);
-                echo '</span>';
-            }
-            if (!empty($p['tahun'])) {
-                echo '<small class="text-muted">';
-                echo '<i class="bi bi-calendar3 me-1"></i>' . htmlspecialchars($p['tahun']);
-                echo '</small>';
-            }
-            echo '</div>';
-
-            echo '</div>';
-        }
+        echo '<div class="list-group-item border-0 border-bottom py-3">';
+        echo '<div class="d-flex justify-content-between align-items-start mb-2">';
+        echo '<span class="badge bg-' . $badge_color . '">' . htmlspecialchars($pub['kategori']) . '</span>';
+        echo '<span class="badge bg-light text-dark">' . ($pub['tahun'] ?: 'N/A') . '</span>';
         echo '</div>';
-    } else {
-        echo '<div class="alert alert-info">';
-        echo '<i class="bi bi-info-circle me-2"></i>';
-        echo 'Belum ada publikasi untuk anggota ini.';
+
+        echo '<h6 class="mb-2 fw-bold">' . htmlspecialchars($pub['judul']) . '</h6>';
+
+        if (!empty($authors_text)) {
+            echo '<p class="mb-2 small text-muted">';
+            echo '<i class="bi bi-people-fill me-1"></i>';
+            echo htmlspecialchars($authors_text);
+            echo '</p>';
+        }
+
+        if (!empty($pub['tautan'])) {
+            echo '<a href="' . htmlspecialchars($pub['tautan']) . '" target="_blank" class="btn btn-sm btn-outline-primary">';
+            echo '<i class="bi bi-link-45deg me-1"></i>Lihat Publikasi';
+            echo '</a>';
+        }
+
         echo '</div>';
     }
 
-}
-?>
+    echo '</div>'; // end list-group
 
-<style>
-.item-link {
-    color: #313131 !important;
-    transition: color 0.15s ease, text-decoration 0.15s ease;
-}
+    // Pagination
+    if ($total_pages > 1) {
+        echo '<nav aria-label="Pagination publikasi" class="mt-4">';
+        echo '<ul class="pagination justify-content-center">';
 
-.item-link:hover {
-    color: #0d6efd !important;
-    text-decoration: underline !important;
-}
+        // Previous button
+        echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
+        echo '<a class="page-link pagination-btn" data-page="' . ($page - 1) . '" href="#">&laquo; Sebelumnya</a>';
+        echo '</li>';
 
-.list-group-item {
-    transition: background-color 0.15s ease;
-    border-left: 3px solid transparent;
-}
+        // Page numbers - show limited range
+        $start_page = max(1, $page - 2);
+        $end_page = min($total_pages, $page + 2);
 
-.list-group-item:hover {
-    background-color: #f8f9fa;
-    border-left-color: #0d6efd;
-}
+        // First page
+        if ($start_page > 1) {
+            echo '<li class="page-item">';
+            echo '<a class="page-link pagination-btn" data-page="1" href="#">1</a>';
+            echo '</li>';
+            if ($start_page > 2) {
+                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+        }
 
-.badge {
-    font-weight: 500;
-    font-size: 0.75rem;
-}
+        // Page numbers in range
+        for ($i = $start_page; $i <= $end_page; $i++) {
+            echo '<li class="page-item ' . (($i == $page) ? 'active' : '') . '">';
+            echo '<a class="page-link pagination-btn" data-page="' . $i . '" href="#">' . $i . '</a>';
+            echo '</li>';
+        }
 
-.pagination-sm .page-link {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-}
+        // Last page
+        if ($end_page < $total_pages) {
+            if ($end_page < $total_pages - 1) {
+                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+            echo '<li class="page-item">';
+            echo '<a class="page-link pagination-btn" data-page="' . $total_pages . '" href="#">' . $total_pages . '</a>';
+            echo '</li>';
+        }
 
-.pagination-sm .page-link:hover {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-}
+        // Next button
+        echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
+        echo '<a class="page-link pagination-btn" data-page="' . ($page + 1) . '" href="#">Selanjutnya &raquo;</a>';
+        echo '</li>';
 
-.pagination-sm .page-item.active .page-link {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+        echo '</ul>';
+        echo '</nav>';
+    }
+
+    echo '</div>'; // end px-3 container
+
+} catch (PDOException $e) {
+    echo '<div class="alert alert-danger m-3">';
+    echo '<i class="bi bi-exclamation-triangle me-2"></i>';
+    echo 'Terjadi kesalahan: ' . htmlspecialchars($e->getMessage());
+    echo '</div>';
 }
-</style>

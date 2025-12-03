@@ -227,7 +227,7 @@ if (isset($_SESSION['flash_error'])) {
                                             <label class="form-label small mb-1">Buka</label>
                                             <input type="time"
                                                 name="hours[<?= $wh['uuid'] ?>][open_time]"
-                                                class="form-control form-control-sm"
+                                                class="form-control form-control-sm flatpickr-time"
                                                 value="<?= $wh['open_time'] ?>"
                                                 <?= $wh['is_closed'] ? 'disabled' : '' ?>>
                                         </div>
@@ -235,7 +235,7 @@ if (isset($_SESSION['flash_error'])) {
                                             <label class="form-label small mb-1">Tutup</label>
                                             <input type="time"
                                                 name="hours[<?= $wh['uuid'] ?>][close_time]"
-                                                class="form-control form-control-sm"
+                                                class="form-control form-control-sm flatpickr-time"
                                                 value="<?= $wh['close_time'] ?>"
                                                 <?= $wh['is_closed'] ? 'disabled' : '' ?>>
                                         </div>

@@ -25,31 +25,31 @@ $footer = $stmt_footer->fetch();
 
             <!-- Quick Links -->
             <div class="col-lg-4 mb-4">
-                <h5 class="text-uppercase mb-3 text-light">Quick Links</h5>
+                <h5 class="text-uppercase mb-3 text-light">Tautan Langsung</h5>
                 <ul class="list-unstyled">
                     <li class="mb-2">
                         <a href="index.php" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right"></i> Home
+                            <i class="bi bi-chevron-right"></i> Beranda
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="about.php" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right"></i> About Us
+                            <i class="bi bi-chevron-right"></i> Tentang Kami
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="research.php" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right"></i> Research
+                            <i class="bi bi-chevron-right"></i> Penelitian
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="publications.php" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right"></i> Publications
+                            <i class="bi bi-chevron-right"></i> Publikasi
                         </a>
                     </li>
                     <li class="mb-2">
                         <a href="contact.php" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right"></i> Contact
+                            <i class="bi bi-chevron-right"></i> Kontak
                         </a>
                     </li>
                 </ul>
@@ -57,7 +57,7 @@ $footer = $stmt_footer->fetch();
 
             <!-- Contact & Social Media -->
             <div class="col-lg-4 mb-4">
-                <h5 class="text-uppercase mb-3 text-light">Connect With Us</h5>
+                <h5 class="text-uppercase mb-3 text-light">Terhubung Dengan Kami</h5>
                 <p class="text-light">
                     <i class="bi bi-geo-alt-fill me-2"></i>
                     Politeknik Negeri Malang<br>

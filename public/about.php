@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
-require_once '../lang/init.php';
-$page_title = 'About Us';
+$page_title = 'Tentang Kami';
 
 // Fetch dashboard background
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
@@ -30,6 +29,8 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 <link rel="stylesheet" href="../assets/css/public_about.css">
+<link rel="stylesheet" href="../assets/css/quill-content.css">
+
 <!-- Hero Section with Parallax Effect -->
 <section class="hero-section position-relative py-5" id="heroSection"
     style="color: white; min-height: 500px; overflow: hidden;">
@@ -52,8 +53,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center py-5" style="min-height: 400px;">
             <div class="col-lg-8 text-center">
-                <h1 class="display-4 fw-bold mb-3" data-aos="fade-up" data-aos-duration="1000"><?= __('about_hero_title') ?></h1>
-                <p class="lead" data-aos="fade-up" data-aos-duration="1000"><?= __('about_hero_desc') ?></p>
+                <h1 class="display-4 fw-bold mb-3" data-aos="fade-up" data-aos-duration="1000">Tentang AI Lab</h1>
+                <p class="lead" data-aos="fade-up" data-aos-duration="1000">Mengenal lebih dekat Laboratorium Informatika Terapan</p>
             </div>
         </div>
     </div>
@@ -61,18 +62,22 @@ include '../includes/navbar.php';
 
 <!-- Parallax JavaScript -->
 <script src="../assets/js/parallax.js"></script>
+
 <!-- Sejarah Section -->
-<?php if ($profile['sejarah']): ?>
+<?php if ($profile && !empty($profile['sejarah'])): ?>
     <section class="py-5">
         <div class="container">
             <div class="row" data-aos="fade-up" data-aos-duration="1000">
                 <div class="col-lg-10 mx-auto">
-                    <h2 class="section-title text-center mb-4"><?= __('lab_history') ?></h2>
+                    <h2 class="section-title text-center mb-4">Sejarah Laboratorium</h2>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
-                            <p class="text-muted" style="text-align: justify;">
-                                <?php echo nl2br(htmlspecialchars($profile['sejarah'])); ?>
-                            </p>
+                            <div class="quill-content" style="text-align: justify;">
+                                <?php
+                                // Tampilkan konten HTML dari Quill langsung
+                                echo $profile['sejarah'];
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -80,6 +85,7 @@ include '../includes/navbar.php';
         </div>
     </section>
 <?php endif; ?>
+
 <!-- Visi & Misi Section -->
 <?php if ($profile): ?>
     <section class="py-5 bg-light">
@@ -91,41 +97,31 @@ include '../includes/navbar.php';
                         <div class="card-body p-4 text-center">
                             <div class="d-flex justify-content-center align-items-center mb-3">
                                 <i class="bi bi-eye-fill text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0"><?= __('vision') ?></h3>
+                                <h3 class="fw-bold mb-0">Visi</h3>
                             </div>
-                            <p class="text-muted mb-0 text-center">
-                                <?php echo nl2br(htmlspecialchars($profile['visi'])); ?>
-                            </p>
+                            <div class="quill-content text-center">
+                                <?php
+                                // Tampilkan konten HTML dari Quill
+                                echo $profile['visi'];
+                                ?>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Misi -->
                     <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-duration="1000">
-                        <div class="card-body p-4 text-baseline" style="text-align: justify;">
+                        <div class="card-body p-4" style="text-align: justify;">
                             <div class="d-flex align-items-center justify-content-center mb-3">
                                 <i class="bi bi-bullseye text-primary fs-1 me-3"></i>
-                                <h3 class="fw-bold mb-0"><?= __('mission') ?></h3>
+                                <h3 class="fw-bold mb-0">Misi</h3>
                             </div>
 
-                            <?php
-                            // Mengubah setiap baris menjadi poin list
-                            $misi_items = preg_split('/\r\n|\r|\n/', trim($profile['misi']));
-                            if (!empty($misi_items) && trim($profile['misi']) !== '') {
-                                echo '<ul class="list-unstyled mb-0 text-muted">';
-                                foreach ($misi_items as $item) {
-                                    if (trim($item) !== '') {
-                                        echo '
-                                    <li class="d-flex align-items-start mb-2">
-                                        <i class="bi bi-check-circle-fill text-primary me-2 mt-1"></i>
-                                        <span>' . htmlspecialchars($item) . '</span>
-                                    </li>';
-                                    }
-                                }
-                                echo '</ul>';
-                            } else {
-                                echo '<p class="text-muted">' . __('no_mission') . '</p>';
-                            }
-                            ?>
+                            <div class="quill-content misi-content">
+                                <?php
+                                // Tampilkan konten HTML dari Quill
+                                echo $profile['misi'];
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,7 +133,7 @@ include '../includes/navbar.php';
         <div class="container">
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
-                <?= __('no_lab_profile') ?>
+                Informasi profil laboratorium belum tersedia
             </div>
         </div>
     </section>
@@ -148,15 +144,15 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-5">
             <div class="col text-center">
-                <h2 class="section-title"><?= __('our_team') ?></h2>
-                <p class="section-subtitle"><?= __('team_desc') ?></p>
+                <h2 class="section-title">Tim Kami</h2>
+                <p class="section-subtitle">Tim peneliti dan pengembang AI Lab Polinema</p>
             </div>
         </div>
 
         <!-- Ketua -->
         <?php if (!empty($ketua)): ?>
             <div class="mb-5">
-                <h4 class="text-center mb-4 fw-bold text-primary"><?= __('lab_head') ?></h4>
+                <h4 class="text-center mb-4 fw-bold text-primary">Kepala Laboratorium</h4>
                 <div class="row justify-content-center g-4">
                     <?php foreach ($ketua as $k): ?>
                         <div class="col-md-4 col-lg-3">
@@ -186,7 +182,7 @@ include '../includes/navbar.php';
                                     <span class="badge badge-custom bg-primary"><?php echo ucfirst($k['status']); ?></span>
                                     <div class="member-action mt-3">
                                         <small class="text-primary fw-semibold">
-                                            <i class="bi bi-eye me-1"></i><?= __('view_publications') ?>
+                                            <i class="bi bi-eye me-1"></i>Lihat Publikasi
                                         </small>
                                     </div>
                                 </div>
@@ -206,7 +202,7 @@ include '../includes/navbar.php';
 
             <?php if (!empty($dosen)): ?>
                 <div class="mb-5">
-                    <h4 class="text-center mb-4 fw-bold text-primary"><?= __('lecturer_members') ?></h4>
+                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Dosen</h4>
                     <div class="row g-4">
                         <?php foreach ($dosen as $a): ?>
                             <div class="col-md-4 col-lg-3">
@@ -235,7 +231,7 @@ include '../includes/navbar.php';
                                         <span class="badge badge-custom bg-info"><?php echo ucfirst($a['status']); ?></span>
                                         <div class="member-action mt-3">
                                             <small class="text-info fw-semibold">
-                                                <i class="bi bi-eye me-1"></i><?= __('view_publications') ?>
+                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
                                             </small>
                                         </div>
                                     </div>
@@ -249,7 +245,7 @@ include '../includes/navbar.php';
             <!-- Anggota Mahasiswa -->
             <?php if (!empty($mahasiswa)): ?>
                 <div>
-                    <h4 class="text-center mb-4 fw-bold text-primary"><?= __('student_members') ?></h4>
+                    <h4 class="text-center mb-4 fw-bold text-primary">Anggota Mahasiswa</h4>
                     <div class="row g-4">
                         <?php foreach ($mahasiswa as $a): ?>
                             <div class="col-md-4 col-lg-3">
@@ -278,7 +274,7 @@ include '../includes/navbar.php';
                                         <span class="badge badge-custom bg-success"><?php echo ucfirst($a['status']); ?></span>
                                         <div class="member-action mt-3">
                                             <small class="text-success fw-semibold">
-                                                <i class="bi bi-eye me-1"></i><?= __('view_publications') ?>
+                                                <i class="bi bi-eye me-1"></i>Lihat Publikasi
                                             </small>
                                         </div>
                                     </div>
@@ -293,38 +289,37 @@ include '../includes/navbar.php';
         <?php if (empty($ketua) && empty($anggota)): ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
-                <?= __('no_team_data') ?>
+                Data anggota tim belum tersedia
             </div>
         <?php endif; ?>
     </div>
 </section>
-
-<!-- Modal Publikasi -->
+<!-- Modal Publikasi dengan Pagination -->
 <div class="modal fade" id="anggotaModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-light">
                 <h5 class="modal-title" id="modalTitle">
-                    <i class="bi bi-journal-text me-2"></i><?= __('publications') ?>
+                    <i class="bi bi-journal-text me-2"></i>Publikasi
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalBody">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden"><?= __('loading') ?></span>
+                        <span class="visually-hidden">Memuat...</span>
                     </div>
-                    <p class="mt-3 text-muted"><?= __('loading_publications') ?></p>
+                    <p class="mt-3 text-muted">Memuat publikasi...</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
             card.addEventListener('click', () => {
-
                 const uuid = card.dataset.uuid;
                 const nama = card.querySelector('h5, h6').innerText;
                 const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
@@ -343,31 +338,31 @@ include '../includes/navbar.php';
 
                 // title modal
                 modalTitle.innerHTML = `
-                <i class="bi bi-journal-text me-2"></i>${"<?= __('publications') ?>"} - ${nama}
-            `;
+                    <i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}
+                `;
 
                 // base layout (keahlian + research page + publikasi)
                 modalBody.innerHTML = `
-                <div id="keahlianSection" class="px-3 pt-2">
-                    <h6 class="text-muted mb-1"><?= __('expertise') ?></h6>
-                    <div id="keahlianBox" class="d-flex flex-wrap gap-1">${badges}</div>
-                </div>
-
-                <div id="researchSection" class="px-3 pt-3">
-                    <h6 class="text-muted mb-1">Research Page</h6>
-                    <div id="researchPageBox" class="mb-4 small text-muted">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                        <span class="ms-2"><?= __('loading') ?></span>
+                    <div id="keahlianSection" class="px-3 pt-2">
+                        <h6 class="text-muted mb-1">Bidang Keahlian</h6>
+                        <div id="keahlianBox" class="d-flex flex-wrap gap-1">${badges}</div>
                     </div>
-                </div>
 
-                <div id="publicationContainer">
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-3 text-muted mb-0"><?= __('loading_publications') ?></p>
+                    <div id="researchSection" class="px-3 pt-3">
+                        <h6 class="text-muted mb-1">Gambaran Penelitian</h6>
+                        <div id="researchPageBox" class="mb-4 small text-muted">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="ms-2">Memuat...</span>
+                        </div>
                     </div>
-                </div>
-            `;
+
+                    <div id="publicationContainer">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                        </div>
+                    </div>
+                `;
 
                 modal.show();
 
@@ -379,11 +374,10 @@ include '../includes/navbar.php';
                 // icon research page
                 function getResearchIcon(url) {
                     const u = url.toLowerCase();
-
-                    if (u.includes("scholar.google")) return `<i class="bi bi-google"></i>`;
-                    if (u.includes("researchgate")) return `<i class="bi bi-r-square"></i>`;
-                    if (u.includes("orcid")) return `<i class="bi bi-person-badge"></i>`;
-                    return `<i class="bi bi-globe2"></i>`; // default
+                    if (u.includes("scholar.google")) return `<i class="bi bi-google text-danger"></i>`;
+                    if (u.includes("researchgate")) return `<i class="bi bi-r-square text-success"></i>`;
+                    if (u.includes("orcid")) return `<i class="bi bi-person-badge text-primary"></i>`;
+                    return `<i class="bi bi-globe2 text-info"></i>`;
                 }
 
                 // load research page dari db
@@ -391,7 +385,6 @@ include '../includes/navbar.php';
                     fetch(`fetch_research_page.php?uuid=${uuid}`)
                         .then(res => res.json())
                         .then(data => {
-
                             const section = document.getElementById("researchSection");
                             const box = document.getElementById("researchPageBox");
 
@@ -401,21 +394,18 @@ include '../includes/navbar.php';
                                 return;
                             }
 
-                            let html =
-                                `<div class="d-flex align-items-center flex-wrap gap-3">`;
-
+                            let html = `<div class="d-flex align-items-center flex-wrap gap-3">`;
                             data.forEach(r => {
                                 html += `
-                                <a href="${r.link_page}" target="_blank"
-                                   class="text-decoration-none"
-                                   title="${r.nama_web}">
-                                    <span style="font-size: 1.6rem;">
-                                        ${getResearchIcon(r.link_page)}
-                                    </span>
-                                </a>
-                            `;
+                                    <a href="${r.link_page}" target="_blank"
+                                       class="text-decoration-none"
+                                       title="${r.nama_web}">
+                                        <span style="font-size: 1.6rem;">
+                                            ${getResearchIcon(r.link_page)}
+                                        </span>
+                                    </a>
+                                `;
                             });
-
                             html += `</div>`;
                             box.innerHTML = html;
                         })
@@ -425,51 +415,102 @@ include '../includes/navbar.php';
                         });
                 }
 
-                // load publikasi
-                function loadPage(page = 1) {
+                // load publikasi dengan pagination
+                function loadPublications(page = 1) {
+                    const container = document.getElementById("publicationContainer");
+
+                    // Show loading
+                    container.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                        </div>
+                    `;
+
                     fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
                         .then(res => res.text())
                         .then(html => {
-                            document.getElementById("publicationContainer").innerHTML = html;
+                            container.innerHTML = html;
 
-                            // reattach pagination click event
-                            document.querySelectorAll('#publicationContainer .page-link')
-                                .forEach(btn => {
-                                    btn.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        loadPage(btn.dataset.page);
-                                    });
+                            // Reattach pagination click events
+                            container.querySelectorAll('.pagination-btn').forEach(btn => {
+                                btn.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    const targetPage = parseInt(btn.dataset.page);
+                                    if (targetPage && targetPage > 0) {
+                                        loadPublications(targetPage);
+                                        // Scroll to top of modal body
+                                        modalBody.scrollTop = 0;
+                                    }
                                 });
+                            });
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            document.getElementById("publicationContainer").innerHTML = `
-                            <div class="alert alert-danger m-3">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                <?= __('error_loading_publications') ?>
-                            </div>
-                        `;
+                            container.innerHTML = `
+                                <div class="alert alert-danger m-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Terjadi kesalahan saat memuat data publikasi.
+                                </div>
+                            `;
                         });
                 }
 
-                loadResearchPage(); // load research page
-                loadPage(); // load publikasi
+                // Load data
+                loadResearchPage();
+                loadPublications(1);
             });
         });
     });
 </script>
 
+<style>
+    /* Style untuk modal publikasi */
+    #anggotaModal .modal-body {
+        max-height: 70vh;
+    }
 
+    #publicationContainer .list-group-item {
+        transition: all 0.3s ease;
+    }
 
-<?php if (empty($ketua) && empty($anggota)): ?>
-    <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle me-2"></i>
-        <?= __('no_team_data') ?>
-    </div>
-<?php endif; ?>
-</div>
-</section>
+    #publicationContainer .list-group-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
 
+    /* Pagination styling - FIX untuk angka tidak muncul */
+    #publicationContainer .pagination {
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
+
+    #publicationContainer .page-link {
+        color: #1E4BA3;
+        cursor: pointer;
+        background-color: transparent;
+    }
+
+    #publicationContainer .page-link:hover {
+        background-color: #e7f1ff;
+        border-color: #1E4BA3;
+        color: #1E4BA3;
+    }
+
+    /* FIX: Pastikan angka terlihat putih pada halaman aktif */
+    #publicationContainer .page-item.active .page-link {
+        background-color: #1E4BA3 !important;
+        border-color: #1E4BA3 !important;
+        color: #ffffff !important;
+        z-index: 3;
+    }
+
+    #publicationContainer .page-item.disabled .page-link {
+        cursor: not-allowed;
+        color: #6c757d;
+        background-color: transparent;
+    }
+</style>
 <!-- Facilities Section -->
 <?php if (!empty($fasilitas)): ?>
     <?php
@@ -488,8 +529,8 @@ include '../includes/navbar.php';
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
-                    <h2 class="section-title"><?= __('lab_facilities') ?></h2>
-                    <p class="section-subtitle"><?= __('facilities_desc') ?></p>
+                    <h2 class="section-title">Fasilitas Laboratorium</h2>
+                    <p class="section-subtitle">Fasilitas penunjang penelitian dan pengembangan</p>
                 </div>
             </div>
 
@@ -506,7 +547,7 @@ include '../includes/navbar.php';
                                 <?php if ($fas['kuantitas']): ?>
                                     <p class="text-muted small">
                                         <i class="bi bi-box me-1"></i>
-                                        <?= __('quantity') ?>: <?php echo $fas['kuantitas']; ?> <?= __('units') ?>
+                                        Jumlah: <?php echo $fas['kuantitas']; ?> unit
                                     </p>
                                 <?php endif; ?>
                                 <p class="card-text text-muted">
@@ -523,7 +564,7 @@ include '../includes/navbar.php';
                 <nav aria-label="Facilities pagination" class="mt-4">
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= ($page_facility <= 1) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?facility_page=<?= $page_facility - 1 ?>#facilities">&laquo; <?= __('previous') ?></a>
+                            <a class="page-link" href="?facility_page=<?= $page_facility - 1 ?>#facilities">&laquo; Sebelumnya</a>
                         </li>
                         <?php for ($i = 1; $i <= $pages_facility; $i++): ?>
                             <li class="page-item <?= ($page_facility == $i) ? 'active' : '' ?>">
@@ -531,7 +572,7 @@ include '../includes/navbar.php';
                             </li>
                         <?php endfor; ?>
                         <li class="page-item <?= ($page_facility >= $pages_facility) ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?facility_page=<?= $page_facility + 1 ?>#facilities"><?= __('next') ?> &raquo;</a>
+                            <a class="page-link" href="?facility_page=<?= $page_facility + 1 ?>#facilities">Selanjutnya &raquo;</a>
                         </li>
                     </ul>
                 </nav>

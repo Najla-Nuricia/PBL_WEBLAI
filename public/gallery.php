@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
-require_once '../lang/init.php';
-$page_title = 'Gallery';
+$page_title = 'Galeri';
 
 // Fetch dashboard background
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
@@ -57,8 +56,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3"><?= __('gallery_hero_title') ?></h1>
-                <p class="lead"><?= __('gallery_hero_desc') ?></p>
+                <h1 class="display-4 fw-bold mb-3">Galeri</h1>
+                <p class="lead">Dokumentasi kegiatan dan suasana AI Lab Polinema</p>
             </div>
         </div>
     </div>
@@ -112,7 +111,7 @@ include '../includes/navbar.php';
                             <?php endif; ?>
                             <p class="text-muted small">
                                 <i class="bi bi-images me-1"></i>
-                                <?php echo $gallery['foto_count']; ?> <?= __('photos') ?>
+                                <?php echo $gallery['foto_count']; ?> foto
                             </p>
                         </div>
                     </div>
@@ -140,7 +139,7 @@ include '../includes/navbar.php';
                                     <li class="page-item <?= $photo_page <= 1 ? 'disabled' : '' ?>">
                                         <a class="page-link"
                                             href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page - 1 ?>#gallery-<?= $gallery['uuid'] ?>">
-                                            &laquo; <?= __('previous') ?>
+                                            &laquo; Sebelumnya
                                         </a>
                                     </li>
 
@@ -184,7 +183,7 @@ include '../includes/navbar.php';
                                     <li class="page-item <?= $photo_page >= $total_photo_pages ? 'disabled' : '' ?>">
                                         <a class="page-link"
                                             href="?gallery_page=<?= $gallery_page ?>&<?= $photo_page_key ?>=<?= $photo_page + 1 ?>#gallery-<?= $gallery['uuid'] ?>">
-                                            <?= __('next') ?> &raquo;
+                                            Selanjutnya &raquo;
                                         </a>
                                     </li>
                                 </ul>
@@ -193,7 +192,7 @@ include '../includes/navbar.php';
                     <?php else: ?>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            <?= __('no_photos') ?>
+                            Belum ada foto untuk galeri ini
                         </div>
                     <?php endif; ?>
 
@@ -209,7 +208,7 @@ include '../includes/navbar.php';
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= $gallery_page <= 1 ? 'disabled' : '' ?>">
                             <a class="page-link" href="?gallery_page=<?= $gallery_page - 1 ?>">
-                                &laquo; <?= __('previous') ?>
+                                &laquo; Sebelumnya
                             </a>
                         </li>
 
@@ -245,7 +244,7 @@ include '../includes/navbar.php';
 
                         <li class="page-item <?= $gallery_page >= $total_gallery_pages ? 'disabled' : '' ?>">
                             <a class="page-link" href="?gallery_page=<?= $gallery_page + 1 ?>">
-                                <?= __('next') ?> &raquo;
+                                Selanjutnya &raquo;
                             </a>
                         </li>
                     </ul>
@@ -255,7 +254,7 @@ include '../includes/navbar.php';
         <?php else: ?>
             <div class="alert alert-info text-center">
                 <i class="bi bi-info-circle me-2"></i>
-                <?= __('no_galleries') ?>
+                Belum ada galeri yang tersedia
             </div>
         <?php endif; ?>
     </div>

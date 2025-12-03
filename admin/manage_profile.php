@@ -13,9 +13,9 @@ $profile = $stmt->fetch();
 
 // Handle Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update_profile') {
-    $visi = clean_input($_POST['visi']);
-    $misi = clean_input($_POST['misi']);
-    $sejarah = clean_input($_POST['sejarah']);
+    $visi = $_POST['visi']; // Quill mengirim HTML, jadi tidak perlu clean_input yang strip tags
+    $misi = $_POST['misi'];
+    $sejarah = $_POST['sejarah'];
 
     try {
         if ($profile) {
@@ -47,7 +47,7 @@ $footer = $stmt_footer->fetch();
 // Handle Footer Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update_footer') {
     $org_name = clean_input($_POST['judul_footer'] ?? '');
-    $description = clean_input($_POST['description_text'] ?? '');
+    $description = $_POST['description_text'] ?? ''; // Quill HTML
     $reserved_text = clean_input($_POST['reserved_text'] ?? '');
     $powered_by = clean_input($_POST['powered_by'] ?? '');
     $link_powered_by = clean_input($_POST['link_powered_by'] ?? '');
@@ -89,6 +89,42 @@ if (isset($_SESSION['flash_error'])) {
 }
 ?>
 
+<style>
+    /* Styling untuk Quill Editor */
+    .ql-container {
+        font-family: inherit;
+        font-size: 1rem;
+    }
+
+    .ql-editor {
+        min-height: 150px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .ql-editor.ql-blank::before {
+        font-style: normal;
+        color: #6c757d;
+    }
+
+    /* Ukuran berbeda untuk setiap editor */
+    #editor-visi .ql-editor {
+        min-height: 120px;
+    }
+
+    #editor-misi .ql-editor {
+        min-height: 200px;
+    }
+
+    #editor-sejarah .ql-editor {
+        min-height: 250px;
+    }
+
+    #editor-description .ql-editor {
+        min-height: 150px;
+    }
+</style>
+
 <!-- Content Profile -->
 <div class="row animate__animated animate__fadeInUp">
     <div class="col-12">
@@ -99,17 +135,19 @@ if (isset($_SESSION['flash_error'])) {
                 </h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="">
+                <form method="POST" action="" id="profileForm">
                     <input type="hidden" name="action" value="update_profile">
+
+                    <!-- Hidden inputs untuk menyimpan konten Quill -->
+                    <input type="hidden" name="visi" id="visi-input">
+                    <input type="hidden" name="misi" id="misi-input">
+                    <input type="hidden" name="sejarah" id="sejarah-input">
+
                     <div class="mb-4">
                         <label class="form-label fw-bold">
                             <i class="bi bi-eye me-2"></i>Visi <span class="text-danger">*</span>
                         </label>
-                        <textarea name="visi"
-                            class="form-control"
-                            rows="5"
-                            required
-                            placeholder="Masukkan visi laboratorium..."><?php echo $profile ? htmlspecialchars($profile['visi']) : ''; ?></textarea>
+                        <div id="editor-visi"></div>
                         <small class="text-muted">Visi laboratorium yang ingin dicapai</small>
                     </div>
 
@@ -117,23 +155,15 @@ if (isset($_SESSION['flash_error'])) {
                         <label class="form-label fw-bold">
                             <i class="bi bi-bullseye me-2"></i>Misi <span class="text-danger">*</span>
                         </label>
-                        <textarea name="misi"
-                            class="form-control"
-                            rows="8"
-                            required
-                            placeholder="Masukkan misi laboratorium (pisahkan dengan enter untuk poin berbeda)..."><?php echo $profile ? htmlspecialchars($profile['misi']) : ''; ?></textarea>
-                        <small class="text-muted">Misi atau langkah-langkah untuk mencapai visi (gunakan enter untuk memisahkan setiap poin)</small>
+                        <div id="editor-misi"></div>
+                        <small class="text-muted">Misi atau langkah-langkah untuk mencapai visi</small>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-bold">
                             <i class="bi bi-clock-history me-2"></i>Sejarah Laboratorium <span class="text-danger">*</span>
                         </label>
-                        <textarea name="sejarah"
-                            class="form-control"
-                            rows="10"
-                            required
-                            placeholder="Masukkan sejarah pendirian dan perkembangan laboratorium..."><?php echo $profile ? htmlspecialchars($profile['sejarah']) : ''; ?></textarea>
+                        <div id="editor-sejarah"></div>
                         <small class="text-muted">Sejarah pendirian dan perkembangan laboratorium</small>
                     </div>
 
@@ -161,8 +191,9 @@ if (isset($_SESSION['flash_error'])) {
                 </h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="">
+                <form method="POST" action="" id="footerForm">
                     <input type="hidden" name="action" value="update_footer">
+                    <input type="hidden" name="description_text" id="description-input">
 
                     <div class="mb-4">
                         <label class="form-label fw-bold">
@@ -181,11 +212,7 @@ if (isset($_SESSION['flash_error'])) {
                         <label class="form-label fw-bold">
                             <i class="bi bi-file-text me-2"></i>Deskripsi Footer <span class="text-danger">*</span>
                         </label>
-                        <textarea name="description_text"
-                            class="form-control"
-                            rows="5"
-                            required
-                            placeholder="Masukkan deskripsi singkat tentang laboratorium..."><?php echo $footer ? htmlspecialchars($footer['description']) : ''; ?></textarea>
+                        <div id="editor-description"></div>
                         <small class="text-muted">Deskripsi singkat tentang laboratorium (max 200 karakter direkomendasikan)</small>
                     </div>
 
@@ -240,7 +267,9 @@ if (isset($_SESSION['flash_error'])) {
         </div>
     </div>
 </div>
+
 <?php include 'includes/admin_footer.php'; ?>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const successMessage = "<?= addslashes($success ?? '') ?>";
@@ -248,5 +277,136 @@ if (isset($_SESSION['flash_error'])) {
 
         if (successMessage) showSuccess(successMessage);
         if (errorMessage) showError(errorMessage);
+
+        // Konfigurasi toolbar Quill
+        const toolbarOptions = [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{
+                'header': 1
+            }, {
+                'header': 2
+            }],
+            [{
+                'list': 'ordered'
+            }, {
+                'list': 'bullet'
+            }],
+            [{
+                'script': 'sub'
+            }, {
+                'script': 'super'
+            }],
+            [{
+                'indent': '-1'
+            }, {
+                'indent': '+1'
+            }],
+            [{
+                'direction': 'rtl'
+            }],
+            [{
+                'size': ['small', false, 'large', 'huge']
+            }],
+            [{
+                'header': [1, 2, 3, 4, 5, 6, false]
+            }],
+            [{
+                'color': []
+            }, {
+                'background': []
+            }],
+            [{
+                'font': []
+            }],
+            [{
+                'align': []
+            }],
+            ['link', 'image'],
+            ['clean']
+        ];
+
+        // Inisialisasi Quill untuk Visi
+        const quillVisi = new Quill('#editor-visi', {
+            theme: 'snow',
+            modules: {
+                toolbar: toolbarOptions
+            },
+            placeholder: 'Masukkan visi laboratorium...'
+        });
+
+        // Inisialisasi Quill untuk Misi
+        const quillMisi = new Quill('#editor-misi', {
+            theme: 'snow',
+            modules: {
+                toolbar: toolbarOptions
+            },
+            placeholder: 'Masukkan misi laboratorium...'
+        });
+
+        // Inisialisasi Quill untuk Sejarah
+        const quillSejarah = new Quill('#editor-sejarah', {
+            theme: 'snow',
+            modules: {
+                toolbar: toolbarOptions
+            },
+            placeholder: 'Masukkan sejarah laboratorium...'
+        });
+
+        // Inisialisasi Quill untuk Deskripsi Footer
+        const quillDescription = new Quill('#editor-description', {
+            theme: 'snow',
+            modules: {
+                toolbar: toolbarOptions
+            },
+            placeholder: 'Masukkan deskripsi singkat tentang laboratorium...'
+        });
+
+        // Load konten dari database
+        <?php if ($profile): ?>
+            quillVisi.root.innerHTML = <?= json_encode($profile['visi']) ?>;
+            quillMisi.root.innerHTML = <?= json_encode($profile['misi']) ?>;
+            quillSejarah.root.innerHTML = <?= json_encode($profile['sejarah']) ?>;
+        <?php endif; ?>
+
+        <?php if ($footer): ?>
+            quillDescription.root.innerHTML = <?= json_encode($footer['description']) ?>;
+        <?php endif; ?>
+
+        // Handle submit Profile Form
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            // Set nilai hidden input dengan konten HTML dari Quill
+            document.getElementById('visi-input').value = quillVisi.root.innerHTML;
+            document.getElementById('misi-input').value = quillMisi.root.innerHTML;
+            document.getElementById('sejarah-input').value = quillSejarah.root.innerHTML;
+
+            // Validasi tidak boleh kosong
+            if (quillVisi.getText().trim().length === 0) {
+                e.preventDefault();
+                showError('Visi tidak boleh kosong!');
+                return false;
+            }
+            if (quillMisi.getText().trim().length === 0) {
+                e.preventDefault();
+                showError('Misi tidak boleh kosong!');
+                return false;
+            }
+            if (quillSejarah.getText().trim().length === 0) {
+                e.preventDefault();
+                showError('Sejarah tidak boleh kosong!');
+                return false;
+            }
+        });
+
+        // Handle submit Footer Form
+        document.getElementById('footerForm').addEventListener('submit', function(e) {
+            document.getElementById('description-input').value = quillDescription.root.innerHTML;
+
+            if (quillDescription.getText().trim().length === 0) {
+                e.preventDefault();
+                showError('Deskripsi footer tidak boleh kosong!');
+                return false;
+            }
+        });
     });
 </script>

@@ -158,11 +158,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 
 // Get all galleries with photo count
 $stmt = $pdo->query("
-    SELECT g.*, COUNT(f.uuid) as foto_count 
-    FROM galeri g 
-    LEFT JOIN foto f ON g.uuid = f.id_galeri 
-    GROUP BY g.uuid 
-    ORDER BY g.created_at DESC
+    SELECT *
+    FROM view_galeri_with_foto_count
+    ORDER BY created_at DESC
 ");
 $galleries = $stmt->fetchAll();
 
@@ -224,13 +222,9 @@ if (isset($_SESSION['flash_error'])) {
                     <div class="row align-items-end">
                         <div class="col-md-10 mb-3 mb-md-0">
                             <label class="form-label">Pilih Foto <span class="text-danger">*</span></label>
-                            <input type="file"
-                                name="photos[]"
-                                class="form-control"
-                                multiple
-                                accept="image/*"
-                                required>
-                            <small class="text-muted">Pilih satu atau lebih foto (Max 2MB per file, format: JPG, PNG, GIF)</small>
+                            <input type="file" name="photos[]" class="form-control" multiple accept="image/*" required>
+                            <small class="text-muted">Pilih satu atau lebih foto (Max 2MB per file, format: JPG, PNG,
+                                GIF)</small>
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">
@@ -265,13 +259,11 @@ if (isset($_SESSION['flash_error'])) {
                             <div class="col-6 col-md-4 col-lg-3 col-xl-2">
                                 <div class="card h-100">
                                     <img src="../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>"
-                                        class="card-img-top"
-                                        style="height: 150px; object-fit: cover; cursor: pointer;"
+                                        class="card-img-top" style="height: 150px; object-fit: cover; cursor: pointer;"
                                         onclick="window.open('../assets/img/<?php echo htmlspecialchars($photo['path_gambar']); ?>', '_blank')">
                                     <div class="card-body p-2 text-center">
                                         <a href="?delete_photo=<?php echo $photo['uuid']; ?>&view=<?php echo $view_gallery['uuid']; ?>"
-                                            class="btn btn-sm btn-danger w-100"
-                                            onclick="return confirmDelete('Hapus foto ini?');">
+                                            class="btn btn-sm btn-danger w-100" onclick="return confirmDelete('Hapus foto ini?');">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
@@ -305,27 +297,14 @@ if (isset($_SESSION['flash_error'])) {
                 <div class="row">
                     <div class="col-md-8 mb-3">
                         <label class="form-label">Judul Album <span class="text-danger">*</span></label>
-                        <input type="text"
-                            name="judul"
-                            class="form-control"
+                        <input type="text" name="judul" class="form-control"
                             value="<?php echo $edit_data ? htmlspecialchars($edit_data['judul']) : ''; ?>"
-                            placeholder="Contoh: Workshop Machine Learning 2024"
-                            required>
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" disabled>
-                            <option>Aktif</option>
-                        </select>
-                        <small class="text-muted">Album otomatis aktif</small>
+                            placeholder="Contoh: Workshop Machine Learning 2024" required>
                     </div>
 
                     <div class="col-12 mb-3">
                         <label class="form-label">Deskripsi Album</label>
-                        <textarea name="deskripsi"
-                            class="form-control"
-                            rows="2"
+                        <textarea name="deskripsi" class="form-control" rows="2"
                             placeholder="Deskripsi singkat tentang album ini..."><?php echo $edit_data ? htmlspecialchars($edit_data['deskripsi']) : ''; ?></textarea>
                     </div>
                 </div>
@@ -389,7 +368,8 @@ if (isset($_SESSION['flash_error'])) {
                                     ?>
                                     <tr>
                                         <td>
-                                            <input type="checkbox" name="selected[]" value="<?= $gallery['uuid']; ?>" class="rowCheckbox">
+                                            <input type="checkbox" name="selected[]" value="<?= $gallery['uuid']; ?>"
+                                                class="rowCheckbox">
                                         </td>
                                         <td><?php echo $index + 1; ?></td>
                                         <td>
@@ -415,18 +395,15 @@ if (isset($_SESSION['flash_error'])) {
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="?view=<?php echo $gallery['uuid']; ?>"
-                                                class="btn btn-sm btn-info"
+                                            <a href="?view=<?php echo $gallery['uuid']; ?>" class="btn btn-sm btn-info"
                                                 title="Lihat & Upload Foto">
                                                 <i class="bi bi-images"></i>
                                             </a>
-                                            <a href="?edit=<?php echo $gallery['uuid']; ?>"
-                                                class="btn btn-sm btn-warning"
+                                            <a href="?edit=<?php echo $gallery['uuid']; ?>" class="btn btn-sm btn-warning"
                                                 title="Edit Album">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <a href="?delete_gallery=<?php echo $gallery['uuid']; ?>"
-                                                class="btn btn-sm btn-danger"
+                                            <a href="?delete_gallery=<?php echo $gallery['uuid']; ?>" class="btn btn-sm btn-danger"
                                                 onclick="return confirmDelete('Hapus album dan semua foto di dalamnya?');"
                                                 title="Hapus Album">
                                                 <i class="bi bi-trash"></i>
