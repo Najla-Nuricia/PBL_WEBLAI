@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
-require_once '../lang/init.php';
-$page_title = 'Publications';
+$page_title = 'Publikasi';
 
 // Background
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
@@ -137,8 +136,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3"><?= __('publications_hero_title') ?></h1>
-                <p class="lead"><?= __('publications_hero_desc') ?></p>
+                <h1 class="display-4 fw-bold mb-3">Publikasi</h1>
+                <p class="lead">Publikasi penelitian dan karya ilmiah AI Lab Polinema</p>
             </div>
         </div>
     </div>
@@ -192,7 +191,7 @@ include '../includes/navbar.php';
                                                         <?php if ($pub['tautan']): ?>
                                                             <a href="<?= htmlspecialchars($pub['tautan']); ?>" target="_blank"
                                                                 class="btn btn-primary">
-                                                                <i class="bi bi-box-arrow-up-right me-2"></i><?= __('view') ?>
+                                                                <i class="bi bi-box-arrow-up-right me-2"></i>Lihat
                                                             </a>
                                                         <?php endif; ?>
                                                     </div>
@@ -213,7 +212,7 @@ include '../includes/navbar.php';
                                 <?php if ($total_for_year > 5): ?>
                                     <div class="text-center mt-3">
                                         <a href="?year=<?= $year ?>" class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-arrow-right-circle me-2"></i><?= __('view_more_publications', ['count' => $total_for_year - count($pubs)]) ?>
+                                            <i class="bi bi-arrow-right-circle me-2"></i>Lihat Selengkapnya
                                         </a>
                                     </div>
                                 <?php endif; ?>
@@ -240,7 +239,7 @@ include '../includes/navbar.php';
                                 <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                                     <a class="page-link"
                                         href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page - 1 ?>">&laquo;
-                                        <?= __('previous') ?></a>
+                                        Sebelumnya</a>
                                 </li>
                                 <?php if ($start_page > 1): ?>
                                     <li class="page-item">
@@ -272,7 +271,7 @@ include '../includes/navbar.php';
                                 <?php endif; ?>
                                 <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                                     <a class="page-link"
-                                        href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page + 1 ?>"><?= __('next') ?>
+                                        href="?year=<?= $filter_year ?: 'all' ?>&category=<?= $filter_category ?: 'all' ?>&page=<?= $page + 1 ?>">Selanjutnya
                                         &raquo;</a>
                                 </li>
                             </ul>
@@ -280,7 +279,7 @@ include '../includes/navbar.php';
                     <?php endif; ?>
                 <?php else: ?>
                     <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle me-2"></i><?= __('no_publications') ?>
+                        <i class="bi bi-info-circle me-2"></i>Belum ada publikasi yang tersedia
                     </div>
                 <?php endif; ?>
             </div>
@@ -292,15 +291,15 @@ include '../includes/navbar.php';
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-body">
                             <h5 class="fw-bold mb-3 text-primary">
-                                <i class="bi bi-calendar3 me-2"></i><?= __('filter_year') ?>
+                                <i class="bi bi-calendar3 me-2"></i>Filter per Tahun
                             </h5>
                             <!-- Dropdown Select -->
                             <div class="mb-3">
                                 <label class="form-label small text-muted">
-                                    <i class="bi bi-funnel me-1"></i>Select Year
+                                    <i class="bi bi-funnel me-1"></i>Pilih Tahun
                                 </label>
-                                <select id="year-select" name="year" class="form-select">
-                                    <option value="all"><?= __('all_years') ?></option>
+                                <select id="year-select" name="year" class="form-select select-enhanced">
+                                    <option value="all">Semua Tahun</option>
                                     <?php foreach ($years as $year): ?>
                                         <option value="<?= $year ?>" <?= ($filter_year == $year) ? 'selected' : '' ?>>
                                             <?= $year ?>
@@ -314,7 +313,7 @@ include '../includes/navbar.php';
                                 <div class="mt-3 pt-3 border-top">
                                     <a href="?year=all&category=<?= $filter_category ?: 'all' ?>"
                                         class="btn btn-sm btn-outline-primary w-100">
-                                        <i class="bi bi-x-circle me-2"></i>Clear Year Filter
+                                        <i class="bi bi-x-circle me-2"></i>Hapus Filter Tahun
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -326,15 +325,15 @@ include '../includes/navbar.php';
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <h5 class="fw-bold mb-3 text-primary">
-                                    <i class="bi bi-tags me-2"></i><?= __('filter_category') ?>
+                                    <i class="bi bi-tags me-2"></i>Filter per Kategori
                                 </h5>
                                 <!-- Dropdown Select -->
                                 <div class="mb-3">
                                     <label class="form-label small text-muted">
-                                        <i class="bi bi-funnel me-1"></i>Select Category
+                                        <i class="bi bi-funnel me-1"></i>Pilih Kategori
                                     </label>
-                                    <select id="category-select" name="category" class="form-select">
-                                        <option value="all"><?= __('all_categories') ?></option>
+                                    <select id="category-select" name="category" class="form-select select-enhanced">
+                                        <option value="all">Semua Kategori</option>
                                         <?php foreach ($categories as $cat): ?>
                                             <option value="<?= htmlspecialchars($cat) ?>" <?= ($filter_category == $cat) ? 'selected' : '' ?>>
                                                 <?= htmlspecialchars($cat) ?>
@@ -348,7 +347,7 @@ include '../includes/navbar.php';
                                     <div class="mt-3 pt-3 border-top">
                                         <a href="?year=<?= $filter_year ?: 'all' ?>&category=all"
                                             class="btn btn-sm btn-outline-primary w-100">
-                                            <i class="bi bi-x-circle me-2"></i>Clear Category Filter
+                                            <i class="bi bi-x-circle me-2"></i>Hapus Filter Kategori
                                         </a>
                                     </div>
                                 <?php endif; ?>
@@ -371,7 +370,7 @@ include '../includes/navbar.php';
                         <h2 class="display-4 fw-bold text-primary mb-2">
                             <?= $total_rows ?>
                         </h2>
-                        <p class="text-muted mb-0"><?= __('total_publications') ?></p>
+                        <p class="text-muted mb-0">Total Publikasi</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4 mb-md-0">
@@ -379,7 +378,7 @@ include '../includes/navbar.php';
                         <h2 class="display-4 fw-bold text-primary mb-2">
                             <?= count($publications_by_year) ?>
                         </h2>
-                        <p class="text-muted mb-0"><?= __('year_of_search') ?></p>
+                        <p class="text-muted mb-0">Tahun Penelitian</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -387,7 +386,7 @@ include '../includes/navbar.php';
                         <h2 class="display-4 fw-bold text-primary mb-2">
                             <?= $total_authors ?>
                         </h2>
-                        <p class="text-muted mb-0"><?= __('contributing_authors') ?></p>
+                        <p class="text-muted mb-0">Penulis Berkontribusi</p>
                     </div>
                 </div>
             </div>

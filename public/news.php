@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
-require_once '../lang/init.php';
-$page_title = 'News & Events';
+$page_title = 'Berita & Acara';
 
 $stmt_bg = $pdo->query('SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1');
 $dashboard_bg = $stmt_bg->fetch();
@@ -85,8 +84,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3"><?= __('news_hero_title') ?></h1>
-                <p class="lead"><?= __('news_hero_desc') ?></p>
+                <h1 class="display-4 fw-bold mb-3">Berita & Acara</h1>
+                <p class="lead">Berita terkini dan agenda kegiatan AI Lab Polinema</p>
             </div>
         </div>
     </div>
@@ -102,7 +101,7 @@ include '../includes/navbar.php';
             <div class="row">
                 <div class="col-lg-10 mx-auto">
                     <a href="news.php" class="btn btn-outline-primary mb-4">
-                        <i class="bi bi-arrow-left me-2"></i><?= __('back_to_news') ?>
+                        <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Berita
                     </a>
 
                     <div class="card border-0 shadow-sm">
@@ -144,12 +143,12 @@ include '../includes/navbar.php';
                                     <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel"
                                         data-bs-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
+                                        <span class="visually-hidden">Sebelumnya</span>
                                     </button>
                                     <button class="carousel-control-next" type="button" data-bs-target="#newsCarousel"
                                         data-bs-slide="next">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
+                                        <span class="visually-hidden">Selanjutnya</span>
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -193,7 +192,7 @@ include '../includes/navbar.php';
 
                             <?php if (!empty($news_fotos) && count($news_fotos) > 1): ?>
                                 <hr class="my-4">
-                                <h5 class="fw-bold mb-3"><?= __('photo_gallery') ?></h5>
+                                <h5 class="fw-bold mb-3">Galeri Foto</h5>
                                 <div class="row g-3">
                                     <?php foreach ($news_fotos as $foto):
                                         $foto_path = rtrim($_ENV['UPLOAD_DIR'], '/') . '/berita/' . htmlspecialchars($foto['file_path']); ?>
@@ -266,19 +265,19 @@ include '../includes/navbar.php';
                     <div class="filter-pills-container">
                         <a href="news.php" class="filter-pill <?php echo !$kategori_filter ? 'active' : ''; ?>">
                             <i class="bi bi-grid-3x3-gap"></i>
-                            <span><?= __('all') ?></span>
+                            <span>Semua</span>
                         </a>
                         <a href="news.php?kategori=berita" class="filter-pill <?php echo $kategori_filter == 'berita' ? 'active' : ''; ?>">
                             <i class="bi bi-newspaper"></i>
-                            <span><?= __('nav_news') ?></span>
+                            <span>Berita</span>
                         </a>
                         <a href="news.php?kategori=agenda" class="filter-pill <?php echo $kategori_filter == 'agenda' ? 'active' : ''; ?>">
                             <i class="bi bi-calendar-event"></i>
-                            <span><?= __('nav_agenda') ?></span>
+                            <span>Agenda</span>
                         </a>
                         <a href="news.php?kategori=pengumuman" class="filter-pill <?php echo $kategori_filter == 'pengumuman' ? 'active' : ''; ?>">
                             <i class="bi bi-megaphone"></i>
-                            <span><?= __('nav_announcement') ?></span>
+                            <span>Pengumuman</span>
                         </a>
                     </div>
                 </div>
@@ -363,7 +362,7 @@ include '../includes/navbar.php';
                                         </p>
 
                                         <a href="news.php?id=<?= $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                            <?= __('read_more') ?> <i class="bi bi-arrow-right"></i>
+                                            Baca Selengkapnya <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -376,7 +375,7 @@ include '../includes/navbar.php';
                     <div class="col-12">
                         <div class="alert alert-info text-center">
                             <i class="bi bi-info-circle me-2"></i>
-                            <?= __('no_news') ?>
+                            Belum ada berita untuk kategori ini
                         </div>
                     </div>
                 <?php endif; ?>
@@ -388,7 +387,7 @@ include '../includes/navbar.php';
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page - 1 ?>">
-                                &laquo; <?= __('previous') ?>
+                                &laquo; Sebelumnya
                             </a>
                         </li>
 
@@ -426,7 +425,7 @@ include '../includes/navbar.php';
 
                         <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?= $kategori_filter ? 'kategori=' . $kategori_filter . '&' : '' ?>page=<?= $page + 1 ?>">
-                                <?= __('next') ?> &raquo;
+                                Selanjutnya &raquo;
                             </a>
                         </li>
                     </ul>

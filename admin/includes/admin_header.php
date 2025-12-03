@@ -42,6 +42,9 @@ require_login();
     <!-- Animated css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
+    <!-- QuillJS CSS -->
+    <link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet">
+
     <link rel="stylesheet" href="../assets/css/admin_header.css">
 
     <link rel="icon" type="image/x-icon" href="../assets/icons/logo.ico">

@@ -174,7 +174,6 @@ if (isset($_SESSION['flash_error'])) {
                                     </td>
                                     <td><?php echo $index + 1; ?></td>
                                     <td>
-                                        <i class="bi bi-lightbulb text-warning me-2"></i>
                                         <?php echo htmlspecialchars($topic['topik']); ?>
                                     </td>
                                     <td>

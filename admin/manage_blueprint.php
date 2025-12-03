@@ -187,7 +187,6 @@ if (isset($_SESSION['flash_error'])) {
                                     </td>
                                     <td><?php echo $index + 1; ?></td>
                                     <td>
-                                        <i class="bi bi-file-earmark-text text-primary me-2"></i>
                                         <strong><?php echo htmlspecialchars($blueprint['judul']); ?></strong>
                                     </td>
                                     <td>
