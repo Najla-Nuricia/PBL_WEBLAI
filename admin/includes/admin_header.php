@@ -20,7 +20,7 @@ require_login();
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.css">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -44,6 +44,9 @@ require_login();
 
     <!-- QuillJS CSS -->
     <link href="../node_modules/quill/dist/quill.snow.css" rel="stylesheet">
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="../node_modules/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="../assets/css/admin_header.css">
 
