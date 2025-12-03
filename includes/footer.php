@@ -39,7 +39,7 @@ $footer = $stmt_footer->fetch();
                     </li>
                     <li class="mb-2">
                         <a href="research.php" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right"></i> Riset
+                            <i class="bi bi-chevron-right"></i> Penelitian
                         </a>
                     </li>
                     <li class="mb-2">

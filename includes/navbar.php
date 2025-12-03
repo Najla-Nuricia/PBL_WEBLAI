@@ -35,7 +35,7 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                         Penelitian
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="researchDropdown">
-                        <li><a class="dropdown-item" href="research.php">Gambaran Penelitian</a></li>
+                        <li><a class="dropdown-item" href="research.php">Semua Penelitian</a></li>
                         <li><a class="dropdown-item" href="research.php#products">Produk</a></li>
                         <li><a class="dropdown-item" href="research.php#blueprint">Blueprint</a></li>
                         <li><a class="dropdown-item" href="research.php#topics">Topik Riset</a></li>
