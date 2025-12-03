@@ -9,7 +9,7 @@ $error = '';
 
 //fetch all angoota
 if (!isset($_GET['anggota'])) {
-    $stmt = $pdo->query("SELECT uuid, nama FROM anggota ORDER BY nama ASC");
+    $stmt = $pdo->query(" SELECT * FROM anggota where jabatan is not null ORDER BY jabatan, nama  ");
     $anggota_list = $stmt->fetchAll();
 ?>
 
