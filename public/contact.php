@@ -3,11 +3,10 @@
 ob_start();
 
 require_once '../config/db.php';
-require_once '../lang/init.php';
 require_once '../helpers/sanitize.php';
 require '../config/mail.php';
 
-$page_title = 'Contact Us';
+$page_title = 'Kontak';
 
 // Fetch dashboard background
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
@@ -128,8 +127,8 @@ include '../includes/navbar.php';
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center justify-content-center min-vh-75 py-5">
             <div class="col-lg-6 text-center">
-                <h1 class="display-4 fw-bold mb-3"><?= __('contact_hero_title') ?></h1>
-                <p class="lead"><?= __('contact_hero_desc') ?></p>
+                <h1 class="display-4 fw-bold mb-3">Kontak Kami</h1>
+                <p class="lead">Hubungi kami untuk informasi lebih lanjut atau kerjasama</p>
             </div>
         </div>
     </div>
@@ -145,7 +144,7 @@ include '../includes/navbar.php';
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4"><?= __('send_message') ?></h3>
+                        <h3 class="fw-bold mb-4">Kirim Pesan</h3>
 
                         <?php if ($success): ?>
                             <div class="alert alert-success alert-dismissible fade show">
@@ -164,32 +163,32 @@ include '../includes/navbar.php';
                         <form method="POST" action="">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?= __('form_fullname') ?> <span class="text-danger">*</span></label>
+                                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
                                     <input type="text" name="nama" class="form-control form-control-lg"
-                                        placeholder="<?= __('form_fullname_placeholder') ?>" required>
+                                        placeholder="Masukkan nama Anda" required>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label"><?= __('form_email') ?> <span class="text-danger">*</span></label>
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
                                     <input type="email" name="email" class="form-control form-control-lg"
-                                        placeholder="<?= __('form_email_placeholder') ?>" required>
+                                        placeholder="email@example.com" required>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label"><?= __('form_subject') ?> <span class="text-danger">*</span></label>
+                                    <label class="form-label">Subjek <span class="text-danger">*</span></label>
                                     <input type="text" name="subjek" class="form-control form-control-lg"
-                                        placeholder="<?= __('form_subject_placeholder') ?>" required>
+                                        placeholder="Subjek pesan" required>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label"><?= __('form_message') ?> <span class="text-danger">*</span></label>
+                                    <label class="form-label">Pesan <span class="text-danger">*</span></label>
                                     <textarea name="pesan" class="form-control form-control-lg" rows="6"
-                                        placeholder="<?= __('form_message_placeholder') ?>" required></textarea>
+                                        placeholder="Tulis pesan Anda di sini..." required></textarea>
                                 </div>
 
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary btn-lg px-5">
-                                        <i class="bi bi-send me-2"></i><?= __('btn_send_message') ?>
+                                        <i class="bi bi-send me-2"></i>Kirim Pesan
                                     </button>
                                 </div>
                             </div>
@@ -202,7 +201,7 @@ include '../includes/navbar.php';
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-4">
-                        <h4 class="fw-bold mb-4"><?= __('contact_information') ?></h4>
+                        <h4 class="fw-bold mb-4">Informasi Kontak</h4>
 
                         <div class="d-flex mb-4">
                             <div class="flex-shrink-0">
@@ -211,7 +210,7 @@ include '../includes/navbar.php';
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1"><?= __('address') ?></h6>
+                                <h6 class="fw-bold mb-1">Alamat</h6>
                                 <p class="text-muted mb-0">
                                     <?= nl2br(htmlspecialchars($contact['address'] ?? '')) ?>
                                 </p>
@@ -225,7 +224,7 @@ include '../includes/navbar.php';
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1"><?= __('form_email') ?></h6>
+                                <h6 class="fw-bold mb-1">Email</h6>
                                 <p class="text-muted mb-0">
                                     <?= htmlspecialchars($contact['email_Email'] ?? '') ?><br>
                                     <?= htmlspecialchars($contact['email_Email2'] ?? '') ?>
@@ -240,7 +239,7 @@ include '../includes/navbar.php';
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="fw-bold mb-1"><?= __('working_hours') ?></h6>
+                                <h6 class="fw-bold mb-1">Jam Kerja</h6>
                                 <p class="text-muted mb-0">
                                     <?php
                                     $order = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
@@ -251,10 +250,10 @@ include '../includes/navbar.php';
                                     function formatHours($row)
                                     {
                                         if ($row['is_closed']) {
-                                            return __('closed');
+                                            return 'Tutup';
                                         }
                                         if (empty($row['open_time']) || empty($row['close_time'])) {
-                                            return __('closed');
+                                            return 'Tutup';
                                         }
                                         return substr($row['open_time'], 0, 5) . " - " . substr($row['close_time'], 0, 5);
                                     }
@@ -302,7 +301,7 @@ include '../includes/navbar.php';
                 <?php if (!empty($social_media)): ?>
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
-                            <h4 class="fw-bold mb-3"><?= __('follow_us') ?></h4>
+                            <h4 class="fw-bold mb-3">Ikuti Kami</h4>
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach ($social_media as $sosmed): ?>
                                     <a href="<?php echo htmlspecialchars($sosmed['url']); ?>" target="_blank"
@@ -338,7 +337,7 @@ include '../includes/navbar.php';
     class="d-none position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center"
     style="z-index:1050;">
     <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading…</span>
+        <span class="visually-hidden">Memuat...</span>
     </div>
 </div>
 

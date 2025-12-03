@@ -16,12 +16,12 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'index' ? 'active' : ''; ?>" href="index.php">
-                        <?= __('nav_home') ?>
+                        Beranda
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'about' ? 'active' : ''; ?>" href="about.php">
-                        <?= __('nav_about') ?>
+                        Tentang Kami
                     </a>
                 </li>
 
@@ -32,24 +32,24 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                         id="researchDropdown"
                         role="button"
                         aria-expanded="false">
-                        <?= __('nav_research') ?>
+                        Penelitian
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="researchDropdown">
-                        <li><a class="dropdown-item" href="research.php"><?= __('nav_research_overview') ?></a></li>
-                        <li><a class="dropdown-item" href="research.php#products"><?= __('nav_products') ?></a></li>
-                        <li><a class="dropdown-item" href="research.php#blueprint"><?= __('nav_blueprint') ?></a></li>
-                        <li><a class="dropdown-item" href="research.php#topics"><?= __('nav_research_topics') ?></a></li>
+                        <li><a class="dropdown-item" href="research.php">Gambaran Penelitian</a></li>
+                        <li><a class="dropdown-item" href="research.php#products">Produk</a></li>
+                        <li><a class="dropdown-item" href="research.php#blueprint">Blueprint</a></li>
+                        <li><a class="dropdown-item" href="research.php#topics">Topik Riset</a></li>
                     </ul>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'publications' ? 'active' : ''; ?>" href="publications.php">
-                        <?= __('nav_publications') ?>
+                        Publikasi
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'gallery' ? 'active' : ''; ?>" href="gallery.php">
-                        <?= __('nav_gallery') ?>
+                        Galeri
                     </a>
                 </li>
 
@@ -60,37 +60,26 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                         id="newsDropdown"
                         role="button"
                         aria-expanded="false">
-                        <?= __('nav_news') ?>
+                        Berita
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="newsDropdown">
-                        <li><a class="dropdown-item" href="news.php#news-list"><?= __('nav_all_news') ?></a></li>
-                        <li><a class="dropdown-item" href="news.php?kategori=berita#news-list"><?= __('nav_news') ?></a></li>
-                        <li><a class="dropdown-item" href="news.php?kategori=agenda#news-list"><?= __('nav_agenda') ?></a></li>
-                        <li><a class="dropdown-item" href="news.php?kategori=pengumuman#news-list"><?= __('nav_announcement') ?></a></li>
+                        <li><a class="dropdown-item" href="news.php#news-list">Semua Berita</a></li>
+                        <li><a class="dropdown-item" href="news.php?kategori=berita#news-list">Berita</a></li>
+                        <li><a class="dropdown-item" href="news.php?kategori=agenda#news-list">Agenda</a></li>
+                        <li><a class="dropdown-item" href="news.php?kategori=pengumuman#news-list">Pengumuman</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="activity.php"><?= __('nav_activities') ?></a></li>
+                        <li><a class="dropdown-item" href="activity.php">Kegiatan</a></li>
                     </ul>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'contact' ? 'active' : ''; ?>" href="contact.php">
-                        <?= __('nav_contact') ?>
+                        Kontak
                     </a>
                 </li>
 
-                <!-- Language Switcher -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-translate me-1 small-icon"></i>
-                        <?php echo strtoupper($_SESSION['lang']); ?>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                        <li><a class="dropdown-item" href="?lang=en">English</a></li>
-                        <li><a class="dropdown-item" href="?lang=id">Indonesia</a></li>
-                    </ul>
-                </li>
             </ul>
         </div>
     </div>

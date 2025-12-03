@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
-require_once '../lang/init.php';
-$page_title = 'Home';
+$page_title = 'Beranda';
 
 // Fetch dashboard background
 $stmt_bg = $pdo->query("SELECT * FROM dashboard_foto ORDER BY updated_at DESC LIMIT 1");
@@ -122,14 +121,14 @@ include '../includes/navbar.php';
                     });
                 </script>
                 <p class="lead mb-4">
-                    <?= __('hero_desc') ?>
+                    Laboratorium penelitian dan pengembangan teknologi informasi terapan di Politeknik Negeri Malang
                 </p>
                 <div class="d-flex gap-3">
                     <a href="about.php" class="btn btn-light btn-lg">
-                        <i class="bi bi-info-circle me-2"></i><?= __('btn_learn_more') ?>
+                        <i class="bi bi-info-circle me-2"></i>Pelajari Lebih Lanjut
                     </a>
                     <a href="contact.php" class="btn btn-outline-light btn-lg">
-                        <i class="bi bi-envelope me-2"></i><?= __('btn_contact_us') ?>
+                        <i class="bi bi-envelope me-2"></i>Hubungi Kami
                     </a>
                 </div>
             </div>
@@ -145,8 +144,8 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-4">
             <div class="col text-center">
-                <h2 class="section-title"><?= __('our_achievements') ?></h2>
-                <p class="section-subtitle"><?= __('achievements_desc') ?></p>
+                <h2 class="section-title">Pencapaian Kami</h2>
+                <p class="section-subtitle">Keunggulan dalam Riset Informatika Terapan</p>
             </div>
         </div>
 
@@ -159,7 +158,7 @@ include '../includes/navbar.php';
                     <h2 class="display-4 fw-bold text-primary mb-2">
                         <span class="counter" data-target="<?= $total_publications ?>">0</span>
                     </h2>
-                    <p class="text-muted mb-0"><?= __('total_publications') ?></p>
+                    <p class="text-muted mb-0">Total Publikasi</p>
                 </div>
             </div>
 
@@ -171,7 +170,7 @@ include '../includes/navbar.php';
                     <h2 class="display-4 fw-bold text-primary mb-2">
                         <span class="counter" data-target="<?= $total_authors ?>">0</span>
                     </h2>
-                    <p class="text-muted mb-0"><?= __('contributing_authors') ?></p>
+                    <p class="text-muted mb-0">Penulis Berkontribusi</p>
                 </div>
             </div>
 
@@ -183,7 +182,7 @@ include '../includes/navbar.php';
                     <h2 class="display-4 fw-bold text-primary mb-2">
                         <span class="counter" data-target="<?= $total_years ?>">0</span>
                     </h2>
-                    <p class="text-muted mb-0"><?= __('years_of_research') ?></p>
+                    <p class="text-muted mb-0">Tahun Penelitian</p>
                 </div>
             </div>
 
@@ -195,7 +194,7 @@ include '../includes/navbar.php';
                     <h2 class="display-4 fw-bold text-primary mb-2">
                         <span class="counter" data-target="<?= $total_products ?>">0</span>
                     </h2>
-                    <p class="text-muted mb-0"><?= __('research_products') ?></p>
+                    <p class="text-muted mb-0">Produk Penelitian</p>
                 </div>
             </div>
         </div>
@@ -265,8 +264,8 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title"><?= __('newest_products') ?></h2>
-                <p class="section-subtitle"><?= __('products_desc') ?></p>
+                <h2 class="section-title">Produk Terbaru</h2>
+                <p class="section-subtitle">Produk hasil penelitian dan pengembangan</p>
             </div>
         </div>
 
@@ -323,7 +322,7 @@ include '../includes/navbar.php';
                                     <a href="<?php echo htmlspecialchars($product['link_demo']); ?>"
                                         target="_blank"
                                         class="btn btn-sm btn-outline-primary mt-auto">
-                                        <i class="bi bi-eye me-2"></i><?= __('view_demo') ?>
+                                        <i class="bi bi-eye me-2"></i>Lihat Demo
                                     </a>
                                 <?php endif; ?>
                             </div>
@@ -334,7 +333,7 @@ include '../includes/navbar.php';
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        <?= __('no_products_available') ?>
+                        Saat ini belum ada produk yang tersedia.
                     </div>
                 </div>
             <?php endif; ?>
@@ -343,7 +342,7 @@ include '../includes/navbar.php';
         <?php if (!empty($latest_products)): ?>
             <div class="text-center mt-4">
                 <a href="research.php#products" class="btn btn-primary">
-                    <?= __('view_all_products') ?> <i class="bi bi-arrow-right"></i>
+                    Lihat Semua Produk <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         <?php endif; ?>
@@ -355,8 +354,8 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title"><?= __('latest_news') ?></h2>
-                <p class="section-subtitle"><?= __('news_subtitle') ?></p>
+                <h2 class="section-title">Berita & Acara Terbaru</h2>
+                <p class="section-subtitle">Berita dan kegiatan terbaru dari laboratorium kami</p>
             </div>
         </div>
 
@@ -427,7 +426,7 @@ include '../includes/navbar.php';
                                     <?php echo htmlspecialchars($news['deskripsi']); ?>
                                 </p>
                                 <a href="news.php?id=<?php echo $news['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                    <?= __('read_more') ?> <i class="bi bi-arrow-right"></i>
+                                    Baca Selengkapnya <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -437,7 +436,7 @@ include '../includes/navbar.php';
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        <?= __('no_news') ?>
+                        Belum ada berita untuk kategori ini
                     </div>
                 </div>
             <?php endif; ?>
@@ -446,7 +445,7 @@ include '../includes/navbar.php';
         <?php if (!empty($latest_news)): ?>
             <div class="text-center mt-4">
                 <a href="news.php" class="btn btn-primary">
-                    <?= __('view_all') ?> <?= __('nav_news') ?> <i class="bi bi-arrow-right"></i>
+                    Lihat Semua Berita <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         <?php endif; ?>
@@ -458,8 +457,8 @@ include '../includes/navbar.php';
     <div class="container">
         <div class="row mb-4">
             <div class="col">
-                <h2 class="section-title"><?= __('recent_activities') ?></h2>
-                <p class="section-subtitle"><?= __('activities_hero_desc') ?></p>
+                <h2 class="section-title">Kegiatan Terbaru</h2>
+                <p class="section-subtitle">Kegiatan seminar, workshop, dan pengabdian masyarakat AI Lab Polinema</p>
             </div>
         </div>
 
@@ -531,7 +530,7 @@ include '../includes/navbar.php';
                                     <?php echo htmlspecialchars($activity['deskripsi_singkat']); ?>
                                 </p>
                                 <a href="activity.php?id=<?php echo $activity['uuid']; ?>" class="btn btn-sm btn-outline-primary mt-auto">
-                                    <?= __('view_details') ?> <i class="bi bi-arrow-right"></i>
+                                    Lihat Detail <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -541,7 +540,7 @@ include '../includes/navbar.php';
                 <div class="col-12">
                     <div class="alert alert-info text-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        <?= __('no_activities') ?>
+                        Belum ada kegiatan untuk kategori ini
                     </div>
                 </div>
             <?php endif; ?>
@@ -550,7 +549,7 @@ include '../includes/navbar.php';
         <?php if (!empty($latest_activities)): ?>
             <div class="text-center mt-4">
                 <a href="activity.php" class="btn btn-primary">
-                    <?= __('view_all') ?> <?= __('nav_activities') ?> <i class="bi bi-arrow-right"></i>
+                    Lihat Semua Kegiatan <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         <?php endif; ?>
@@ -563,8 +562,8 @@ include '../includes/navbar.php';
         <div class="container">
             <div class="row mb-4">
                 <div class="col text-center">
-                    <h2 class="section-title"><?= __('our_partners') ?></h2>
-                    <p class="section-subtitle"><?= __('partners_desc') ?></p>
+                    <h2 class="section-title">Mitra Kami</h2>
+                    <p class="section-subtitle">Mitra kerja sama AI Lab Polinema</p>
                 </div>
             </div>
 
