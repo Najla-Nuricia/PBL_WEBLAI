@@ -294,8 +294,7 @@ include '../includes/navbar.php';
         <?php endif; ?>
     </div>
 </section>
-
-<!-- Modal Publikasi -->
+<!-- Modal Publikasi dengan Pagination -->
 <div class="modal fade" id="anggotaModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -321,7 +320,6 @@ include '../includes/navbar.php';
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.team-card[data-uuid]').forEach(card => {
             card.addEventListener('click', () => {
-
                 const uuid = card.dataset.uuid;
                 const nama = card.querySelector('h5, h6').innerText;
                 const modal = new bootstrap.Modal(document.getElementById('anggotaModal'));
@@ -340,31 +338,31 @@ include '../includes/navbar.php';
 
                 // title modal
                 modalTitle.innerHTML = `
-                <i class="bi bi-journal-text me-2"></i>${"Publikasi"} - ${nama}
-            `;
+                    <i class="bi bi-journal-text me-2"></i>Publikasi - ${nama}
+                `;
 
                 // base layout (keahlian + research page + publikasi)
                 modalBody.innerHTML = `
-                <div id="keahlianSection" class="px-3 pt-2">
-                    <h6 class="text-muted mb-1">Bidang Keahlian</h6>
-                    <div id="keahlianBox" class="d-flex flex-wrap gap-1">${badges}</div>
-                </div>
-
-                <div id="researchSection" class="px-3 pt-3">
-                    <h6 class="text-muted mb-1">Gambaran Penelitian</h6>
-                    <div id="researchPageBox" class="mb-4 small text-muted">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                        <span class="ms-2">Memuat...</span>
+                    <div id="keahlianSection" class="px-3 pt-2">
+                        <h6 class="text-muted mb-1">Bidang Keahlian</h6>
+                        <div id="keahlianBox" class="d-flex flex-wrap gap-1">${badges}</div>
                     </div>
-                </div>
 
-                <div id="publicationContainer">
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                    <div id="researchSection" class="px-3 pt-3">
+                        <h6 class="text-muted mb-1">Gambaran Penelitian</h6>
+                        <div id="researchPageBox" class="mb-4 small text-muted">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="ms-2">Memuat...</span>
+                        </div>
                     </div>
-                </div>
-            `;
+
+                    <div id="publicationContainer">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                        </div>
+                    </div>
+                `;
 
                 modal.show();
 
@@ -376,11 +374,10 @@ include '../includes/navbar.php';
                 // icon research page
                 function getResearchIcon(url) {
                     const u = url.toLowerCase();
-
-                    if (u.includes("scholar.google")) return `<i class="bi bi-google"></i>`;
-                    if (u.includes("researchgate")) return `<i class="bi bi-r-square"></i>`;
-                    if (u.includes("orcid")) return `<i class="bi bi-person-badge"></i>`;
-                    return `<i class="bi bi-globe2"></i>`; // default
+                    if (u.includes("scholar.google")) return `<i class="bi bi-google text-danger"></i>`;
+                    if (u.includes("researchgate")) return `<i class="bi bi-r-square text-success"></i>`;
+                    if (u.includes("orcid")) return `<i class="bi bi-person-badge text-primary"></i>`;
+                    return `<i class="bi bi-globe2 text-info"></i>`;
                 }
 
                 // load research page dari db
@@ -388,7 +385,6 @@ include '../includes/navbar.php';
                     fetch(`fetch_research_page.php?uuid=${uuid}`)
                         .then(res => res.json())
                         .then(data => {
-
                             const section = document.getElementById("researchSection");
                             const box = document.getElementById("researchPageBox");
 
@@ -398,21 +394,18 @@ include '../includes/navbar.php';
                                 return;
                             }
 
-                            let html =
-                                `<div class="d-flex align-items-center flex-wrap gap-3">`;
-
+                            let html = `<div class="d-flex align-items-center flex-wrap gap-3">`;
                             data.forEach(r => {
                                 html += `
-                                <a href="${r.link_page}" target="_blank"
-                                   class="text-decoration-none"
-                                   title="${r.nama_web}">
-                                    <span style="font-size: 1.6rem;">
-                                        ${getResearchIcon(r.link_page)}
-                                    </span>
-                                </a>
-                            `;
+                                    <a href="${r.link_page}" target="_blank"
+                                       class="text-decoration-none"
+                                       title="${r.nama_web}">
+                                        <span style="font-size: 1.6rem;">
+                                            ${getResearchIcon(r.link_page)}
+                                        </span>
+                                    </a>
+                                `;
                             });
-
                             html += `</div>`;
                             box.innerHTML = html;
                         })
@@ -422,40 +415,102 @@ include '../includes/navbar.php';
                         });
                 }
 
-                // load publikasi
-                function loadPage(page = 1) {
+                // load publikasi dengan pagination
+                function loadPublications(page = 1) {
+                    const container = document.getElementById("publicationContainer");
+
+                    // Show loading
+                    container.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3 text-muted mb-0">Memuat publikasi...</p>
+                        </div>
+                    `;
+
                     fetch(`fetch_publications.php?uuid=${uuid}&page=${page}`)
                         .then(res => res.text())
                         .then(html => {
-                            document.getElementById("publicationContainer").innerHTML = html;
+                            container.innerHTML = html;
 
-                            // reattach pagination click event
-                            document.querySelectorAll('#publicationContainer .page-link')
-                                .forEach(btn => {
-                                    btn.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        loadPage(btn.dataset.page);
-                                    });
+                            // Reattach pagination click events
+                            container.querySelectorAll('.pagination-btn').forEach(btn => {
+                                btn.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    const targetPage = parseInt(btn.dataset.page);
+                                    if (targetPage && targetPage > 0) {
+                                        loadPublications(targetPage);
+                                        // Scroll to top of modal body
+                                        modalBody.scrollTop = 0;
+                                    }
                                 });
+                            });
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            document.getElementById("publicationContainer").innerHTML = `
-                            <div class="alert alert-danger m-3">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                Terjadi kesalahan saat memuat data publikasi.
-                            </div>
-                        `;
+                            container.innerHTML = `
+                                <div class="alert alert-danger m-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Terjadi kesalahan saat memuat data publikasi.
+                                </div>
+                            `;
                         });
                 }
 
-                loadResearchPage(); // load research page
-                loadPage(); // load publikasi
+                // Load data
+                loadResearchPage();
+                loadPublications(1);
             });
         });
     });
 </script>
 
+<style>
+    /* Style untuk modal publikasi */
+    #anggotaModal .modal-body {
+        max-height: 70vh;
+    }
+
+    #publicationContainer .list-group-item {
+        transition: all 0.3s ease;
+    }
+
+    #publicationContainer .list-group-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    /* Pagination styling - FIX untuk angka tidak muncul */
+    #publicationContainer .pagination {
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
+
+    #publicationContainer .page-link {
+        color: #1E4BA3;
+        cursor: pointer;
+        background-color: transparent;
+    }
+
+    #publicationContainer .page-link:hover {
+        background-color: #e7f1ff;
+        border-color: #1E4BA3;
+        color: #1E4BA3;
+    }
+
+    /* FIX: Pastikan angka terlihat putih pada halaman aktif */
+    #publicationContainer .page-item.active .page-link {
+        background-color: #1E4BA3 !important;
+        border-color: #1E4BA3 !important;
+        color: #ffffff !important;
+        z-index: 3;
+    }
+
+    #publicationContainer .page-item.disabled .page-link {
+        cursor: not-allowed;
+        color: #6c757d;
+        background-color: transparent;
+    }
+</style>
 <!-- Facilities Section -->
 <?php if (!empty($fasilitas)): ?>
     <?php
