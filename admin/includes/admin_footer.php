@@ -2,7 +2,7 @@
 </div> <!-- End Main Content -->
 
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="../node_modules/jquery/dist/jquery.min.js"></script>
 
 <!-- Bootstrap 5 JS -->
 <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -12,13 +12,16 @@
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
 <!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
 
 <!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="../node_modules/select2/dist/js/select2.min.js"></script>
 
 <!-- Quill JS -->
 <script src="../node_modules/quill/dist/quill.js"></script>
+
+<!-- flatpickr JS -->
+<script src="../node_modules/flatpickr/dist/flatpickr.min.js"></script>
 
 <!-- Custom JS -->
 <script src="../assets/js/public.js"></script>
@@ -48,6 +51,22 @@
                 }]
             });
         }
+    });
+
+    // Initialize Flatpickr for date
+    flatpickr(".flatpickr-date", {
+        altInput: true,
+        altFormat: "j F Y",
+        dateFormat: "Y-m-d",
+        locale: "id"
+    });
+
+    // Initialize Flatpickr for time
+    flatpickr(".flatpickr-time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
     });
 </script>
 

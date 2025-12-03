@@ -248,7 +248,7 @@ if (isset($_SESSION['flash_error'])) {
                     <label class="form-label">Tanggal <span class="text-danger">*</span></label>
                     <input type="date"
                         name="tanggal"
-                        class="form-control"
+                        class="form-control flatpickr-date"
                         value="<?php echo $edit_data ? $edit_data['tanggal'] : date('Y-m-d'); ?>"
                         required>
                 </div>
