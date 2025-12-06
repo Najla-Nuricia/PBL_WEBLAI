@@ -176,7 +176,7 @@ require_login();
 
                 <li>
                     <a href="manage_research_page.php"
-                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_members.php' ? 'active' : ''; ?>">
+                        class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage_research_page.php' ? 'active' : ''; ?>">
                         <i class="bi bi-link-45deg"></i>
                         <span>Research Web</span>
                     </a>
